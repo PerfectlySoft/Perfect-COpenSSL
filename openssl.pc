@@ -1,5 +1,0 @@
-Name: PerfectLib
-Description: Perfect support library
-Version: 0.13.0
-Libs: -lcurl
-Cflags: break

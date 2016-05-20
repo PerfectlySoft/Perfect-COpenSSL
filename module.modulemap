@@ -1,0 +1,10 @@
+module OpenSSL {
+    header "/opt/local/include/openssl/ssl.h"
+	header "/opt/local/include/openssl/err.h"
+	header "/opt/local/include/openssl/x509.h"
+	header "/opt/local/include/openssl/sha.h"
+	header "/opt/local/include/openssl/bio.h"
+    link "crypto"
+    link "ssl"
+    export *
+}

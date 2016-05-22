@@ -19,7 +19,24 @@
 
 import PackageDescription
 
+#if os(OSX)
+import Darwin
+do {
+	let aRes = access("/usr/local/include/openssl", F_OK)
+	guard 0 == aRes else {
+		print("Error: OpenSSL not properly installed")
+		print("brew install openssl")
+		print("brew link openssl --force")
+		exit(-1)
+	}
+}
+#endif
+
 let package = Package(
 	name: "OpenSSL",
-	pkgConfig: "openssl.pc"
+	pkgConfig: "openssl",
+	providers: [
+	           	.Brew("openssl"),
+	           	.Apt("openssl"),
+	]
 )

@@ -111,10 +111,10 @@
 
 #include <stdio.h>
 #include "ssl_locl.h"
-#include <openssl/buffer.h>
-#include <openssl/rand.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
+#include <buffer.h>
+#include <rand.h>
+#include <objects.h>
+#include <evp.h>
 
 static const SSL_METHOD *ssl23_get_client_method(int ver);
 static int ssl23_client_hello(SSL *s);

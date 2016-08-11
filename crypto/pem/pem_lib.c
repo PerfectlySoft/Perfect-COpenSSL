@@ -59,19 +59,19 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "cryptlib.h"
-#include <openssl/buffer.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/rand.h>
-#include <openssl/x509.h>
-#include <openssl/pem.h>
-#include <openssl/pkcs12.h>
+#include <buffer.h>
+#include <objects.h>
+#include <evp.h>
+#include <rand.h>
+#include <x509.h>
+#include <pem.h>
+#include <pkcs12.h>
 #include "asn1_locl.h"
 #ifndef OPENSSL_NO_DES
-# include <openssl/des.h>
+# include <des.h>
 #endif
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
 
 const char PEM_version[] = "PEM" OPENSSL_VERSION_PTEXT;

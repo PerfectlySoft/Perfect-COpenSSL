@@ -57,7 +57,7 @@
  */
 
 #include <stdio.h>
-#include <openssl/objects.h>
+#include <objects.h>
 #include "ssl_locl.h"
 
 static const SSL_METHOD *tls1_get_method(int ver)

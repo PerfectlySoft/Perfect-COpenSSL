@@ -155,20 +155,20 @@
 #include "ssl_locl.h"
 #include "kssl_lcl.h"
 #include "../crypto/constant_time_locl.h"
-#include <openssl/buffer.h>
-#include <openssl/rand.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/hmac.h>
-#include <openssl/x509.h>
+#include <buffer.h>
+#include <rand.h>
+#include <objects.h>
+#include <evp.h>
+#include <hmac.h>
+#include <x509.h>
 #ifndef OPENSSL_NO_DH
-# include <openssl/dh.h>
+# include <dh.h>
 #endif
-#include <openssl/bn.h>
+#include <bn.h>
 #ifndef OPENSSL_NO_KRB5
-# include <openssl/krb5_asn.h>
+# include <krb5_asn.h>
 #endif
-#include <openssl/md5.h>
+#include <md5.h>
 
 #ifndef OPENSSL_NO_SSL3_METHOD
 static const SSL_METHOD *ssl3_get_server_method(int ver);

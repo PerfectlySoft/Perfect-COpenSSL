@@ -56,7 +56,7 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/rc2.h>
+#include <rc2.h>
 #include "rc2_locl.h"
 
 void RC2_cbc_encrypt(const unsigned char *in, unsigned char *out, long length,

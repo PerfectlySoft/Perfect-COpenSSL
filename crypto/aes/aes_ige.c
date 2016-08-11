@@ -51,7 +51,7 @@
 
 #include "cryptlib.h"
 
-#include <openssl/aes.h>
+#include <aes.h>
 #include "aes_locl.h"
 
 #define N_WORDS (AES_BLOCK_SIZE / sizeof(unsigned long))

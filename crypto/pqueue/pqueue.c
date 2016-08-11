@@ -58,7 +58,7 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/bn.h>
+#include <bn.h>
 #include "pqueue.h"
 
 typedef struct _pqueue {

@@ -59,7 +59,7 @@
 #ifndef HEADER_ECS_LOCL_H
 # define HEADER_ECS_LOCL_H
 
-# include "ecdsa.h"
+# include <ecdsa.h>
 
 #ifdef  __cplusplus
 extern "C" {

@@ -124,14 +124,14 @@
 #endif
 
 #include "o_dir.h"
-#include <openssl/objects.h>
-#include <openssl/bio.h>
-#include <openssl/pem.h>
-#include <openssl/x509v3.h>
+#include <objects.h>
+#include <bio.h>
+#include <pem.h>
+#include <x509v3.h>
 #ifndef OPENSSL_NO_DH
-# include <openssl/dh.h>
+# include <dh.h>
 #endif
-#include <openssl/bn.h>
+#include <bn.h>
 #include "ssl_locl.h"
 
 int SSL_get_ex_data_X509_STORE_CTX_idx(void)

@@ -61,7 +61,7 @@
 #include <errno.h>
 #define USE_SOCKETS
 #include "cryptlib.h"
-#include <openssl/bio.h>
+#include <bio.h>
 #if defined(OPENSSL_SYS_NETWARE) && defined(NETWARE_BSDSOCK)
 # include <netdb.h>
 # if defined(NETWARE_CLIB)
@@ -70,7 +70,7 @@ NETDB_DEFINE_CONTEXT
 # endif
 #endif
 #ifndef OPENSSL_NO_SOCK
-# include <openssl/dso.h>
+# include <dso.h>
 # define SOCKET_PROTOCOL IPPROTO_TCP
 # ifdef SO_MAXCONN
 #  define MAX_LISTEN  SO_MAXCONN

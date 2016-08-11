@@ -7,10 +7,10 @@
  *   based PKCS7/SMIME support                                        *
  *          Requires OpenSSL 0.9.9 for compilation                    *
  **********************************************************************/
-#include <openssl/evp.h>
-#include <openssl/rand.h>
+#include <evp.h>
+#include <rand.h>
 #include <string.h>
-#include <openssl/objects.h>
+#include <objects.h>
 #include "gost89.h"
 #include "gosthash.h"
 #include "e_gost_err.h"

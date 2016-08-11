@@ -59,8 +59,8 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
+#include <asn1t.h>
+#include <x509.h>
 
 /* Minor tweak to operation: zero private key data */
 static int pkey_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it,

@@ -56,8 +56,8 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/crypto.h>
-#include <openssl/rc2.h>
+#include <crypto.h>
+#include <rc2.h>
 #include "rc2_locl.h"
 
 static const unsigned char key_table[256] = {

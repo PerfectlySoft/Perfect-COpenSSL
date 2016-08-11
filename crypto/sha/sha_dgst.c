@@ -56,14 +56,14 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/crypto.h>
-#include <openssl/opensslconf.h>
+#include <crypto.h>
+#include <opensslconf.h>
 #if !defined(OPENSSL_NO_SHA0) && !defined(OPENSSL_NO_SHA)
 
 # undef  SHA_1
 # define SHA_0
 
-# include <openssl/opensslv.h>
+# include <opensslv.h>
 
 const char SHA_version[] = "SHA" OPENSSL_VERSION_PTEXT;
 

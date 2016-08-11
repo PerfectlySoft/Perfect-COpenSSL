@@ -58,7 +58,7 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/buffer.h>
+#include <buffer.h>
 
 /*
  * LIMIT_BEFORE_EXPANSION is the maximum n such that (n+3)/3*4 < 2**31. That

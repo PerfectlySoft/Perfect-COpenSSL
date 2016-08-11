@@ -59,12 +59,12 @@
 
 #include <stddef.h>
 #include "cryptlib.h"
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/objects.h>
-#include <openssl/buffer.h>
-#include <openssl/err.h>
-#include <openssl/x509v3.h>
+#include <asn1.h>
+#include <asn1t.h>
+#include <objects.h>
+#include <buffer.h>
+#include <err.h>
+#include <x509v3.h>
 #include "asn1_locl.h"
 
 /*

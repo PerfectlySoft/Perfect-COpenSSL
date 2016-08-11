@@ -7,8 +7,8 @@
 #if defined(__linux) || defined(_AIX)
 # include <sys/utsname.h>
 #endif
-#include <openssl/crypto.h>
-#include <openssl/bn.h>
+#include <crypto.h>
+#include <bn.h>
 
 #include "ppc_arch.h"
 

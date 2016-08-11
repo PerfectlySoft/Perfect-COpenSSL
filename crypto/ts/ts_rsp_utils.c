@@ -59,9 +59,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/objects.h>
-#include <openssl/ts.h>
-#include <openssl/pkcs7.h>
+#include <objects.h>
+#include <ts.h>
+#include <pkcs7.h>
 
 /* Function definitions. */
 

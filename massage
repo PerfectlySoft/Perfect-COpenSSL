@@ -1,0 +1,59 @@
+#!/bin/bash
+
+DIRS="crypto engines ssl"
+RMV="ssl/ssl_task.c \
+	crypto/ripemd/asm/rips.cpp \
+	crypto/x509v3/v3conf.c \
+	crypto/LPdir_vms.c crypto/LPdir_nyi.c crypto/LPdir_win*.c \
+	crypto/bf/bfs.cpp \
+	crypto/bio/bss_rtcp.c \
+	crypto/bn/exp.c \
+	crypto/cast/casts.cpp \
+	crypto/arm_arch.h \
+	crypto/armcap.c \
+	crypto/des/times \
+	crypto/des/read_pwd.c \
+	crypto/store \
+	crypto/jpake \
+	crypto/md2 \
+	crypto/rc5"
+
+rm -rf $RMV
+
+find . -iname "*test.c" -exec rm {} \;
+
+for d in $DIRS
+do 
+	rm -rf $d/include
+	cd $d
+	MAINS=`grep -l -s -d recurse "main(" *`
+	for file in $MAINS
+	do
+		rm $file
+	done
+	cd ..
+done
+
+find . -type f \( -iname "*.h" -o -iname "*.c" \) -exec sed -i '' -e 's#include <openssl/#include <#g' {} \;
+find . -type f \( -iname "*.h" -o -iname "*.c" \) -exec sed -i '' -e 's#include "openssl/#include "#g' {} \;
+
+for d in $DIRS
+do 
+	cd $d || exit
+	mkdir -p include
+	cd include
+	find ../.. -iname "*.h" -not -path "*/include/*" -exec ln -s {} . \;
+	cd ../..
+done
+
+mv crypto/LPdir_unix.c crypto/LPdir_unix.h
+mv crypto/pkcs7/pk7_enc.c crypto/pkcs7/pk7_enc.h
+sed -i '' -e 's#include "LPdir_unix.c"#include "LPdir_unix.h"#g' crypto/o_dir.c
+
+# FIX - grep to make sure these aren't already there
+sed -i '' -e 's#include <evp.h>#include <evp.h>\
+\#include <evp_locl.h>\
+\#include <dsa.h>#g' crypto/evp/e_dsa.c
+mv crypto/ec/ecp_nistz256_table.c crypto/ec/ecp_nistz256_table.h
+sed -i '' -e 's#include "ecp_nistz256_table.c"#include "ecp_nistz256_table.h"#g' crypto/ec/ecp_nistz256.c
+

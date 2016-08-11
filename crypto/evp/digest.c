@@ -111,14 +111,14 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/objects.h>
-#include <openssl/evp.h>
+#include <objects.h>
+#include <evp.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 # include "evp_locl.h"
 #endif
 

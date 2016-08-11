@@ -60,10 +60,10 @@
 #include <ctype.h>
 #include <limits.h>
 #include "cryptlib.h"
-#include <openssl/lhash.h>
-#include <openssl/asn1.h>
-#include <openssl/objects.h>
-#include <openssl/bn.h>
+#include <lhash.h>
+#include <asn1.h>
+#include <objects.h>
+#include <bn.h>
 
 /* obj_dat.h is generated from objects.h by obj_dat.pl */
 #ifndef OPENSSL_NO_OBJECT

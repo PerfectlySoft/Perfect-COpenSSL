@@ -22,11 +22,11 @@
 #if !defined(OPENSSL_NO_SHA) && !defined(OPENSSL_NO_SHA1)
 # include <stdio.h>
 # include "cryptlib.h"
-# include <openssl/bn.h>
-# include <openssl/rsa.h>
-# include <openssl/evp.h>
-# include <openssl/rand.h>
-# include <openssl/sha.h>
+# include <bn.h>
+# include <rsa.h>
+# include <evp.h>
+# include <rand.h>
+# include <sha.h>
 
 int RSA_padding_add_PKCS1_OAEP(unsigned char *to, int tlen,
                                const unsigned char *from, int flen,

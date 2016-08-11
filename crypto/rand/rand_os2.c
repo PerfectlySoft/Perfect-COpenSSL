@@ -54,7 +54,7 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/rand.h>
+#include <rand.h>
 #include "rand_lcl.h"
 
 #ifdef OPENSSL_SYS_OS2

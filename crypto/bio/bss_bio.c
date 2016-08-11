@@ -80,9 +80,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <openssl/bio.h>
-#include <openssl/err.h>
-#include <openssl/crypto.h>
+#include <bio.h>
+#include <err.h>
+#include <crypto.h>
 
 #include "e_os.h"
 

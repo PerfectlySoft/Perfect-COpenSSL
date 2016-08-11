@@ -86,13 +86,13 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <openssl/crypto.h>
-#include <openssl/buffer.h>
-#include <openssl/engine.h>
+#include <crypto.h>
+#include <buffer.h>
+#include <engine.h>
 #ifndef OPENSSL_NO_RSA
-# include <openssl/rsa.h>
+# include <rsa.h>
 #endif
-#include <openssl/bn.h>
+#include <bn.h>
 
 #ifndef OPENSSL_NO_HW
 # ifndef OPENSSL_NO_GMP

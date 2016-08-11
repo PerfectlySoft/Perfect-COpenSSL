@@ -58,9 +58,9 @@
 
 #include "cryptlib.h"
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
-# include <openssl/fips_rand.h>
-# include <openssl/rand.h>
+# include <fips.h>
+# include <fips_rand.h>
+# include <rand.h>
 #endif
 
 int FIPS_mode(void)

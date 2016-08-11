@@ -59,10 +59,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/rsa.h>
-#include <openssl/rand.h>
-#include <openssl/objects.h>
+#include <bn.h>
+#include <rsa.h>
+#include <rand.h>
+#include <objects.h>
 
 int RSA_padding_add_X931(unsigned char *to, int tlen,
                          const unsigned char *from, int flen)

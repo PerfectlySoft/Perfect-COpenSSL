@@ -58,10 +58,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/lhash.h>
-#include <openssl/crypto.h>
-#include <openssl/buffer.h>
-#include <openssl/err.h>
+#include <lhash.h>
+#include <crypto.h>
+#include <buffer.h>
+#include <err.h>
 
 void ERR_print_errors_cb(int (*cb) (const char *str, size_t len, void *u),
                          void *u)

@@ -64,10 +64,10 @@
  *
  */
 
-#include <openssl/bio.h>
-#include <openssl/err.h>
-#include <openssl/ocsp.h>
-#include <openssl/pem.h>
+#include <bio.h>
+#include <err.h>
+#include <ocsp.h>
+#include <pem.h>
 
 static int ocsp_certid_print(BIO *bp, OCSP_CERTID *a, int indent)
 {

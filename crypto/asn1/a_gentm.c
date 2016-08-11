@@ -64,7 +64,7 @@
 #include <time.h>
 #include "cryptlib.h"
 #include "o_time.h"
-#include <openssl/asn1.h>
+#include <asn1.h>
 #include "asn1_locl.h"
 
 #if 0

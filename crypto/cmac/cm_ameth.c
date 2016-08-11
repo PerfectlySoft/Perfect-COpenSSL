@@ -53,8 +53,8 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/cmac.h>
+#include <evp.h>
+#include <cmac.h>
 #include "asn1_locl.h"
 
 /*

@@ -58,9 +58,9 @@
  */
 
 #include <stddef.h>
-#include <openssl/x509.h>
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
+#include <x509.h>
+#include <asn1.h>
+#include <asn1t.h>
 
 ASN1_SEQUENCE(X509_ALGOR) = {
         ASN1_SIMPLE(X509_ALGOR, algorithm, ASN1_OBJECT),

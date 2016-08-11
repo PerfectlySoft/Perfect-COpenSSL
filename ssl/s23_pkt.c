@@ -60,8 +60,8 @@
 #include <errno.h>
 #define USE_SOCKETS
 #include "ssl_locl.h"
-#include <openssl/evp.h>
-#include <openssl/buffer.h>
+#include <evp.h>
+#include <buffer.h>
 
 int ssl23_write_bytes(SSL *s)
 {

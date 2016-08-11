@@ -53,10 +53,10 @@
  *
  */
 
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/bio.h>
-#include <openssl/err.h>
+#include <asn1.h>
+#include <asn1t.h>
+#include <bio.h>
+#include <err.h>
 
 #include <stdio.h>
 

@@ -58,16 +58,16 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/buffer.h>
-#include <openssl/bn.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
+#include <buffer.h>
+#include <bn.h>
+#include <objects.h>
+#include <x509.h>
+#include <x509v3.h>
 #ifndef OPENSSL_NO_RSA
-# include <openssl/rsa.h>
+# include <rsa.h>
 #endif
 #ifndef OPENSSL_NO_DSA
-# include <openssl/dsa.h>
+# include <dsa.h>
 #endif
 
 #ifndef OPENSSL_NO_FP_API

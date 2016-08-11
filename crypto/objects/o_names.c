@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <openssl/err.h>
-#include <openssl/lhash.h>
-#include <openssl/objects.h>
-#include <openssl/safestack.h>
-#include <openssl/e_os2.h>
+#include <err.h>
+#include <lhash.h>
+#include <objects.h>
+#include <safestack.h>
+#include <e_os2.h>
 
 /*
  * Later versions of DEC C has started to add lnkage information to certain

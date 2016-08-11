@@ -28,9 +28,9 @@
 
 #include <string.h>
 
-#include <openssl/bn.h>
-#include <openssl/err.h>
-#include <openssl/ec.h>
+#include <bn.h>
+#include <err.h>
+#include <ec.h>
 #include "cryptlib.h"
 
 #include "ec_lcl.h"
@@ -132,7 +132,7 @@ static void ecp_nistz256_pre_comp_clear_free(void *);
 static EC_PRE_COMP *ecp_nistz256_pre_comp_new(const EC_GROUP *group);
 
 /* Precomputed tables for the default generator */
-#include "ecp_nistz256_table.c"
+#include "ecp_nistz256_table.h"
 
 /* Recode window to a signed digit, see ecp_nistputil.c for details */
 static unsigned int _booth_recode_w5(unsigned int in)

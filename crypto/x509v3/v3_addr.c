@@ -63,11 +63,11 @@
 #include <stdlib.h>
 
 #include "cryptlib.h"
-#include <openssl/conf.h>
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/buffer.h>
-#include <openssl/x509v3.h>
+#include <conf.h>
+#include <asn1.h>
+#include <asn1t.h>
+#include <buffer.h>
+#include <x509v3.h>
 
 #ifndef OPENSSL_NO_RFC3779
 

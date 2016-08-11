@@ -53,7 +53,7 @@
  *
  */
 
-#include <openssl/crypto.h>
+#include <crypto.h>
 #include "ec_lcl.h"
 
 BIGNUM *EC_POINT_point2bn(const EC_GROUP *group,

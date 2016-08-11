@@ -113,10 +113,10 @@
 #ifndef OPENSSL_NO_SSL2
 #include "../crypto/constant_time_locl.h"
 # include <stdio.h>
-# include <openssl/bio.h>
-# include <openssl/rand.h>
-# include <openssl/objects.h>
-# include <openssl/evp.h>
+# include <bio.h>
+# include <rand.h>
+# include <objects.h>
+# include <evp.h>
 
 static const SSL_METHOD *ssl2_get_server_method(int ver);
 static int get_client_master_key(SSL *s);

@@ -17,7 +17,7 @@
  */
 #ifndef MYALLOC
 # ifdef OPENSSL_BUILD
-#  include <openssl/crypto.h>
+#  include <crypto.h>
 #  define MYALLOC(size) OPENSSL_malloc(size)
 #  define MYFREE(ptr) OPENSSL_free(ptr)
 # else

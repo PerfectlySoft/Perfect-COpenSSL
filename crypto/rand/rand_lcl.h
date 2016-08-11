@@ -128,26 +128,26 @@
 #  endif
 # endif
 
-# include "evp.h"
+# include <evp.h>
 # define MD_Update(a,b,c)        EVP_DigestUpdate(a,b,c)
 # define MD_Final(a,b)           EVP_DigestFinal_ex(a,b,NULL)
 # if defined(USE_MD5_RAND)
-#  include "md5.h"
+#  include <md5.h>
 #  define MD_DIGEST_LENGTH        MD5_DIGEST_LENGTH
 #  define MD_Init(a)              EVP_DigestInit_ex(a,EVP_md5(), NULL)
 #  define MD(a,b,c)               EVP_Digest(a,b,c,NULL,EVP_md5(), NULL)
 # elif defined(USE_SHA1_RAND)
-#  include "sha.h"
+#  include <sha.h>
 #  define MD_DIGEST_LENGTH        SHA_DIGEST_LENGTH
 #  define MD_Init(a)              EVP_DigestInit_ex(a,EVP_sha1(), NULL)
 #  define MD(a,b,c)               EVP_Digest(a,b,c,NULL,EVP_sha1(), NULL)
 # elif defined(USE_MDC2_RAND)
-#  include "mdc2.h"
+#  include <mdc2.h>
 #  define MD_DIGEST_LENGTH        MDC2_DIGEST_LENGTH
 #  define MD_Init(a)              EVP_DigestInit_ex(a,EVP_mdc2(), NULL)
 #  define MD(a,b,c)               EVP_Digest(a,b,c,NULL,EVP_mdc2(), NULL)
 # elif defined(USE_MD2_RAND)
-#  include "md2.h"
+#  include <md2.h>
 #  define MD_DIGEST_LENGTH        MD2_DIGEST_LENGTH
 #  define MD_Init(a)              EVP_DigestInit_ex(a,EVP_md2(), NULL)
 #  define MD(a,b,c)               EVP_Digest(a,b,c,NULL,EVP_md2(), NULL)

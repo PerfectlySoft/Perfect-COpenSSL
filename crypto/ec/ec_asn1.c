@@ -58,9 +58,9 @@
 
 #include <string.h>
 #include "ec_lcl.h"
-#include <openssl/err.h>
-#include <openssl/asn1t.h>
-#include <openssl/objects.h>
+#include <err.h>
+#include <asn1t.h>
+#include <objects.h>
 
 int EC_GROUP_get_basis_type(const EC_GROUP *group)
 {

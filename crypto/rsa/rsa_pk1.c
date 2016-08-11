@@ -60,9 +60,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/rsa.h>
-#include <openssl/rand.h>
+#include <bn.h>
+#include <rsa.h>
+#include <rand.h>
 
 int RSA_padding_add_PKCS1_type_1(unsigned char *to, int tlen,
                                  const unsigned char *from, int flen)

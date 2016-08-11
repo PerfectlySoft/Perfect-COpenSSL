@@ -66,9 +66,9 @@
 #include "cryptlib.h"
 
 #ifndef OPENSSL_NO_BIO
-# include <openssl/bio.h>
+# include <bio.h>
 #endif
-#include <openssl/lhash.h>
+#include <lhash.h>
 
 #ifdef OPENSSL_NO_BIO
 

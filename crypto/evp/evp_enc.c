@@ -58,14 +58,14 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/err.h>
-#include <openssl/rand.h>
+#include <evp.h>
+#include <err.h>
+#include <rand.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 #include "evp_locl.h"
 

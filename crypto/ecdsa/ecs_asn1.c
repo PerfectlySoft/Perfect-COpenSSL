@@ -54,8 +54,8 @@
  */
 
 #include "ecs_locl.h"
-#include <openssl/err.h>
-#include <openssl/asn1t.h>
+#include <err.h>
+#include <asn1t.h>
 
 ASN1_SEQUENCE(ECDSA_SIG) = {
         ASN1_SIMPLE(ECDSA_SIG, r, CBIGNUM),

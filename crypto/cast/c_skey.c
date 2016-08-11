@@ -56,8 +56,8 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/crypto.h>
-#include <openssl/cast.h>
+#include <crypto.h>
+#include <cast.h>
 #include "cast_lcl.h"
 #include "cast_s.h"
 

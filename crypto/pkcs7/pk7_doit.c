@@ -58,11 +58,11 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/rand.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-#include <openssl/err.h>
+#include <rand.h>
+#include <objects.h>
+#include <x509.h>
+#include <x509v3.h>
+#include <err.h>
 
 static int add_attribute(STACK_OF(X509_ATTRIBUTE) **sk, int nid, int atrtype,
                          void *value);

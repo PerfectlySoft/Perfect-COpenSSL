@@ -63,12 +63,12 @@
 
 #include <limits.h>
 
-#include <openssl/err.h>
-#include <openssl/obj_mac.h>
+#include <err.h>
+#include <obj_mac.h>
 #include "ec_lcl.h"
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 
 const EC_METHOD *EC_GFp_nist_method(void)

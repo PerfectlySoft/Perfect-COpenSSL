@@ -52,10 +52,10 @@
  */
 
 #include <string.h>
-#include <openssl/dh.h>
-#include <openssl/evp.h>
-#include <openssl/asn1.h>
-#include <openssl/cms.h>
+#include <dh.h>
+#include <evp.h>
+#include <asn1.h>
+#include <cms.h>
 
 /* Key derivation from X9.42/RFC2631 */
 

@@ -67,9 +67,9 @@
 #include <string.h>
 
 #include "e_os.h"
-#include <openssl/crypto.h>
-#include <openssl/rand.h>
-#include <openssl/buffer.h>
+#include <crypto.h>
+#include <rand.h>
+#include <buffer.h>
 
 #ifdef OPENSSL_SYS_VMS
 # include <unixio.h>

@@ -58,13 +58,13 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/buffer.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/rand.h>
-#include <openssl/x509.h>
-#include <openssl/pkcs12.h>
-#include <openssl/pem.h>
+#include <buffer.h>
+#include <objects.h>
+#include <evp.h>
+#include <rand.h>
+#include <x509.h>
+#include <pkcs12.h>
+#include <pem.h>
 
 static int do_pk8pkey(BIO *bp, EVP_PKEY *x, int isder,
                       int nid, const EVP_CIPHER *enc,

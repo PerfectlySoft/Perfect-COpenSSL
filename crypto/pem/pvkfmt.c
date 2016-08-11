@@ -62,12 +62,12 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/pem.h>
-#include <openssl/rand.h>
-#include <openssl/bn.h>
+#include <pem.h>
+#include <rand.h>
+#include <bn.h>
 #if !defined(OPENSSL_NO_RSA) && !defined(OPENSSL_NO_DSA)
-# include <openssl/dsa.h>
-# include <openssl/rsa.h>
+# include <dsa.h>
+# include <rsa.h>
 
 /*
  * Utility function: read a DWORD (4 byte unsigned integer) in little endian

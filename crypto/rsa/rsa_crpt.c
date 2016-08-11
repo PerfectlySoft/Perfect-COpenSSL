@@ -57,14 +57,14 @@
  */
 
 #include <stdio.h>
-#include <openssl/crypto.h>
+#include <crypto.h>
 #include "cryptlib.h"
-#include <openssl/lhash.h>
-#include <openssl/bn.h>
-#include <openssl/rsa.h>
-#include <openssl/rand.h>
+#include <lhash.h>
+#include <bn.h>
+#include <rsa.h>
+#include <rand.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
 
 int RSA_size(const RSA *r)

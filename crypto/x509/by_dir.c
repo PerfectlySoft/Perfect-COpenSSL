@@ -69,8 +69,8 @@
 # include <sys/stat.h>
 #endif
 
-#include <openssl/lhash.h>
-#include <openssl/x509.h>
+#include <lhash.h>
+#include <x509.h>
 
 typedef struct lookup_dir_hashes_st {
     unsigned long hash;

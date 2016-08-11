@@ -49,7 +49,7 @@
  *
  */
 
-#include <openssl/seed.h>
+#include <seed.h>
 
 void SEED_ecb_encrypt(const unsigned char *in, unsigned char *out,
                       const SEED_KEY_SCHEDULE *ks, int enc)

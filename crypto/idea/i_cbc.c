@@ -56,7 +56,7 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/idea.h>
+#include <idea.h>
 #include "idea_lcl.h"
 
 void idea_cbc_encrypt(const unsigned char *in, unsigned char *out,

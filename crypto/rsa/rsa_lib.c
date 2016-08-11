@@ -57,18 +57,18 @@
  */
 
 #include <stdio.h>
-#include <openssl/crypto.h>
+#include <crypto.h>
 #include "cryptlib.h"
-#include <openssl/lhash.h>
-#include <openssl/bn.h>
-#include <openssl/rsa.h>
-#include <openssl/rand.h>
+#include <lhash.h>
+#include <bn.h>
+#include <rsa.h>
+#include <rand.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 
 const char RSA_version[] = "RSA" OPENSSL_VERSION_PTEXT;

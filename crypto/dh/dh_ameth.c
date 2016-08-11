@@ -58,13 +58,13 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/x509.h>
-#include <openssl/asn1.h>
-#include <openssl/dh.h>
-#include <openssl/bn.h>
+#include <x509.h>
+#include <asn1.h>
+#include <dh.h>
+#include <bn.h>
 #include "asn1_locl.h"
 #ifndef OPENSSL_NO_CMS
-# include <openssl/cms.h>
+# include <cms.h>
 #endif
 
 extern const EVP_PKEY_ASN1_METHOD dhx_asn1_meth;

@@ -47,18 +47,18 @@
  * ====================================================================
  */
 
-#include <openssl/opensslconf.h>
+#include <opensslconf.h>
 
 #include <stdio.h>
 #include <string.h>
 
 #if !defined(OPENSSL_NO_AES) && !defined(OPENSSL_NO_SHA1)
 
-# include <openssl/evp.h>
-# include <openssl/objects.h>
-# include <openssl/aes.h>
-# include <openssl/sha.h>
-# include <openssl/rand.h>
+# include <evp.h>
+# include <objects.h>
+# include <aes.h>
+# include <sha.h>
+# include <rand.h>
 # include "modes_lcl.h"
 # include "constant_time_locl.h"
 

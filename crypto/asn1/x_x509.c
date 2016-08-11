@@ -58,10 +58,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
+#include <evp.h>
+#include <asn1t.h>
+#include <x509.h>
+#include <x509v3.h>
 
 ASN1_SEQUENCE_enc(X509_CINF, enc, 0) = {
         ASN1_EXP_OPT(X509_CINF, version, ASN1_INTEGER, 0),

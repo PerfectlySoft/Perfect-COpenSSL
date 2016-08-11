@@ -47,18 +47,18 @@
  * ====================================================================
  */
 
-#include <openssl/opensslconf.h>
+#include <opensslconf.h>
 
 #include <stdio.h>
 #include <string.h>
 
 #if !defined(OPENSSL_NO_RC4) && !defined(OPENSSL_NO_MD5)
 
-# include <openssl/crypto.h>
-# include <openssl/evp.h>
-# include <openssl/objects.h>
-# include <openssl/rc4.h>
-# include <openssl/md5.h>
+# include <crypto.h>
+# include <evp.h>
+# include <objects.h>
+# include <rc4.h>
+# include <md5.h>
 
 # ifndef EVP_CIPH_FLAG_AEAD_CIPHER
 #  define EVP_CIPH_FLAG_AEAD_CIPHER       0x200000

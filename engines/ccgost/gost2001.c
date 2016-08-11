@@ -9,9 +9,9 @@
 #include "gost_lcl.h"
 #include "gost_params.h"
 #include <string.h>
-#include <openssl/rand.h>
-#include <openssl/ecdsa.h>
-#include <openssl/err.h>
+#include <rand.h>
+#include <ecdsa.h>
+#include <err.h>
 #include "e_gost_err.h"
 #ifdef DEBUG_SIGN
 extern

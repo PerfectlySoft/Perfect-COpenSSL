@@ -60,9 +60,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "cryptlib.h"
-#include <openssl/crypto.h>
-#include <openssl/x509.h>
-#include <openssl/asn1.h>
+#include <crypto.h>
+#include <x509.h>
+#include <asn1.h>
 
 #include "charmap.h"
 

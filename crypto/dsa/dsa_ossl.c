@@ -60,11 +60,11 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/sha.h>
-#include <openssl/dsa.h>
-#include <openssl/rand.h>
-#include <openssl/asn1.h>
+#include <bn.h>
+#include <sha.h>
+#include <dsa.h>
+#include <rand.h>
+#include <asn1.h>
 
 static DSA_SIG *dsa_do_sign(const unsigned char *dgst, int dlen, DSA *dsa);
 static int dsa_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp,

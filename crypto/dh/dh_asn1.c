@@ -59,10 +59,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/dh.h>
-#include <openssl/objects.h>
-#include <openssl/asn1t.h>
+#include <bn.h>
+#include <dh.h>
+#include <objects.h>
+#include <asn1t.h>
 
 /* Override the default free and new methods */
 static int dh_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it,

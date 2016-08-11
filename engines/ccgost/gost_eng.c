@@ -8,11 +8,11 @@
  *          Requires OpenSSL 0.9.9 for compilation                    *
  **********************************************************************/
 #include <string.h>
-#include <openssl/crypto.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
-#include <openssl/engine.h>
-#include <openssl/obj_mac.h>
+#include <crypto.h>
+#include <err.h>
+#include <evp.h>
+#include <engine.h>
+#include <obj_mac.h>
 #include "e_gost_err.h"
 #include "gost_lcl.h"
 static const char *engine_gost_id = "gost";

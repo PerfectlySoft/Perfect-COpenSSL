@@ -48,9 +48,9 @@
  * ====================================================================
  */
 
-#include <openssl/bn.h>
-#include <openssl/err.h>
-#include <openssl/rsa.h>
+#include <bn.h>
+#include <err.h>
+#include <rsa.h>
 
 int RSA_check_key(const RSA *key)
 {

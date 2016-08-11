@@ -53,7 +53,7 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/modes.h>
+#include <modes.h>
 
 static const unsigned char default_iv[] = {
     0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6, 0xA6,

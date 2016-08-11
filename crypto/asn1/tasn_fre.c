@@ -58,9 +58,9 @@
  */
 
 #include <stddef.h>
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/objects.h>
+#include <asn1.h>
+#include <asn1t.h>
+#include <objects.h>
 
 static void asn1_item_combine_free(ASN1_VALUE **pval, const ASN1_ITEM *it,
                                    int combine);

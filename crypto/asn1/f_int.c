@@ -58,8 +58,8 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/buffer.h>
-#include <openssl/asn1.h>
+#include <buffer.h>
+#include <asn1.h>
 
 int i2a_ASN1_INTEGER(BIO *bp, ASN1_INTEGER *a)
 {

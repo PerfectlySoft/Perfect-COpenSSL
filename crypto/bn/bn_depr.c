@@ -62,7 +62,7 @@
 #include <time.h>
 #include "cryptlib.h"
 #include "bn_lcl.h"
-#include <openssl/rand.h>
+#include <rand.h>
 
 static void *dummy = &dummy;
 

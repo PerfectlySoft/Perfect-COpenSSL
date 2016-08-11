@@ -58,7 +58,7 @@
  */
 
 #include "eng_int.h"
-#include <openssl/dso.h>
+#include <dso.h>
 
 /*
  * Shared libraries implementing ENGINEs for use by the "dynamic" ENGINE

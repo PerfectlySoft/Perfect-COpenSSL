@@ -61,7 +61,7 @@
 #include <string.h>
 #include <errno.h>
 #include "cryptlib.h"
-#include <openssl/dso.h>
+#include <dso.h>
 
 #ifndef OPENSSL_SYS_VMS
 DSO_METHOD *DSO_METHOD_vms(void)

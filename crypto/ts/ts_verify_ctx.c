@@ -58,8 +58,8 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/objects.h>
-#include <openssl/ts.h>
+#include <objects.h>
+#include <ts.h>
 
 TS_VERIFY_CTX *TS_VERIFY_CTX_new(void)
 {

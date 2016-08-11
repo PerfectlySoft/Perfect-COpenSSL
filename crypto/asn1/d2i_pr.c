@@ -58,14 +58,14 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/evp.h>
-#include <openssl/objects.h>
+#include <bn.h>
+#include <evp.h>
+#include <objects.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
-#include <openssl/x509.h>
-#include <openssl/asn1.h>
+#include <x509.h>
+#include <asn1.h>
 #include "asn1_locl.h"
 
 EVP_PKEY *d2i_PrivateKey(int type, EVP_PKEY **a, const unsigned char **pp,

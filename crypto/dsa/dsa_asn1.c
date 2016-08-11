@@ -59,10 +59,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/dsa.h>
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/rand.h>
+#include <dsa.h>
+#include <asn1.h>
+#include <asn1t.h>
+#include <rand.h>
 
 /* Override the default new methods */
 static int sig_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it,

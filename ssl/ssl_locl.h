@@ -147,23 +147,23 @@
 # include <string.h>
 # include <errno.h>
 
-# include "e_os.h"
+# include <e_os.h>
 
-# include "buffer.h"
+# include <buffer.h>
 # ifndef OPENSSL_NO_COMP
-#  include "comp.h"
+#  include <comp.h>
 # endif
-# include "bio.h"
-# include "stack.h"
+# include <bio.h>
+# include <stack.h>
 # ifndef OPENSSL_NO_RSA
-#  include "rsa.h"
+#  include <rsa.h>
 # endif
 # ifndef OPENSSL_NO_DSA
-#  include "dsa.h"
+#  include <dsa.h>
 # endif
-# include "err.h"
-# include "ssl.h"
-# include "symhacks.h"
+# include <err.h>
+# include <ssl.h>
+# include <symhacks.h>
 
 # ifdef OPENSSL_BUILD_SHLIBSSL
 #  undef OPENSSL_EXTERN

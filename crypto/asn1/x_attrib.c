@@ -58,9 +58,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/objects.h>
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
+#include <objects.h>
+#include <asn1t.h>
+#include <x509.h>
 
 /*-
  * X509_ATTRIBUTE: this has the following form:

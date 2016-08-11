@@ -62,10 +62,10 @@
 #include <ctype.h>
 #include <string.h>
 #include "e_os.h"
-#include <openssl/asn1.h>
-#include <openssl/ocsp.h>
-#include <openssl/err.h>
-#include <openssl/buffer.h>
+#include <asn1.h>
+#include <ocsp.h>
+#include <err.h>
+#include <buffer.h>
 #ifdef OPENSSL_SYS_SUNOS
 # define strtoul (unsigned long)strtol
 #endif                          /* OPENSSL_SYS_SUNOS */

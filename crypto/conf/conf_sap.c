@@ -58,14 +58,14 @@
  */
 
 #include <stdio.h>
-#include <openssl/crypto.h>
+#include <crypto.h>
 #include "cryptlib.h"
-#include <openssl/conf.h>
-#include <openssl/dso.h>
-#include <openssl/x509.h>
-#include <openssl/asn1.h>
+#include <conf.h>
+#include <dso.h>
+#include <x509.h>
+#include <asn1.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
 
 /*

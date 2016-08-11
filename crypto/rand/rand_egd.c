@@ -54,9 +54,9 @@
  *
  */
 
-#include <openssl/e_os2.h>
-#include <openssl/rand.h>
-#include <openssl/buffer.h>
+#include <e_os2.h>
+#include <rand.h>
+#include <buffer.h>
 
 /*-
  * Query the EGD <URL: http://www.lothar.com/tech/crypto/>.
@@ -111,7 +111,7 @@ int RAND_egd_bytes(const char *path, int bytes)
     return (-1);
 }
 #else
-# include <openssl/opensslconf.h>
+# include <opensslconf.h>
 # include OPENSSL_UNISTD
 # include <stddef.h>
 # include <sys/types.h>

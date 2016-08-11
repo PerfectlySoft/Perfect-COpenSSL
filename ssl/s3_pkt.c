@@ -114,9 +114,9 @@
 #include <errno.h>
 #define USE_SOCKETS
 #include "ssl_locl.h"
-#include <openssl/evp.h>
-#include <openssl/buffer.h>
-#include <openssl/rand.h>
+#include <evp.h>
+#include <buffer.h>
+#include <rand.h>
 
 #ifndef  EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK
 # define EVP_CIPH_FLAG_TLS1_1_MULTIBLOCK 0

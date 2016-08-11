@@ -69,11 +69,11 @@
  *
  */
 
-#include <openssl/err.h>
+#include <err.h>
 #include "ec_lcl.h"
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 
 EC_GROUP *EC_GROUP_new_curve_GFp(const BIGNUM *p, const BIGNUM *a,

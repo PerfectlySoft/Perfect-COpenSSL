@@ -59,11 +59,11 @@
 #ifndef HEADER_E_OS_H
 # define HEADER_E_OS_H
 
-# include "opensslconf.h"
+# include <opensslconf.h>
 
-# include "e_os2.h"
+# include <e_os2.h>
 /*
- * "e_os2.h" contains what we can justify to make visible to the
+ * <openssl/e_os2.h> contains what we can justify to make visible to the
  * outside; this file e_os.h is not part of the exported interface.
  */
 

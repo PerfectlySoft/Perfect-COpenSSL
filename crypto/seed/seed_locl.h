@@ -27,7 +27,7 @@
 # define HEADER_SEED_LOCL_H
 
 # include "e_os2.h"
-# include "seed.h"
+# include <seed.h>
 
 # ifdef SEED_LONG               /* need 32-bit type */
 typedef unsigned long seed_word;

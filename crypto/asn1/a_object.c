@@ -59,10 +59,10 @@
 #include <stdio.h>
 #include <limits.h>
 #include "cryptlib.h"
-#include <openssl/buffer.h>
-#include <openssl/asn1.h>
-#include <openssl/objects.h>
-#include <openssl/bn.h>
+#include <buffer.h>
+#include <asn1.h>
+#include <objects.h>
+#include <bn.h>
 
 int i2d_ASN1_OBJECT(ASN1_OBJECT *a, unsigned char **pp)
 {

@@ -63,7 +63,7 @@
 
 #ifndef OPENSSL_NO_SOCK
 
-# include <openssl/bio.h>
+# include <bio.h>
 
 # ifdef WATT32
 #  define sock_write SockWrite  /* Watt-32 uses same names */

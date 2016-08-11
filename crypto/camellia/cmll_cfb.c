@@ -105,8 +105,8 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/camellia.h>
-#include <openssl/modes.h>
+#include <camellia.h>
+#include <modes.h>
 
 /*
  * The input and output encrypted as though 128bit cfb mode is being used.

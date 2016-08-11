@@ -71,12 +71,12 @@
 
 #include <string.h>
 #include "ec_lcl.h"
-#include <openssl/err.h>
-#include <openssl/obj_mac.h>
-#include <openssl/opensslconf.h>
+#include <err.h>
+#include <obj_mac.h>
+#include <opensslconf.h>
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 
 typedef struct {

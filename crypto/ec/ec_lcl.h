@@ -71,9 +71,9 @@
 
 #include <stdlib.h>
 
-#include "obj_mac.h"
-#include "ec.h"
-#include "bn.h"
+#include <obj_mac.h>
+#include <ec.h>
+#include <bn.h>
 
 #if defined(__SUNPRO_C)
 # if __SUNPRO_C >= 0x520

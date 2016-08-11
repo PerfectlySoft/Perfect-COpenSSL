@@ -8,10 +8,10 @@
  **********************************************************************/
 #include <stdlib.h>
 #include <string.h>
-#include <openssl/crypto.h>
-#include <openssl/err.h>
-#include <openssl/engine.h>
-#include <openssl/buffer.h>
+#include <crypto.h>
+#include <err.h>
+#include <engine.h>
+#include <buffer.h>
 #include "gost_lcl.h"
 
 static char *gost_params[GOST_PARAM_MAX + 1] = { NULL };

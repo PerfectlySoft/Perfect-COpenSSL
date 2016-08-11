@@ -56,10 +56,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cryptlib.h"
-#include <openssl/cmac.h>
+#include <cmac.h>
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 
 struct CMAC_CTX_st {

@@ -49,9 +49,9 @@
  *
  */
 
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
-#include <openssl/rc4.h>
+#include <opensslv.h>
+#include <crypto.h>
+#include <rc4.h>
 
 void RC4_set_key(RC4_KEY *key, int len, const unsigned char *data)
 {

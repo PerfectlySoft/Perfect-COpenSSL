@@ -60,10 +60,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <openssl/crypto.h>
-#include <openssl/bio.h>
-#include <openssl/err.h>
-#include <openssl/ssl.h>
+#include <crypto.h>
+#include <bio.h>
+#include <err.h>
+#include <ssl.h>
 
 static int ssl_write(BIO *h, const char *buf, int num);
 static int ssl_read(BIO *h, char *buf, int size);

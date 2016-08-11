@@ -67,7 +67,7 @@
 
 # include "cryptlib.h"
 /* Take public definitions from engine.h */
-# include "engine.h"
+# include <engine.h>
 
 #ifdef  __cplusplus
 extern "C" {

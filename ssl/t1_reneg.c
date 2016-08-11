@@ -109,7 +109,7 @@
  *
  */
 #include <stdio.h>
-#include <openssl/objects.h>
+#include <objects.h>
 #include "ssl_locl.h"
 
 /* Add the client's renegotiation binding */

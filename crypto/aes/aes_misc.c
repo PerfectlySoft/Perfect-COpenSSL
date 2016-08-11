@@ -49,9 +49,9 @@
  *
  */
 
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
-#include <openssl/aes.h>
+#include <opensslv.h>
+#include <crypto.h>
+#include <aes.h>
 #include "aes_locl.h"
 
 const char AES_version[] = "AES" OPENSSL_VERSION_PTEXT;

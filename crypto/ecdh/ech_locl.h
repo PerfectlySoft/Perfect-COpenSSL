@@ -56,7 +56,7 @@
 #ifndef HEADER_ECH_LOCL_H
 # define HEADER_ECH_LOCL_H
 
-# include "ecdh.h"
+# include <ecdh.h>
 
 #ifdef  __cplusplus
 extern "C" {

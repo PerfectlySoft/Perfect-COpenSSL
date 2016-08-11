@@ -60,9 +60,9 @@
 #include <stddef.h>
 #include <string.h>
 #include "cryptlib.h"
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/objects.h>
+#include <asn1.h>
+#include <asn1t.h>
+#include <objects.h>
 
 static int asn1_i2d_ex_primitive(ASN1_VALUE **pval, unsigned char **out,
                                  const ASN1_ITEM *it, int tag, int aclass);

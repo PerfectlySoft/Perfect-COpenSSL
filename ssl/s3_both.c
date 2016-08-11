@@ -118,11 +118,11 @@
 #include <string.h>
 #include <stdio.h>
 #include "ssl_locl.h"
-#include <openssl/buffer.h>
-#include <openssl/rand.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/x509.h>
+#include <buffer.h>
+#include <rand.h>
+#include <objects.h>
+#include <evp.h>
+#include <x509.h>
 
 /*
  * send s->init_buf in records of type 'type' (SSL3_RT_HANDSHAKE or

@@ -58,8 +58,8 @@
 
 #include <stdio.h>
 #include "rmd_locl.h"
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
+#include <opensslv.h>
+#include <crypto.h>
 
 const char RMD160_version[] = "RIPE-MD160" OPENSSL_VERSION_PTEXT;
 

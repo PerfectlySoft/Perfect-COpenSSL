@@ -56,9 +56,9 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/blowfish.h>
+#include <blowfish.h>
 #include "bf_locl.h"
-#include <openssl/opensslv.h>
+#include <opensslv.h>
 
 /*
  * Blowfish as implemented from 'Blowfish: Springer-Verlag paper' (From

@@ -113,7 +113,7 @@
 #include <time.h>
 #include "cryptlib.h"
 #include "bn_lcl.h"
-#include <openssl/rand.h>
+#include <rand.h>
 
 /*
  * NB: these functions have been "upgraded", the deprecated versions (which

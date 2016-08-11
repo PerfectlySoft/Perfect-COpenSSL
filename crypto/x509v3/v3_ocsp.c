@@ -61,10 +61,10 @@
 
 # include <stdio.h>
 # include "cryptlib.h"
-# include <openssl/conf.h>
-# include <openssl/asn1.h>
-# include <openssl/ocsp.h>
-# include <openssl/x509v3.h>
+# include <conf.h>
+# include <asn1.h>
+# include <ocsp.h>
+# include <x509v3.h>
 
 /*
  * OCSP extensions and a couple of CRL entry extensions

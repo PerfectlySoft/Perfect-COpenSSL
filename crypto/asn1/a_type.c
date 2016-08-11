@@ -58,8 +58,8 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1t.h>
-#include <openssl/objects.h>
+#include <asn1t.h>
+#include <objects.h>
 
 int ASN1_TYPE_get(ASN1_TYPE *a)
 {

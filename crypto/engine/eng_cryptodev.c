@@ -26,10 +26,10 @@
  *
  */
 
-#include <openssl/objects.h>
-#include <openssl/engine.h>
-#include <openssl/evp.h>
-#include <openssl/bn.h>
+#include <objects.h>
+#include <engine.h>
+#include <evp.h>
+#include <bn.h>
 
 #if (defined(__unix__) || defined(unix)) && !defined(USG) && \
         (defined(OpenBSD) || defined(__FreeBSD__))
@@ -54,10 +54,10 @@ void ENGINE_load_cryptodev(void)
 
 # include <sys/types.h>
 # include <crypto/cryptodev.h>
-# include <openssl/dh.h>
-# include <openssl/dsa.h>
-# include <openssl/err.h>
-# include <openssl/rsa.h>
+# include <dh.h>
+# include <dsa.h>
+# include <err.h>
+# include <rsa.h>
 # include <sys/ioctl.h>
 # include <errno.h>
 # include <stdio.h>

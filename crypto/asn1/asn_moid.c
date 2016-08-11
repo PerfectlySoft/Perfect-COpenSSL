@@ -59,11 +59,11 @@
 
 #include <stdio.h>
 #include <ctype.h>
-#include <openssl/crypto.h>
+#include <crypto.h>
 #include "cryptlib.h"
-#include <openssl/conf.h>
-#include <openssl/dso.h>
-#include <openssl/x509.h>
+#include <conf.h>
+#include <dso.h>
+#include <x509.h>
 
 /* Simple ASN1 OID module: add all objects in a given section */
 

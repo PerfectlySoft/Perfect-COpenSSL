@@ -111,19 +111,19 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/x509.h>
-#include <openssl/pkcs7.h>
-#include <openssl/pem.h>
+#include <bio.h>
+#include <evp.h>
+#include <x509.h>
+#include <pkcs7.h>
+#include <pem.h>
 #ifndef OPENSSL_NO_RSA
-# include <openssl/rsa.h>
+# include <rsa.h>
 #endif
 #ifndef OPENSSL_NO_DSA
-# include <openssl/dsa.h>
+# include <dsa.h>
 #endif
 #ifndef OPENSSL_NO_DH
-# include <openssl/dh.h>
+# include <dh.h>
 #endif
 
 #ifndef OPENSSL_NO_RSA

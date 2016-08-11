@@ -66,13 +66,13 @@
 
 #include <stdio.h>
 #include <cryptlib.h>
-#include <openssl/objects.h>
-#include <openssl/rand.h>
-#include <openssl/x509.h>
-#include <openssl/pem.h>
-#include <openssl/x509v3.h>
-#include <openssl/ocsp.h>
-#include <openssl/asn1t.h>
+#include <objects.h>
+#include <rand.h>
+#include <x509.h>
+#include <pem.h>
+#include <x509v3.h>
+#include <ocsp.h>
+#include <asn1t.h>
 
 /* Convert a certificate and its issuer to an OCSP_CERTID */
 

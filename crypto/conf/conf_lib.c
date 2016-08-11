@@ -58,11 +58,11 @@
  */
 
 #include <stdio.h>
-#include <openssl/crypto.h>
-#include <openssl/err.h>
-#include <openssl/conf.h>
-#include <openssl/conf_api.h>
-#include <openssl/lhash.h>
+#include <crypto.h>
+#include <err.h>
+#include <conf.h>
+#include <conf_api.h>
+#include <lhash.h>
 
 const char CONF_version[] = "CONF" OPENSSL_VERSION_PTEXT;
 

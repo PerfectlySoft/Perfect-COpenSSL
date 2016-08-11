@@ -58,9 +58,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/pkcs12.h>
-#include <openssl/objects.h>
+#include <evp.h>
+#include <pkcs12.h>
+#include <objects.h>
 
 void OpenSSL_add_all_ciphers(void)
 {

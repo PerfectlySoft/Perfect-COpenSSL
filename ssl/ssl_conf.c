@@ -60,10 +60,10 @@
 #endif
 #include <stdio.h>
 #include "ssl_locl.h"
-#include <openssl/conf.h>
-#include <openssl/objects.h>
+#include <conf.h>
+#include <objects.h>
 #ifndef OPENSSL_NO_DH
-# include <openssl/dh.h>
+# include <dh.h>
 #endif
 
 /*

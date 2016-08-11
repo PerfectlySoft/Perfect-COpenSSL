@@ -73,22 +73,22 @@
 # define HASH    EVP_sha1()
 #endif
 
-#include <openssl/opensslconf.h> /* To see if OPENSSL_NO_SHA is defined */
+#include <opensslconf.h> /* To see if OPENSSL_NO_SHA is defined */
 
 #ifndef OPENSSL_NO_SHA
 
 # include <stdio.h>
 # include "cryptlib.h"
-# include <openssl/evp.h>
-# include <openssl/bn.h>
-# include <openssl/rand.h>
-# include <openssl/sha.h>
+# include <evp.h>
+# include <bn.h>
+# include <rand.h>
+# include <sha.h>
 # include "dsa_locl.h"
 
 # ifdef OPENSSL_FIPS
 /* Workaround bug in prototype */
 #  define fips_dsa_builtin_paramgen2 fips_dsa_paramgen_bad
-#  include <openssl/fips.h>
+#  include <fips.h>
 # endif
 
 int DSA_generate_parameters_ex(DSA *ret, int bits,

@@ -58,12 +58,12 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/buffer.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/rand.h>
-#include <openssl/x509.h>
-#include <openssl/pem.h>
+#include <buffer.h>
+#include <objects.h>
+#include <evp.h>
+#include <rand.h>
+#include <x509.h>
+#include <pem.h>
 
 /* Handle 'other' PEMs: not private keys */
 

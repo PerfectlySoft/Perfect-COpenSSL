@@ -58,10 +58,10 @@
 
 #include <stdio.h>
 #include <errno.h>
-#include <openssl/crypto.h>
+#include <crypto.h>
 #include "cryptlib.h"
-#include <openssl/bio.h>
-#include <openssl/stack.h>
+#include <bio.h>
+#include <stack.h>
 
 BIO *BIO_new(BIO_METHOD *method)
 {

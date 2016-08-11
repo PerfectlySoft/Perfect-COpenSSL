@@ -69,11 +69,11 @@
 #  include "ms/uplink.h"
 # endif
 
-# include "crypto.h"
-# include "buffer.h"
-# include "bio.h"
-# include "err.h"
-# include "opensslconf.h"
+# include <crypto.h>
+# include <buffer.h>
+# include <bio.h>
+# include <err.h>
+# include <opensslconf.h>
 
 #ifdef  __cplusplus
 extern "C" {

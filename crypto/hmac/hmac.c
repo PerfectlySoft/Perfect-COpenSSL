@@ -59,10 +59,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cryptlib.h"
-#include <openssl/hmac.h>
+#include <hmac.h>
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 
 int HMAC_Init_ex(HMAC_CTX *ctx, const void *key, int len,

@@ -58,8 +58,8 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1.h>
-#include <openssl/x509v3.h>
+#include <asn1.h>
+#include <x509v3.h>
 
 /* Signature and hash algorithms from RFC 5246 */
 #define TLSEXT_hash_sha256                              4

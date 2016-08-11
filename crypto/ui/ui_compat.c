@@ -54,7 +54,7 @@
  */
 
 #include <string.h>
-#include <openssl/ui_compat.h>
+#include <ui_compat.h>
 
 int _ossl_old_des_read_pw_string(char *buf, int length, const char *prompt,
                                  int verify)

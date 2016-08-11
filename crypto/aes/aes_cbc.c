@@ -49,8 +49,8 @@
  *
  */
 
-#include <openssl/aes.h>
-#include <openssl/modes.h>
+#include <aes.h>
+#include <modes.h>
 
 void AES_cbc_encrypt(const unsigned char *in, unsigned char *out,
                      size_t len, const AES_KEY *key,

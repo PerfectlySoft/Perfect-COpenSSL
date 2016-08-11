@@ -59,10 +59,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/conf.h>
-#include <openssl/x509v3.h>
+#include <asn1.h>
+#include <asn1t.h>
+#include <conf.h>
+#include <x509v3.h>
 
 static STACK_OF(CONF_VALUE) *i2v_POLICY_CONSTRAINTS(const X509V3_EXT_METHOD
                                                     *method, void *bcons, STACK_OF(CONF_VALUE)

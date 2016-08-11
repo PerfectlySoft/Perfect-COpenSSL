@@ -59,9 +59,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1t.h>
-#include <openssl/pkcs7.h>
-#include <openssl/x509.h>
+#include <asn1t.h>
+#include <pkcs7.h>
+#include <x509.h>
 
 /* PKCS#7 ASN1 module */
 

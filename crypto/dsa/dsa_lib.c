@@ -60,18 +60,18 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/dsa.h>
-#include <openssl/asn1.h>
+#include <bn.h>
+#include <dsa.h>
+#include <asn1.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
 #ifndef OPENSSL_NO_DH
-# include <openssl/dh.h>
+# include <dh.h>
 #endif
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 
 const char DSA_version[] = "DSA" OPENSSL_VERSION_PTEXT;

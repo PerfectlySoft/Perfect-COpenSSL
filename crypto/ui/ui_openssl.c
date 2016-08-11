@@ -116,7 +116,7 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/e_os2.h>
+#include <e_os2.h>
 
 /*
  * need for #define _POSIX_C_SOURCE arises whenever you pass -ansi to gcc

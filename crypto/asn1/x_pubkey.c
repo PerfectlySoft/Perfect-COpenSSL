@@ -58,14 +58,14 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
+#include <asn1t.h>
+#include <x509.h>
 #include "asn1_locl.h"
 #ifndef OPENSSL_NO_RSA
-# include <openssl/rsa.h>
+# include <rsa.h>
 #endif
 #ifndef OPENSSL_NO_DSA
-# include <openssl/dsa.h>
+# include <dsa.h>
 #endif
 
 /* Minor tweak to operation: free up EVP_PKEY */

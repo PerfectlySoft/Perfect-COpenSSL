@@ -53,8 +53,8 @@
  *
  */
 
-#include <openssl/des.h>
-#include <openssl/rand.h>
+#include <des.h>
+#include <rand.h>
 
 int DES_random_key(DES_cblock *ret)
 {

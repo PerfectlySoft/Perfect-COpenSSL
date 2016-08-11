@@ -58,10 +58,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/asn1_mac.h>
-#include <openssl/x509.h>
+#include <evp.h>
+#include <objects.h>
+#include <asn1_mac.h>
+#include <x509.h>
 
 /* need to implement */
 int i2d_X509_PKEY(X509_PKEY *a, unsigned char **pp)

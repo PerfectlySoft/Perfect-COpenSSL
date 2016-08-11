@@ -63,11 +63,11 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/dh.h>
+#include <bn.h>
+#include <dh.h>
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 
 static int dh_builtin_genparams(DH *ret, int prime_len, int generator,

@@ -54,7 +54,7 @@
  */
 
 #include "ec_lcl.h"
-#include <openssl/err.h>
+#include <err.h>
 
 int EC_GROUP_check(const EC_GROUP *group, BN_CTX *ctx)
 {

@@ -60,10 +60,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cryptlib.h"
-#include <openssl/objects.h>
-#include <openssl/evp.h>
+#include <objects.h>
+#include <evp.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
 #include "asn1_locl.h"
 #include "evp_locl.h"

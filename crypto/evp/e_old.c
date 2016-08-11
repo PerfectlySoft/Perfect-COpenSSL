@@ -61,7 +61,7 @@
 static void *dummy = &dummy;
 #else
 
-# include <openssl/evp.h>
+# include <evp.h>
 
 /*
  * Define some deprecated functions, so older programs don't crash and burn

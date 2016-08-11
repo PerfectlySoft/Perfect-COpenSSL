@@ -60,7 +60,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include "cryptlib.h"
-#include <openssl/buffer.h>
+#include <buffer.h>
 #include "bn_lcl.h"
 
 static const char Hex[] = "0123456789ABCDEF";

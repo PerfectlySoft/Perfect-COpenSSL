@@ -59,10 +59,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/conf.h>
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/x509v3.h>
+#include <conf.h>
+#include <asn1.h>
+#include <asn1t.h>
+#include <x509v3.h>
 
 #include "pcy_int.h"
 

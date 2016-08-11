@@ -59,7 +59,7 @@
 #ifndef HEADER_DES_LOCL_H
 # define HEADER_DES_LOCL_H
 
-# include "e_os2.h"
+# include <e_os2.h>
 
 # if defined(OPENSSL_SYS_WIN32)
 #  ifndef OPENSSL_SYS_MSDOS
@@ -80,7 +80,7 @@
 #   include <math.h>
 #  endif
 # endif
-# include "des.h"
+# include <des.h>
 
 # ifdef OPENSSL_SYS_MSDOS       /* Visual C++ 2.1 (Windows NT/95) */
 #  include <stdlib.h>

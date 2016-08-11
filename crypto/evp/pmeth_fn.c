@@ -60,8 +60,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "cryptlib.h"
-#include <openssl/objects.h>
-#include <openssl/evp.h>
+#include <objects.h>
+#include <evp.h>
 #include "evp_locl.h"
 
 #define M_check_autoarg(ctx, arg, arglen, err) \

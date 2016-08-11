@@ -110,7 +110,7 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/rand.h>
+#include <rand.h>
 #include "rand_lcl.h"
 
 #if defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_WIN32)

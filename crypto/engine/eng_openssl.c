@@ -63,21 +63,21 @@
  */
 
 #include <stdio.h>
-#include <openssl/crypto.h>
+#include <crypto.h>
 #include "cryptlib.h"
-#include <openssl/engine.h>
-#include <openssl/dso.h>
-#include <openssl/pem.h>
-#include <openssl/evp.h>
-#include <openssl/rand.h>
+#include <engine.h>
+#include <dso.h>
+#include <pem.h>
+#include <evp.h>
+#include <rand.h>
 #ifndef OPENSSL_NO_RSA
-# include <openssl/rsa.h>
+# include <rsa.h>
 #endif
 #ifndef OPENSSL_NO_DSA
-# include <openssl/dsa.h>
+# include <dsa.h>
 #endif
 #ifndef OPENSSL_NO_DH
-# include <openssl/dh.h>
+# include <dh.h>
 #endif
 
 /*
@@ -230,7 +230,7 @@ IMPLEMENT_DYNAMIC_CHECK_FN()
  *        the "init_key" handler is called.
  *    TEST_ENG_OPENSSL_RC4_P_CIPHER - ditto for the "cipher" handler.
  */
-# include <openssl/rc4.h>
+# include <rc4.h>
 # define TEST_RC4_KEY_SIZE               16
 static int test_cipher_nids[] = { NID_rc4, NID_rc4_40 };
 
@@ -317,7 +317,7 @@ static int openssl_ciphers(ENGINE *e, const EVP_CIPHER **cipher,
 
 #ifdef TEST_ENG_OPENSSL_SHA
 /* Much the same sort of comment as for TEST_ENG_OPENSSL_RC4 */
-# include <openssl/sha.h>
+# include <sha.h>
 static int test_digest_nids[] = { NID_sha1 };
 
 static int test_digest_nids_number = 1;

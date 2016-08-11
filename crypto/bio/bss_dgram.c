@@ -62,7 +62,7 @@
 #define USE_SOCKETS
 #include "cryptlib.h"
 
-#include <openssl/bio.h>
+#include <bio.h>
 #ifndef OPENSSL_NO_DGRAM
 
 # if defined(OPENSSL_SYS_VMS)

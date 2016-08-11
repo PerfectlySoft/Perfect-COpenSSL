@@ -52,7 +52,7 @@
  */
 
 #include "wp_locl.h"
-#include <openssl/crypto.h>
+#include <crypto.h>
 #include <string.h>
 
 fips_md_init(WHIRLPOOL)

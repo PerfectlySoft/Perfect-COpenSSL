@@ -57,8 +57,8 @@
  *
  */
 #include <stdio.h>
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
+#include <asn1.h>
+#include <asn1t.h>
 
 /* Declarations for string types */
 

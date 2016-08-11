@@ -57,8 +57,8 @@
  *
  */
 
-#include <openssl/ocsp.h>
-#include <openssl/err.h>
+#include <ocsp.h>
+#include <err.h>
 #include <string.h>
 
 static int ocsp_find_signer(X509 **psigner, OCSP_BASICRESP *bs,

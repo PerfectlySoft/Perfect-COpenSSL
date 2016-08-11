@@ -5,7 +5,7 @@
  * ====================================================================
  */
 
-#include "modes.h"
+#include <modes.h>
 
 #if (defined(_WIN32) || defined(_WIN64)) && !defined(__MINGW32__)
 typedef __int64 i64;

@@ -60,8 +60,8 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/conf.h>
-#include <openssl/x509v3.h>
+#include <conf.h>
+#include <x509v3.h>
 
 #include "ext_dat.h"
 

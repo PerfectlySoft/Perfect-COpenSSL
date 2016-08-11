@@ -117,10 +117,10 @@
 #include <errno.h>
 #define USE_SOCKETS
 #include "ssl_locl.h"
-#include <openssl/evp.h>
-#include <openssl/buffer.h>
-#include <openssl/pqueue.h>
-#include <openssl/rand.h>
+#include <evp.h>
+#include <buffer.h>
+#include <pqueue.h>
+#include <rand.h>
 
 /* mod 128 saturating subtract of two 64-bit values in big-endian order */
 static int satsub64be(const unsigned char *v1, const unsigned char *v2)

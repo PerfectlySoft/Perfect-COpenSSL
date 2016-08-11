@@ -58,17 +58,17 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/evp.h>
-#include <openssl/objects.h>
+#include <bn.h>
+#include <evp.h>
+#include <objects.h>
 #ifndef OPENSSL_NO_RSA
-# include <openssl/rsa.h>
+# include <rsa.h>
 #endif
 #ifndef OPENSSL_NO_DSA
-# include <openssl/dsa.h>
+# include <dsa.h>
 #endif
 #ifndef OPENSSL_NO_EC
-# include <openssl/ec.h>
+# include <ec.h>
 #endif
 
 int i2d_PublicKey(EVP_PKEY *a, unsigned char **pp)

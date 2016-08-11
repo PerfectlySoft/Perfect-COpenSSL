@@ -58,9 +58,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
+#include <evp.h>
+#include <objects.h>
+#include <x509.h>
 
 static int init(EVP_MD_CTX *ctx)
 {

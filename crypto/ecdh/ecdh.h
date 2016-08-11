@@ -69,16 +69,16 @@
 #ifndef HEADER_ECDH_H
 # define HEADER_ECDH_H
 
-# include "opensslconf.h"
+# include <opensslconf.h>
 
 # ifdef OPENSSL_NO_ECDH
 #  error ECDH is disabled.
 # endif
 
-# include "ec.h"
-# include "ossl_typ.h"
+# include <ec.h>
+# include <ossl_typ.h>
 # ifndef OPENSSL_NO_DEPRECATED
-#  include "bn.h"
+#  include <bn.h>
 # endif
 
 #ifdef __cplusplus

@@ -111,9 +111,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
+#include <evp.h>
+#include <objects.h>
+#include <x509.h>
 
 #ifndef OPENSSL_NO_SHA
 

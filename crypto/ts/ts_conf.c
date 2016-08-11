@@ -59,13 +59,13 @@
 
 #include <string.h>
 
-#include <openssl/crypto.h>
+#include <crypto.h>
 #include "cryptlib.h"
-#include <openssl/pem.h>
+#include <pem.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
-#include <openssl/ts.h>
+#include <ts.h>
 
 /* Macro definitions for the configuration file. */
 

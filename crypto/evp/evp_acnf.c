@@ -58,8 +58,8 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/conf.h>
+#include <evp.h>
+#include <conf.h>
 
 /*
  * Load all algorithms and configure OpenSSL. This function is called

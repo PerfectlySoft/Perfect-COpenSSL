@@ -58,11 +58,11 @@
 
 #include <stdio.h>
 #include "ssl_locl.h"
-#include <openssl/bio.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/x509.h>
-#include <openssl/pem.h>
+#include <bio.h>
+#include <objects.h>
+#include <evp.h>
+#include <x509.h>
+#include <pem.h>
 
 static int ssl_set_cert(CERT *c, X509 *x509);
 static int ssl_set_pkey(CERT *c, EVP_PKEY *pkey);

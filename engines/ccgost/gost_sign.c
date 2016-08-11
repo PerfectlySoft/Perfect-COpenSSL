@@ -8,11 +8,11 @@
  *          Requires OpenSSL 0.9.9 for compilation                    *
  **********************************************************************/
 #include <string.h>
-#include <openssl/rand.h>
-#include <openssl/bn.h>
-#include <openssl/dsa.h>
-#include <openssl/evp.h>
-#include <openssl/err.h>
+#include <rand.h>
+#include <bn.h>
+#include <dsa.h>
+#include <evp.h>
+#include <err.h>
 
 #include "gost_params.h"
 #include "gost_lcl.h"

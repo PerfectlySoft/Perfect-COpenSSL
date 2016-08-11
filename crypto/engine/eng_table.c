@@ -53,8 +53,8 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/lhash.h>
+#include <evp.h>
+#include <lhash.h>
 #include "eng_int.h"
 
 /* The type of the items in the table */

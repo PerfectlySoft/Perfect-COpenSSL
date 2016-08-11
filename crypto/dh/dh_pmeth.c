@@ -58,15 +58,15 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
-#include <openssl/evp.h>
-#include <openssl/dh.h>
-#include <openssl/bn.h>
+#include <asn1t.h>
+#include <x509.h>
+#include <evp.h>
+#include <dh.h>
+#include <bn.h>
 #ifndef OPENSSL_NO_DSA
-# include <openssl/dsa.h>
+# include <dsa.h>
 #endif
-#include <openssl/objects.h>
+#include <objects.h>
 #include "evp_locl.h"
 
 /* DH pkey context structure */

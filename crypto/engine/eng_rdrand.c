@@ -47,13 +47,13 @@
  * ====================================================================
  */
 
-#include <openssl/opensslconf.h>
+#include <opensslconf.h>
 
 #include <stdio.h>
 #include <string.h>
-#include <openssl/engine.h>
-#include <openssl/rand.h>
-#include <openssl/err.h>
+#include <engine.h>
+#include <rand.h>
+#include <err.h>
 
 #if (defined(__i386)   || defined(__i386__)   || defined(_M_IX86) || \
      defined(__x86_64) || defined(__x86_64__) || \

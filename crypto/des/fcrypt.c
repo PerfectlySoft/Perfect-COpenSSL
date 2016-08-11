@@ -6,7 +6,7 @@
 # endif
 #endif
 #ifdef CHARSET_EBCDIC
-# include <openssl/ebcdic.h>
+# include <ebcdic.h>
 #endif
 
 /*

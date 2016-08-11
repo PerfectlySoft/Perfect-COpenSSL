@@ -58,14 +58,14 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/dh.h>
+#include <bn.h>
+#include <dh.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 
 const char DH_version[] = "Diffie-Hellman" OPENSSL_VERSION_PTEXT;

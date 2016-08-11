@@ -59,9 +59,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
+#include <evp.h>
+#include <asn1t.h>
+#include <x509.h>
 
 /*
  * X509_CERT_AUX routines. These are used to encode additional user

@@ -47,9 +47,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/rsa.h>
+#include <evp.h>
+#include <objects.h>
+#include <rsa.h>
 #include "evp_locl.h"
 
 /*

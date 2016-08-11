@@ -32,8 +32,8 @@
 #  include <memory.h>
 # endif
 
-# include <openssl/crypto.h>
-# include <openssl/seed.h>
+# include <crypto.h>
+# include <seed.h>
 # include "seed_locl.h"
 
 # ifdef SS                      /* can get defined on Solaris by inclusion of

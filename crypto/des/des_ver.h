@@ -56,7 +56,7 @@
  * [including the GNU Public Licence.]
  */
 
-#include "e_os2.h"
+#include <e_os2.h>
 
 #ifdef OPENSSL_BUILD_SHLIBCRYPTO
 # undef OPENSSL_EXTERN

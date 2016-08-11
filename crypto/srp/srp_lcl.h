@@ -59,8 +59,8 @@
 #ifndef HEADER_SRP_LCL_H
 # define HEADER_SRP_LCL_H
 
-# include "srp.h"
-# include "sha.h"
+# include <srp.h>
+# include <sha.h>
 
 # if 0
 #  define srp_bn_print(a) {fprintf(stderr, #a "="); BN_print_fp(stderr,a); \

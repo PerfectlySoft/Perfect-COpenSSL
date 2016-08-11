@@ -58,10 +58,10 @@
  */
 
 #include <stddef.h>
-#include <openssl/asn1.h>
-#include <openssl/objects.h>
-#include <openssl/err.h>
-#include <openssl/asn1t.h>
+#include <asn1.h>
+#include <objects.h>
+#include <err.h>
+#include <asn1t.h>
 #include <string.h>
 
 static int asn1_item_ex_combine_new(ASN1_VALUE **pval, const ASN1_ITEM *it,

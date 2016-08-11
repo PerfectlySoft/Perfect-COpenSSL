@@ -61,12 +61,12 @@
 
 #ifndef OPENSSL_NO_RIPEMD
 
-# include <openssl/ripemd.h>
-# include <openssl/evp.h>
-# include <openssl/objects.h>
-# include <openssl/x509.h>
+# include <ripemd.h>
+# include <evp.h>
+# include <objects.h>
+# include <x509.h>
 # ifndef OPENSSL_NO_RSA
-#  include <openssl/rsa.h>
+#  include <rsa.h>
 # endif
 # include "evp_locl.h"
 

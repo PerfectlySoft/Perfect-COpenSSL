@@ -60,7 +60,7 @@
  */
 
 #include <stdio.h>
-#include <openssl/err.h>
+#include <err.h>
 #include "e_ubsec_err.h"
 
 /* BEGIN ERROR CODES */

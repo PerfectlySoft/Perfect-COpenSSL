@@ -82,11 +82,11 @@ static void *dummy = &dummy;
 # include <stdio.h>
 # include <time.h>
 # include "cryptlib.h"
-# include <openssl/evp.h>
-# include <openssl/bn.h>
-# include <openssl/dsa.h>
-# include <openssl/rand.h>
-# include <openssl/sha.h>
+# include <evp.h>
+# include <bn.h>
+# include <dsa.h>
+# include <rand.h>
+# include <sha.h>
 
 # ifndef OPENSSL_NO_DEPRECATED
 DSA *DSA_generate_parameters(int bits,

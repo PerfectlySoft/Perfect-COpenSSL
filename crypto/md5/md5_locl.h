@@ -58,8 +58,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "e_os2.h"
-#include "md5.h"
+#include <e_os2.h>
+#include <md5.h>
 
 #ifndef MD5_LONG_LOG2
 # define MD5_LONG_LOG2 2        /* default to 32 bits */

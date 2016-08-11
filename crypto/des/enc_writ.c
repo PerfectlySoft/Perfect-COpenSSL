@@ -61,7 +61,7 @@
 #include <stdio.h>
 #include "cryptlib.h"
 #include "des_locl.h"
-#include <openssl/rand.h>
+#include <rand.h>
 
 /*-
  * WARNINGS:

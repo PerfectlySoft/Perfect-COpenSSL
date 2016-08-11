@@ -58,11 +58,11 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <openssl/md4.h>
-#include <openssl/crypto.h>
+#include <md4.h>
+#include <crypto.h>
 
 #ifdef CHARSET_EBCDIC
-# include <openssl/ebcdic.h>
+# include <ebcdic.h>
 #endif
 
 unsigned char *MD4(const unsigned char *d, size_t n, unsigned char *md)

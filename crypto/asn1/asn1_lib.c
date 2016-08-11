@@ -59,8 +59,8 @@
 #include <stdio.h>
 #include <limits.h>
 #include "cryptlib.h"
-#include <openssl/asn1.h>
-#include <openssl/asn1_mac.h>
+#include <asn1.h>
+#include <asn1_mac.h>
 
 static int asn1_get_length(const unsigned char **pp, int *inf, long *rl,
                            long max);

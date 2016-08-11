@@ -1,4 +1,4 @@
-#include <openssl/opensslconf.h>
+#include <opensslconf.h>
 
 #ifdef OPENSSL_FIPS
 # include "fips_err.h"

@@ -56,16 +56,16 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/opensslconf.h> /* for OPENSSL_NO_RSA */
+#include <opensslconf.h> /* for OPENSSL_NO_RSA */
 #ifndef OPENSSL_NO_RSA
 # include <stdio.h>
 # include "cryptlib.h"
-# include <openssl/evp.h>
-# include <openssl/rand.h>
-# include <openssl/objects.h>
-# include <openssl/x509.h>
-# include <openssl/pem.h>
-# include <openssl/rsa.h>
+# include <evp.h>
+# include <rand.h>
+# include <objects.h>
+# include <x509.h>
+# include <pem.h>
+# include <rsa.h>
 
 int PEM_SealInit(PEM_ENCODE_SEAL_CTX *ctx, EVP_CIPHER *type, EVP_MD *md_type,
                  unsigned char **ek, int *ekl, unsigned char *iv,

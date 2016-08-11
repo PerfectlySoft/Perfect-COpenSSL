@@ -58,10 +58,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
-#include <openssl/evp.h>
-#include <openssl/bn.h>
+#include <asn1t.h>
+#include <x509.h>
+#include <evp.h>
+#include <bn.h>
 #include "evp_locl.h"
 #include "dsa_locl.h"
 

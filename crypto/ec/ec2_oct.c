@@ -67,7 +67,7 @@
  *
  */
 
-#include <openssl/err.h>
+#include <err.h>
 
 #include "ec_lcl.h"
 

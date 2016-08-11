@@ -58,9 +58,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/lhash.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
+#include <lhash.h>
+#include <x509.h>
+#include <x509v3.h>
 
 X509_LOOKUP *X509_LOOKUP_new(X509_LOOKUP_METHOD *method)
 {

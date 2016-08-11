@@ -58,10 +58,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/lhash.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
-#include <openssl/buffer.h>
+#include <lhash.h>
+#include <objects.h>
+#include <x509.h>
+#include <buffer.h>
 
 /*
  * Limit to ensure we don't overflow: much greater than

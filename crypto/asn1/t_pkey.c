@@ -58,9 +58,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/objects.h>
-#include <openssl/buffer.h>
-#include <openssl/bn.h>
+#include <objects.h>
+#include <buffer.h>
+#include <bn.h>
 
 int ASN1_bn_print(BIO *bp, const char *number, const BIGNUM *num,
                   unsigned char *buf, int off)

@@ -58,8 +58,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "opensslconf.h"
-#include "md4.h"
+#include <opensslconf.h>
+#include <md4.h>
 
 #ifndef MD4_LONG_LOG2
 # define MD4_LONG_LOG2 2        /* default to 32 bits */

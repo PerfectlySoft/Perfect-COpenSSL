@@ -56,14 +56,14 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <openssl/crypto.h>
+#include <crypto.h>
 
 #ifdef OPENSSL_SYS_WIN32
 # ifndef OPENSSL_NO_CAPIENG
 
-#  include <openssl/buffer.h>
-#  include <openssl/bn.h>
-#  include <openssl/rsa.h>
+#  include <buffer.h>
+#  include <bn.h>
+#  include <rsa.h>
 
 #  ifndef _WIN32_WINNT
 #   define _WIN32_WINNT 0x0400
@@ -134,9 +134,9 @@
 #  define CALG_SHA_512            (ALG_CLASS_HASH | ALG_TYPE_ANY | ALG_SID_SHA_512)
 # endif
 
-# include <openssl/engine.h>
-# include <openssl/pem.h>
-# include <openssl/x509v3.h>
+# include <engine.h>
+# include <pem.h>
+# include <x509v3.h>
 
 # include "e_capi_err.h"
 # include "e_capi_err.c"
@@ -1861,7 +1861,7 @@ static int cert_select_dialog(ENGINE *e, SSL *ssl, STACK_OF(X509) *certs)
 # endif
 
 #else                           /* !__COMPILE_CAPIENG */
-# include <openssl/engine.h>
+# include <engine.h>
 # ifndef OPENSSL_NO_DYNAMIC_ENGINE
 OPENSSL_EXPORT
     int bind_engine(ENGINE *e, const char *id, const dynamic_fns *fns);

@@ -61,10 +61,10 @@
 #include <errno.h>
 
 #include "cryptlib.h"
-#include <openssl/lhash.h>
-#include <openssl/buffer.h>
-#include <openssl/x509.h>
-#include <openssl/pem.h>
+#include <lhash.h>
+#include <buffer.h>
+#include <x509.h>
+#include <pem.h>
 
 #ifndef OPENSSL_NO_STDIO
 

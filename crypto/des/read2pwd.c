@@ -110,9 +110,9 @@
  */
 
 #include <string.h>
-#include <openssl/des.h>
-#include <openssl/ui.h>
-#include <openssl/crypto.h>
+#include <des.h>
+#include <ui.h>
+#include <crypto.h>
 
 int DES_read_password(DES_cblock *key, const char *prompt, int verify)
 {

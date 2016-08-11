@@ -59,17 +59,17 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
-#include <openssl/rsa.h>
-#include <openssl/bn.h>
-#include <openssl/evp.h>
-#include <openssl/x509v3.h>
+#include <asn1t.h>
+#include <x509.h>
+#include <rsa.h>
+#include <bn.h>
+#include <evp.h>
+#include <x509v3.h>
 #ifndef OPENSSL_NO_CMS
-# include <openssl/cms.h>
+# include <cms.h>
 #endif
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 #include "evp_locl.h"
 #include "rsa_locl.h"

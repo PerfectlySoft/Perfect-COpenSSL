@@ -151,20 +151,20 @@
 #include <stdio.h>
 #include "ssl_locl.h"
 #include "kssl_lcl.h"
-#include <openssl/buffer.h>
-#include <openssl/rand.h>
-#include <openssl/objects.h>
-#include <openssl/evp.h>
-#include <openssl/md5.h>
+#include <buffer.h>
+#include <rand.h>
+#include <objects.h>
+#include <evp.h>
+#include <md5.h>
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 #ifndef OPENSSL_NO_DH
-# include <openssl/dh.h>
+# include <dh.h>
 #endif
-#include <openssl/bn.h>
+#include <bn.h>
 #ifndef OPENSSL_NO_ENGINE
-# include <openssl/engine.h>
+# include <engine.h>
 #endif
 
 static int ca_dn_cmp(const X509_NAME *const *a, const X509_NAME *const *b);

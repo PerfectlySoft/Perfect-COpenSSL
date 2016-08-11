@@ -60,7 +60,7 @@
  */
 
 #include <stdio.h>
-#include <openssl/err.h>
+#include <err.h>
 #include "e_nuron_err.h"
 
 /* BEGIN ERROR CODES */

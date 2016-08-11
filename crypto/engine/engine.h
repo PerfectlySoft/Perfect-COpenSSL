@@ -65,38 +65,38 @@
 #ifndef HEADER_ENGINE_H
 # define HEADER_ENGINE_H
 
-# include "opensslconf.h"
+# include <opensslconf.h>
 
 # ifdef OPENSSL_NO_ENGINE
 #  error ENGINE is disabled.
 # endif
 
 # ifndef OPENSSL_NO_DEPRECATED
-#  include "bn.h"
+#  include <bn.h>
 #  ifndef OPENSSL_NO_RSA
-#   include "rsa.h"
+#   include <rsa.h>
 #  endif
 #  ifndef OPENSSL_NO_DSA
-#   include "dsa.h"
+#   include <dsa.h>
 #  endif
 #  ifndef OPENSSL_NO_DH
-#   include "dh.h"
+#   include <dh.h>
 #  endif
 #  ifndef OPENSSL_NO_ECDH
-#   include "ecdh.h"
+#   include <ecdh.h>
 #  endif
 #  ifndef OPENSSL_NO_ECDSA
-#   include "ecdsa.h"
+#   include <ecdsa.h>
 #  endif
-#  include "rand.h"
-#  include "ui.h"
-#  include "err.h"
+#  include <rand.h>
+#  include <ui.h>
+#  include <err.h>
 # endif
 
-# include "ossl_typ.h"
-# include "symhacks.h"
+# include <ossl_typ.h>
+# include <symhacks.h>
 
-# include "x509.h"
+# include <x509.h>
 
 #ifdef  __cplusplus
 extern "C" {

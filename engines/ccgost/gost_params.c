@@ -8,7 +8,7 @@
  *                              this code                             *
  **********************************************************************/
 #include "gost_params.h"
-#include <openssl/objects.h>
+#include <objects.h>
 /* Parameters of GOST 34.10 */
 
 R3410_params R3410_paramset[] = {

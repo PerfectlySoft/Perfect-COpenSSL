@@ -56,8 +56,8 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/crypto.h>
-#include <openssl/idea.h>
+#include <crypto.h>
+#include <idea.h>
 #include "idea_lcl.h"
 
 static IDEA_INT inverse(unsigned int xin);

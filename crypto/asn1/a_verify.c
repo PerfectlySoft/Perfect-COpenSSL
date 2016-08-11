@@ -66,11 +66,11 @@
 # include <sys/types.h>
 #endif
 
-#include <openssl/bn.h>
-#include <openssl/x509.h>
-#include <openssl/objects.h>
-#include <openssl/buffer.h>
-#include <openssl/evp.h>
+#include <bn.h>
+#include <x509.h>
+#include <objects.h>
+#include <buffer.h>
+#include <evp.h>
 
 #ifndef NO_ASN1_OLD
 

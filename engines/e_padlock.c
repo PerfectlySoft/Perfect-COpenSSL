@@ -65,16 +65,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <openssl/opensslconf.h>
-#include <openssl/crypto.h>
-#include <openssl/dso.h>
-#include <openssl/engine.h>
-#include <openssl/evp.h>
+#include <opensslconf.h>
+#include <crypto.h>
+#include <dso.h>
+#include <engine.h>
+#include <evp.h>
 #ifndef OPENSSL_NO_AES
-# include <openssl/aes.h>
+# include <aes.h>
 #endif
-#include <openssl/rand.h>
-#include <openssl/err.h>
+#include <rand.h>
+#include <err.h>
 
 #ifndef OPENSSL_NO_HW
 # ifndef OPENSSL_NO_HW_PADLOCK

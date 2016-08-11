@@ -63,9 +63,9 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/ec.h>
-#include <openssl/bn.h>
+#include <evp.h>
+#include <ec.h>
+#include <bn.h>
 
 #ifndef OPENSSL_NO_FP_API
 int ECPKParameters_print_fp(FILE *fp, const EC_GROUP *x, int off)

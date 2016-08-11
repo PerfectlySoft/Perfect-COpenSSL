@@ -60,7 +60,7 @@
 #ifndef OPENSSL_NO_SSL2_METHOD
 # ifndef OPENSSL_NO_SSL2
 # include <stdio.h>
-# include <openssl/objects.h>
+# include <objects.h>
 
 static const SSL_METHOD *ssl2_get_method(int ver);
 static const SSL_METHOD *ssl2_get_method(int ver)

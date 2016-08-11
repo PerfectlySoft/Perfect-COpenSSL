@@ -63,11 +63,11 @@
  * and contributed to the OpenSSL project.
  */
 
-#include <openssl/err.h>
-#include <openssl/symhacks.h>
+#include <err.h>
+#include <symhacks.h>
 
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 #endif
 
 #include "ec_lcl.h"

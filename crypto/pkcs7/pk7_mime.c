@@ -56,9 +56,9 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "cryptlib.h"
-#include <openssl/rand.h>
-#include <openssl/x509.h>
-#include <openssl/asn1.h>
+#include <rand.h>
+#include <x509.h>
+#include <asn1.h>
 
 /* PKCS#7 wrappers round generalised stream and MIME routines */
 

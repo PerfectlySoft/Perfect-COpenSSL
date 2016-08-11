@@ -56,7 +56,7 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/rc4.h>
+#include <rc4.h>
 #include "rc4_locl.h"
 
 /*-

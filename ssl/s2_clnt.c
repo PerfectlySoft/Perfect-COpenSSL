@@ -112,10 +112,10 @@
 #include "ssl_locl.h"
 #ifndef OPENSSL_NO_SSL2
 # include <stdio.h>
-# include <openssl/rand.h>
-# include <openssl/buffer.h>
-# include <openssl/objects.h>
-# include <openssl/evp.h>
+# include <rand.h>
+# include <buffer.h>
+# include <objects.h>
+# include <evp.h>
 
 static const SSL_METHOD *ssl2_get_client_method(int ver);
 static int get_server_finished(SSL *s);

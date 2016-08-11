@@ -58,8 +58,8 @@
 
 #include <stdio.h>
 #include "md5_locl.h"
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
+#include <opensslv.h>
+#include <crypto.h>
 
 const char MD5_version[] = "MD5" OPENSSL_VERSION_PTEXT;
 

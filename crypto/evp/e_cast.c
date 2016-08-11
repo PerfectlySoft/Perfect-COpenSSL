@@ -60,10 +60,10 @@
 #include "cryptlib.h"
 
 #ifndef OPENSSL_NO_CAST
-# include <openssl/evp.h>
-# include <openssl/objects.h>
+# include <evp.h>
+# include <objects.h>
 # include "evp_locl.h"
-# include <openssl/cast.h>
+# include <cast.h>
 
 static int cast_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
                          const unsigned char *iv, int enc);

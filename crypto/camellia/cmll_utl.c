@@ -49,9 +49,9 @@
  *
  */
 
-#include <openssl/opensslv.h>
-#include <openssl/crypto.h>
-#include <openssl/camellia.h>
+#include <opensslv.h>
+#include <crypto.h>
+#include <camellia.h>
 #include "cmll_locl.h"
 
 int Camellia_set_key(const unsigned char *userKey, const int bits,

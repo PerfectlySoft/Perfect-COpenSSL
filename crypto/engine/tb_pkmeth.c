@@ -53,7 +53,7 @@
  */
 
 #include "eng_int.h"
-#include <openssl/evp.h>
+#include <evp.h>
 
 /*
  * If this symbol is defined then ENGINE_get_pkey_meth_engine(), the function

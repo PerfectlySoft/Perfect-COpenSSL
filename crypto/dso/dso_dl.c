@@ -59,7 +59,7 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/dso.h>
+#include <dso.h>
 
 #ifndef DSO_DL
 DSO_METHOD *DSO_METHOD_dl(void)

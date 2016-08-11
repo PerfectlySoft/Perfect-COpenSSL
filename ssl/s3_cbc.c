@@ -56,8 +56,8 @@
 #include "../crypto/constant_time_locl.h"
 #include "ssl_locl.h"
 
-#include <openssl/md5.h>
-#include <openssl/sha.h>
+#include <md5.h>
+#include <sha.h>
 
 /*
  * MAX_HASH_BIT_COUNT_BYTES is the maximum number of bytes in the hash's

@@ -58,10 +58,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/objects.h>
+#include <evp.h>
+#include <objects.h>
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
+# include <fips.h>
 # include "evp_locl.h"
 #endif
 

@@ -58,10 +58,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1t.h>
+#include <asn1t.h>
 #include "asn1_locl.h"
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
+#include <x509.h>
+#include <x509v3.h>
 
 static int X509_REVOKED_cmp(const X509_REVOKED *const *a,
                             const X509_REVOKED *const *b);

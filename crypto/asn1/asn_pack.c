@@ -59,7 +59,7 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1.h>
+#include <asn1.h>
 
 #ifndef NO_ASN1_OLD
 

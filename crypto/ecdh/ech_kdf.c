@@ -54,8 +54,8 @@
 #define OPENSSL_FIPSAPI
 
 #include <string.h>
-#include <openssl/ecdh.h>
-#include <openssl/evp.h>
+#include <ecdh.h>
+#include <evp.h>
 
 /* Key derivation function from X9.62/SECG */
 /* Way more than we will ever need */

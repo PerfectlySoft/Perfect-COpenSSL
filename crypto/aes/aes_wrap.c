@@ -53,8 +53,8 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/aes.h>
-#include <openssl/modes.h>
+#include <aes.h>
+#include <modes.h>
 
 int AES_wrap_key(AES_KEY *key, const unsigned char *iv,
                  unsigned char *out,

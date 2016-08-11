@@ -8,7 +8,7 @@
  **********************************************************************/
 #include <string.h>
 #include "gost89.h"
-#include <openssl/rand.h>
+#include <rand.h>
 #include "e_gost_err.h"
 #include "gost_lcl.h"
 

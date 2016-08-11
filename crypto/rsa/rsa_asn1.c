@@ -59,10 +59,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/rsa.h>
-#include <openssl/x509.h>
-#include <openssl/asn1t.h>
+#include <bn.h>
+#include <rsa.h>
+#include <x509.h>
+#include <asn1t.h>
 
 /* Override the default free and new methods */
 static int rsa_cb(int operation, ASN1_VALUE **pval, const ASN1_ITEM *it,

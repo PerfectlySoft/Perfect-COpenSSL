@@ -69,7 +69,7 @@
  *
  */
 
-#include <openssl/opensslconf.h> /* To see if OPENSSL_NO_DESCBCM is defined */
+#include <opensslconf.h> /* To see if OPENSSL_NO_DESCBCM is defined */
 
 #ifndef OPENSSL_NO_DESCBCM
 # include "des_locl.h"

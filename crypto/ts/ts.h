@@ -60,31 +60,31 @@
 #ifndef HEADER_TS_H
 # define HEADER_TS_H
 
-# include "opensslconf.h"
-# include "symhacks.h"
+# include <opensslconf.h>
+# include <symhacks.h>
 # ifndef OPENSSL_NO_BUFFER
-#  include "buffer.h"
+#  include <buffer.h>
 # endif
 # ifndef OPENSSL_NO_EVP
-#  include "evp.h"
+#  include <evp.h>
 # endif
 # ifndef OPENSSL_NO_BIO
-#  include "bio.h"
+#  include <bio.h>
 # endif
-# include "stack.h"
-# include "asn1.h"
-# include "safestack.h"
+# include <stack.h>
+# include <asn1.h>
+# include <safestack.h>
 
 # ifndef OPENSSL_NO_RSA
-#  include "rsa.h"
+#  include <rsa.h>
 # endif
 
 # ifndef OPENSSL_NO_DSA
-#  include "dsa.h"
+#  include <dsa.h>
 # endif
 
 # ifndef OPENSSL_NO_DH
-#  include "dh.h"
+#  include <dh.h>
 # endif
 
 #ifdef  __cplusplus
@@ -96,8 +96,8 @@ extern "C" {
 #  undef X509_NAME
 # endif
 
-# include "x509.h"
-# include "x509v3.h"
+# include <x509.h>
+# include <x509v3.h>
 
 /*-
 MessageImprint ::= SEQUENCE  {

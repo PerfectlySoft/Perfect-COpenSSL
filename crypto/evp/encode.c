@@ -59,7 +59,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
+#include <evp.h>
 
 static unsigned char conv_ascii2bin(unsigned char a);
 #ifndef CHARSET_EBCDIC

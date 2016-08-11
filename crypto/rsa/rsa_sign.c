@@ -58,10 +58,10 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/rsa.h>
-#include <openssl/objects.h>
-#include <openssl/x509.h>
+#include <bn.h>
+#include <rsa.h>
+#include <objects.h>
+#include <x509.h>
 #include "rsa_locl.h"
 
 /* Size of an SSL signature: MD5+SHA1 */

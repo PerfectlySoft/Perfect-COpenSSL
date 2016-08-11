@@ -56,9 +56,9 @@
  * Hudson (tjh@cryptsoft.com).
  *
  */
-#include <openssl/asn1.h>
-#include <openssl/asn1t.h>
-#include <openssl/ocsp.h>
+#include <asn1.h>
+#include <asn1t.h>
+#include <ocsp.h>
 
 ASN1_SEQUENCE(OCSP_SIGNATURE) = {
         ASN1_SIMPLE(OCSP_SIGNATURE, signatureAlgorithm, X509_ALGOR),

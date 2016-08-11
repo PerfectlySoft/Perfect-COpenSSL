@@ -53,14 +53,14 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/asn1t.h>
-#include <openssl/pem.h>
-#include <openssl/x509v3.h>
-#include <openssl/err.h>
-#include <openssl/cms.h>
-#include <openssl/bio.h>
+#include <asn1t.h>
+#include <pem.h>
+#include <x509v3.h>
+#include <err.h>
+#include <cms.h>
+#include <bio.h>
 #ifndef OPENSSL_NO_COMP
-# include <openssl/comp.h>
+# include <comp.h>
 #endif
 #include "cms_lcl.h"
 

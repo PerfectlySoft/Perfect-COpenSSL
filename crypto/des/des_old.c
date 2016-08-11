@@ -75,8 +75,8 @@
  */
 
 #define OPENSSL_DES_LIBDES_COMPATIBILITY
-#include <openssl/des.h>
-#include <openssl/rand.h>
+#include <des.h>
+#include <rand.h>
 
 const char *_ossl_old_des_options(void)
 {

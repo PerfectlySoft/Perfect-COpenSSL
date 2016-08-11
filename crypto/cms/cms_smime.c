@@ -53,11 +53,11 @@
  */
 
 #include "cryptlib.h"
-#include <openssl/asn1t.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-#include <openssl/err.h>
-#include <openssl/cms.h>
+#include <asn1t.h>
+#include <x509.h>
+#include <x509v3.h>
+#include <err.h>
+#include <cms.h>
 #include "cms_lcl.h"
 #include "asn1_locl.h"
 

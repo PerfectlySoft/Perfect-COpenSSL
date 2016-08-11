@@ -60,7 +60,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include "cryptlib.h"
-#include <openssl/asn1.h>
+#include <asn1.h>
 
 static int traverse_string(const unsigned char *p, int len, int inform,
                            int (*rfunc) (unsigned long value, void *in),

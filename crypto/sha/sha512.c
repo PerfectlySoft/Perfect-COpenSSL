@@ -4,7 +4,7 @@
  * according to the OpenSSL license [found in ../../LICENSE].
  * ====================================================================
  */
-#include <openssl/opensslconf.h>
+#include <opensslconf.h>
 #if !defined(OPENSSL_NO_SHA) && !defined(OPENSSL_NO_SHA512)
 /*-
  * IMPLEMENTATION NOTES.
@@ -44,9 +44,9 @@
 # include <stdlib.h>
 # include <string.h>
 
-# include <openssl/crypto.h>
-# include <openssl/sha.h>
-# include <openssl/opensslv.h>
+# include <crypto.h>
+# include <sha.h>
+# include <opensslv.h>
 
 # include "cryptlib.h"
 

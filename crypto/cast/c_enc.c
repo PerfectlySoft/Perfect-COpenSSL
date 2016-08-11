@@ -56,7 +56,7 @@
  * [including the GNU Public Licence.]
  */
 
-#include <openssl/cast.h>
+#include <cast.h>
 #include "cast_lcl.h"
 
 void CAST_encrypt(CAST_LONG *data, const CAST_KEY *key)

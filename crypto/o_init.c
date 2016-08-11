@@ -54,10 +54,10 @@
  */
 
 #include <e_os.h>
-#include <openssl/err.h>
+#include <err.h>
 #ifdef OPENSSL_FIPS
-# include <openssl/fips.h>
-# include <openssl/rand.h>
+# include <fips.h>
+# include <rand.h>
 #endif
 
 /*

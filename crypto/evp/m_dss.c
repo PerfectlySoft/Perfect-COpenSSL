@@ -58,11 +58,11 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/evp.h>
-#include <openssl/objects.h>
-#include <openssl/sha.h>
+#include <evp.h>
+#include <objects.h>
+#include <sha.h>
 #ifndef OPENSSL_NO_DSA
-# include <openssl/dsa.h>
+# include <dsa.h>
 #endif
 
 #ifndef OPENSSL_NO_SHA

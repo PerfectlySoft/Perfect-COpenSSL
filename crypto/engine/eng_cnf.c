@@ -58,7 +58,7 @@
  */
 
 #include "eng_int.h"
-#include <openssl/conf.h>
+#include <conf.h>
 
 /* #define ENGINE_CONF_DEBUG */
 

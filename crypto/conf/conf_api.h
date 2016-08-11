@@ -59,8 +59,8 @@
 #ifndef  HEADER_CONF_API_H
 # define HEADER_CONF_API_H
 
-# include "lhash.h"
-# include "conf.h"
+# include <lhash.h>
+# include <conf.h>
 
 #ifdef  __cplusplus
 extern "C" {

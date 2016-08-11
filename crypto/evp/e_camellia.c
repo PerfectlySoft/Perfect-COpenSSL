@@ -53,13 +53,13 @@
  *
  */
 
-#include <openssl/opensslconf.h>
+#include <opensslconf.h>
 #ifndef OPENSSL_NO_CAMELLIA
-# include <openssl/evp.h>
-# include <openssl/err.h>
+# include <evp.h>
+# include <err.h>
 # include <string.h>
 # include <assert.h>
-# include <openssl/camellia.h>
+# include <camellia.h>
 # include "evp_locl.h"
 # include "modes_lcl.h"
 

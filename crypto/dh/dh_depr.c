@@ -57,8 +57,8 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/bn.h>
-#include <openssl/dh.h>
+#include <bn.h>
+#include <dh.h>
 
 static void *dummy = &dummy;
 

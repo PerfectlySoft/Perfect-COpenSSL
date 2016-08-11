@@ -37,8 +37,8 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/conf.h>
-#include <openssl/x509v3.h>
+#include <conf.h>
+#include <x509v3.h>
 
 static int i2r_pci(X509V3_EXT_METHOD *method, PROXY_CERT_INFO_EXTENSION *ext,
                    BIO *out, int indent);

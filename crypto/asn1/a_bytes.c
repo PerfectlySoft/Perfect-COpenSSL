@@ -58,7 +58,7 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-#include <openssl/asn1.h>
+#include <asn1.h>
 
 static int asn1_collate_primitive(ASN1_STRING *a, ASN1_const_CTX *c);
 /*

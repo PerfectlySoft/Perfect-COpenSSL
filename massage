@@ -1,6 +1,5 @@
 #!/bin/bash
 
-DIRS="crypto engines ssl"
 RMV="ssl/ssl_task.c \
 	crypto/ripemd/asm/rips.cpp \
 	crypto/x509v3/v3conf.c \
@@ -11,49 +10,113 @@ RMV="ssl/ssl_task.c \
 	crypto/cast/casts.cpp \
 	crypto/arm_arch.h \
 	crypto/armcap.c \
+	crypto/ppc_arch.h \
+	crypto/ppccap.c \
+	crypto/s390xcap.c \
+	crypto/sparc_arch.h \
+	crypto/sparcv9cap.c \
+	crypto/vms_rms.h \
 	crypto/des/times \
 	crypto/des/read_pwd.c \
 	crypto/store \
 	crypto/jpake \
 	crypto/md2 \
-	crypto/rc5"
+	crypto/evp/e_dsa.c \
+	crypto/rc5 \
+ 	crypto/bf/bf_opts.c \
+ 	crypto/bf/bfspeed.c \
+ 	crypto/bn/bnspeed.c \
+ 	crypto/bn/expspeed.c \
+ 	crypto/cast/cast_spd.c \
+ 	crypto/cast/castopts.c \
+ 	crypto/conf/cnf_save.c \
+ 	crypto/des/des.c \
+ 	crypto/des/des3s.cpp \
+ 	crypto/des/des_opts.c \
+ 	crypto/des/dess.cpp \
+ 	crypto/des/rpw.c \
+ 	crypto/des/speed.c \
+ 	crypto/dh/p1024.c \
+ 	crypto/dh/p192.c \
+ 	crypto/dh/p512.c \
+ 	crypto/dsa/dsagen.c \
+ 	crypto/idea/idea_spd.c \
+ 	crypto/md4/md4.c \
+ 	crypto/md4/md4s.cpp \
+ 	crypto/md5/md5.c \
+ 	crypto/md5/md5s.cpp \
+ 	crypto/modes/cts128.c \
+ 	crypto/rc2/rc2speed.c \
+ 	crypto/rc4/rc4.c \
+ 	crypto/rc4/rc4s.cpp \
+ 	crypto/rc4/rc4speed.c \
+ 	crypto/ripemd/rmd160.c \
+ 	crypto/sha/sha.c \
+ 	crypto/sha/sha1.c \
+ 	crypto/ec/ecp_nistz256.c \
+ 	crypto/ec/ecp_nistz256_table.c \
+ 	crypto/aes/aes_x86core.c \
+ 	crypto/bf/bf_cbc.c \
+ 	crypto/rc2/tab.c \
+ 	crypto/sha/sha256t.c \
+ 	crypto/sha/sha512t.c \
+ 	crypto/x509v3/v3prin.c \
+ 	engines/ccgost/gostsum.c \
+ 	crypto/bn/asm/x86_64-gcc.c"
 
+cd OpenSSL
 rm -rf $RMV
 
 find . -iname "*test.c" -exec rm {} \;
 
-for d in $DIRS
-do 
-	rm -rf $d/include
-	cd $d
-	MAINS=`grep -l -s -d recurse "main(" *`
-	for file in $MAINS
-	do
-		rm $file
-	done
-	cd ..
-done
-
 find . -type f \( -iname "*.h" -o -iname "*.c" \) -exec sed -i '' -e 's#include <openssl/#include <#g' {} \;
 find . -type f \( -iname "*.h" -o -iname "*.c" \) -exec sed -i '' -e 's#include "openssl/#include "#g' {} \;
-
-for d in $DIRS
-do 
-	cd $d || exit
-	mkdir -p include
-	cd include
-	find ../.. -iname "*.h" -not -path "*/include/*" -exec ln -s {} . \;
-	cd ../..
-done
+find . -type f \( -iname "*.h" -o -iname "*.c" \) -exec sed -i '' -e 's#include "../../#include "#g' {} \;
+find . -type f \( -iname "*.h" -o -iname "*.c" \) -exec sed -i '' -e 's#include "../crypto/#include "#g' {} \;
+find . -type f \( -iname "*.h" -o -iname "*.c" \) -exec sed -i '' -e 's#include "vendor_defns/#include "#g' {} \;
 
 mv crypto/LPdir_unix.c crypto/LPdir_unix.h
 mv crypto/pkcs7/pk7_enc.c crypto/pkcs7/pk7_enc.h
-sed -i '' -e 's#include "LPdir_unix.c"#include "LPdir_unix.h"#g' crypto/o_dir.c
+mv crypto/des/ncbc_enc.c crypto/des/ncbc_enc.h
 
-# FIX - grep to make sure these aren't already there
-sed -i '' -e 's#include <evp.h>#include <evp.h>\
-\#include <evp_locl.h>\
-\#include <dsa.h>#g' crypto/evp/e_dsa.c
-mv crypto/ec/ecp_nistz256_table.c crypto/ec/ecp_nistz256_table.h
-sed -i '' -e 's#include "ecp_nistz256_table.c"#include "ecp_nistz256_table.h"#g' crypto/ec/ecp_nistz256.c
+mkdir -p include openssl
+rm include/* openssl/*
+cd openssl
+find ../crypto -iname "*.h" -exec mv {} . \;
+find ../ssl -iname "*.h" -exec mv {} . \;
+find ../engines -iname "*.h" -exec mv {} . \;
+cd ..
+
+mv openssl/* .
+
+sed -i '' -e 's#include "LPdir_unix.c"#include "LPdir_unix.h"#g' crypto/o_dir.c
+sed -i '' -e 's#include "ncbc_enc.c"#include "ncbc_enc.h"#g' crypto/des/cbc_enc.c
+sed -i '' -e 's#include "ncbc_enc.c"#include "ncbc_enc.h"#g' crypto/des/des_enc.c
+
+cd openssl
+find ../crypto -iname "*.c" -exec mv {} . \;
+find ../ssl -iname "*.c" -exec mv {} . \;
+find ../engines -iname "*.c" -exec mv {} . \;
+cd ..
+
+mv openssl/* .
+
+rm -rf openssl
+
+for header in *.h
+do
+	GRP=`grep -l -s "include <$header>" *`
+	for fnd in $GRP
+	do
+		sed -i '' -e "s#include <$header>#include \"$header\"#g" $fnd;
+	done
+done
+
+echo "#include \"../bio.h\"" >> include/openssl.h
+echo "#include \"../err.h\"" >> include/openssl.h
+echo "#include \"../sha.h\"" >> include/openssl.h
+echo "#include \"../ssl.h\"" >> include/openssl.h
+echo "#include \"../x509.h\"" >> include/openssl.h
+
+
 

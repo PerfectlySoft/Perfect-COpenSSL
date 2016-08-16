@@ -1,5 +1,4 @@
 module OpenSSL {
-    header "OpenSSL.h"
-    link "OpenSSL"
-    export *
+	header "openssl.h"
+	link "OpenSSL"
 }

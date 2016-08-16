@@ -186,7 +186,7 @@ extern "C" {
 #  define BN_BYTES        8
 #  define BN_BITS2        64
 #  define BN_BITS4        32
-#  define BN_MASK //        (0xffffffffffffffffffffffffffffffffLL)
+#  define BN_MASK ////        (0xffffffffffffffffffffffffffffffffLL)
 #  define BN_MASK2        (0xffffffffffffffffL)
 #  define BN_MASK2l       (0xffffffffL)
 #  define BN_MASK2h       (0xffffffff00000000L)
@@ -232,10 +232,10 @@ extern "C" {
 #  ifdef BN_LLONG
 #   if defined(_WIN32) && !defined(__GNUC__)
 #    define BN_ULLONG     unsigned __int64
-#    define BN_MASK //      (0xffffffffffffffffI64)
+#    define BN_MASK ////      (0xffffffffffffffffI64)
 #   else
 #    define BN_ULLONG     unsigned long long
-#    define BN_MASK //      (0xffffffffffffffffLL)
+#    define BN_MASK ////      (0xffffffffffffffffLL)
 #   endif
 #  endif
 #  define BN_ULONG        unsigned int

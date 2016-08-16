@@ -115,21 +115,21 @@ done
 
 sed -i '' -e "s#define BN_MASK #define BN_MASK //#g" bn.h
 
-# HEADERS="aes.h bn.h comp.h dh.h ec.h hmac.h md5.h opensslconf.h pkcs7.h rsa.h ssl.h tls1.h x509.h \
-# 		asn1.h buffer.h conf.h dsa.h ecdh.h idea.h mdc2.h opensslv.h pqueue.h safestack.h   ssl2.h ts.h x509_vfy.h \
-# 		asn1_mac.h camellia.h conf_api.h dso.h ecdsa.h krb5_asn.h modes.h ossl_typ.h rand.h seed.h ssl23.h txt_db.h x509v3.h \
-# 		asn1t.h cast.h crypto.h dtls1.h engine.h kssl.h obj_mac.h pem.h rc2.h sha.h ssl3.h ui.h \
-# 		bio.h cmac.h des.h e_os2.h err.h lhash.h objects.h pem2.h rc4.h srp.h stack.h ui_compat.h \
-# 		blowfish.h cms.h des_old.h ebcdic.h evp.h md4.h ocsp.h pkcs12.h ripemd.h srtp.h symhacks.h whrlpool.h"
-# 
-# mkdir -p include
-# cd include
-# rm *.h
-# 
-# for header in $HEADERS
-# do
-# 	ln "../$header" .
-# done
+HEADERS="aes.h bn.h comp.h dh.h ec.h hmac.h md5.h opensslconf.h pkcs7.h rsa.h ssl.h tls1.h x509.h \
+		asn1.h buffer.h conf.h dsa.h ecdh.h idea.h mdc2.h opensslv.h pqueue.h safestack.h   ssl2.h ts.h x509_vfy.h \
+		asn1_mac.h camellia.h conf_api.h dso.h ecdsa.h krb5_asn.h modes.h ossl_typ.h rand.h seed.h ssl23.h txt_db.h x509v3.h \
+		asn1t.h cast.h crypto.h dtls1.h engine.h kssl.h obj_mac.h pem.h rc2.h sha.h ssl3.h ui.h \
+		bio.h cmac.h des.h e_os2.h err.h lhash.h objects.h pem2.h rc4.h srp.h stack.h ui_compat.h \
+		blowfish.h cms.h des_old.h ebcdic.h evp.h md4.h ocsp.h pkcs12.h ripemd.h srtp.h symhacks.h whrlpool.h"
+
+mkdir -p include/Headers
+cd include/Headers
+rm *.h
+
+for header in $HEADERS
+do
+	cp "../../$header" .
+done
 
 # for header in *.h
 # do

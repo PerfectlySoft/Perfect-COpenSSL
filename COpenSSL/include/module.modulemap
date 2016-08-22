@@ -1,4 +1,4 @@
 module COpenSSL {
 	header "openssl.h"
-	link "OpenSSL"
+	link "COpenSSL"
 }

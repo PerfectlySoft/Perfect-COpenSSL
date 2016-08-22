@@ -19,4 +19,4 @@
 
 import PackageDescription
 
-let package = Package(name: "OpenSSL")
+let package = Package(name: "COpenSSL")

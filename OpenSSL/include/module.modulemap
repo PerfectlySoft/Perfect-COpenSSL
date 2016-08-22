@@ -1,4 +1,4 @@
-module OpenSSL {
+module COpenSSL {
 	header "openssl.h"
 	link "OpenSSL"
 }

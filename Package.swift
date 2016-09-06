@@ -1,6 +1,6 @@
 //
 //  Package.swift
-//  PerfectLib
+//  COpenSSL
 //
 //  Created by Kyle Jessup on 3/22/16.
 //	Copyright (C) 2016 PerfectlySoft, Inc.

@@ -65,7 +65,7 @@ RMV="ssl/ssl_task.c \
  	crypto/bn/asm/x86_64-gcc.c \
  	crypto/bn/vms-helper.c"
 
-cd OpenSSL
+cd COpenSSL
 rm -rf $RMV
 
 find . -iname "*test.c" -exec rm {} \;

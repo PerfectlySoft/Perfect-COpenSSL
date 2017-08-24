@@ -6,3 +6,4 @@
 #include "../x509.h"
 #include "../hmac.h"
 #include "../rand.h"
+#include "../cms.h"

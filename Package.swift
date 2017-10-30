@@ -19,4 +19,4 @@
 
 import PackageDescription
 
-let package = Package(name: "COpenSSL")
+let package = Package(name: "COpenSSL", exclude: ["scripts"])

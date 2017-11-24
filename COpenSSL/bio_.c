@@ -543,7 +543,7 @@ int BIO_asn1_get_suffix(BIO *b, asn1_ps_func **psuffix,
 #include <stdio.h>
 #include <errno.h>
 #include "cryptlib.h"
-// #include "buffer.h"
+#include "buffer.h"
 #include "evp.h"
 
 static int b64_write(BIO *h, const char *buf, int num);
@@ -1118,7 +1118,7 @@ static int b64_puts(BIO *b, const char *str)
 #include <stdlib.h>
 // #include "cryptlib.h"
 // #include "bio.h"
-// #include "err.h"
+#include "err.h"
 
 long MS_CALLBACK BIO_debug_callback(BIO *bio, int cmd, const char *argp,
                                     int argi, long argl, long ret)
@@ -1857,10 +1857,10 @@ void ERR_load_BIO_strings(void)
 
 #include <stdio.h>
 #include <errno.h>
-// #include "crypto.h"
+#include "crypto.h"
 // #include "cryptlib.h"
 // #include "bio.h"
-// #include "stack.h"
+#include "stack.h"
 
 BIO *BIO_new(BIO_METHOD *method)
 {

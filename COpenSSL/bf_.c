@@ -59,7 +59,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include "cryptlib.h"
-// #include "bio.h"
+#include "bio.h"
 
 static int buffer_write(BIO *h, const char *buf, int num);
 static int buffer_read(BIO *h, char *buf, int size);
@@ -698,7 +698,7 @@ void BF_cfb64_encrypt(const unsigned char *in, unsigned char *out,
 
 // #include "blowfish.h"
 // #include "bf_locl.h"
-// #include "opensslv.h"
+#include "opensslv.h"
 
 /*
  * Blowfish as implemented from 'Blowfish: Springer-Verlag paper' (From
@@ -2041,7 +2041,7 @@ void BF_ofb64_encrypt(const unsigned char *in, unsigned char *out,
 
 #include <stdio.h>
 #include <string.h>
-// #include "crypto.h"
+#include "crypto.h"
 // #include "blowfish.h"
 // #include "bf_locl.h"
 #include "bf_pi.h"

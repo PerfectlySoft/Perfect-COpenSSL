@@ -261,7 +261,7 @@ void md4_block_data_order(MD4_CTX *c, const void *data_, size_t num)
 // #include "crypto.h"
 
 #ifdef CHARSET_EBCDIC
-// # include "ebcdic.h"
+# include "ebcdic.h"
 #endif
 
 unsigned char *MD4(const unsigned char *d, size_t n, unsigned char *md)

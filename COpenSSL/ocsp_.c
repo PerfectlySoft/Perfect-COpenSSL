@@ -250,11 +250,11 @@ IMPLEMENT_ASN1_FUNCTIONS(OCSP_SERVICELOC)
 #include <stdio.h>
 #include <time.h>
 #include "cryptlib.h"
-// #include "objects.h"
+#include "objects.h"
 #include "rand.h"
-// #include "x509.h"
+#include "x509.h"
 #include "pem.h"
-// #include "x509v3.h"
+#include "x509v3.h"
 // #include "ocsp.h"
 
 /*
@@ -628,7 +628,7 @@ int OCSP_check_validity(ASN1_GENERALIZEDTIME *thisupd,
  */
 
 #include <stdio.h>
-// #include "err.h"
+#include "err.h"
 // #include "ocsp.h"
 
 /* BEGIN ERROR CODES */
@@ -1344,11 +1344,11 @@ X509_EXTENSION *OCSP_url_svcloc_new(X509_NAME *issuer, char **urls)
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-// #include "e_os.h"
+#include "e_os.h"
 // #include "asn1.h"
 // #include "ocsp.h"
 // #include "err.h"
-// #include "buffer.h"
+#include "buffer.h"
 #ifdef OPENSSL_SYS_SUNOS
 # define strtoul (unsigned long)strtol
 #endif                          /* OPENSSL_SYS_SUNOS */
@@ -2192,7 +2192,7 @@ IMPLEMENT_ASN1_DUP_FUNCTION(OCSP_CERTID)
  *
  */
 
-// #include "bio.h"
+#include "bio.h"
 // #include "err.h"
 // #include "ocsp.h"
 // #include "pem.h"
@@ -2816,6 +2816,8 @@ int OCSP_basic_verify(OCSP_BASICRESP *bs, STACK_OF(X509) *certs,
                     goto end;
                 }
             }
+        } else if (certs != NULL) {
+            untrusted = certs;
         } else {
             untrusted = bs->certs;
         }

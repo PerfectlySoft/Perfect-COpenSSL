@@ -714,7 +714,7 @@ void *CMS_unsigned_get0_data_by_OBJ(CMS_SignerInfo *si, ASN1_OBJECT *oid,
 // #include "x509v3.h"
 // #include "err.h"
 // #include "cms.h"
-// #include "bio.h"
+#include "bio.h"
 #ifndef OPENSSL_NO_COMP
 # include "comp.h"
 #endif
@@ -2929,7 +2929,7 @@ ASN1_OCTET_STRING *cms_encode_Receipt(CMS_SignerInfo *si)
  */
 
 // #include "asn1t.h"
-// #include "x509.h"
+#include "x509.h"
 // #include "err.h"
 // #include "pem.h"
 // #include "cms.h"
@@ -3534,7 +3534,7 @@ int cms_RecipientInfo_kari_encrypt(CMS_ContentInfo *cms,
 // #include "err.h"
 // #include "pem.h"
 // #include "bio.h"
-// #include "asn1.h"
+#include "asn1.h"
 // #include "cms.h"
 // #include "cms_lcl.h"
 

@@ -60,10 +60,10 @@
 #include <ctype.h>
 #include <limits.h>
 #include "cryptlib.h"
-// #include "lhash.h"
+#include "lhash.h"
 #include "asn1.h"
 #include "objects.h"
-// #include "bn.h"
+#include "bn.h"
 
 /* obj_dat.h is generated from objects.h by obj_dat.pl */
 #ifndef OPENSSL_NO_OBJECT
@@ -861,7 +861,7 @@ int OBJ_create(const char *oid, const char *sn, const char *ln)
  */
 
 #include <stdio.h>
-// #include "err.h"
+#include "err.h"
 // #include "objects.h"
 
 /* BEGIN ERROR CODES */
@@ -961,7 +961,7 @@ void ERR_load_OBJ_strings(void)
 // #include "cryptlib.h"
 // #include "lhash.h"
 // #include "objects.h"
-// #include "buffer.h"
+#include "buffer.h"
 
 ASN1_OBJECT *OBJ_dup(const ASN1_OBJECT *o)
 {

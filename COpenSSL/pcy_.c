@@ -752,7 +752,7 @@ int policy_cache_set_mapping(X509 *x, POLICY_MAPPINGS *maps)
  *
  */
 
-// #include "asn1.h"
+#include "asn1.h"
 // #include "x509.h"
 // #include "x509v3.h"
 
@@ -1617,6 +1617,7 @@ int X509_policy_check(X509_POLICY_TREE **ptree, int *pexplicit_policy,
                       STACK_OF(ASN1_OBJECT) *policy_oids, unsigned int flags)
 {
     int ret;
+    int calc_ret;
     X509_POLICY_TREE *tree = NULL;
     STACK_OF(X509_POLICY_NODE) *nodes, *auth_nodes = NULL;
     *ptree = NULL;
@@ -1685,16 +1686,19 @@ int X509_policy_check(X509_POLICY_TREE **ptree, int *pexplicit_policy,
 
     /* Tree is not empty: continue */
 
-    ret = tree_calculate_authority_set(tree, &auth_nodes);
+    calc_ret = tree_calculate_authority_set(tree, &auth_nodes);
+
+    if (!calc_ret)
+        goto error;
+
+    ret = tree_calculate_user_set(tree, policy_oids, auth_nodes);
+
+    if (calc_ret == 2)
+        sk_X509_POLICY_NODE_free(auth_nodes);
 
     if (!ret)
         goto error;
 
-    if (!tree_calculate_user_set(tree, policy_oids, auth_nodes))
-        goto error;
-
-    if (ret == 2)
-        sk_X509_POLICY_NODE_free(auth_nodes);
 
     if (tree)
         *ptree = tree;

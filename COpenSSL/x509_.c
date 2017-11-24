@@ -946,7 +946,7 @@ STACK_OF(X509) *X509_chain_up_ref(STACK_OF(X509) *chain)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "crypto.h"
+#include "crypto.h"
 // #include "x509.h"
 
 #ifndef OPENSSL_NO_STDIO
@@ -1149,7 +1149,7 @@ const char *X509_get_default_cert_file_env(void)
  */
 
 #include <stdio.h>
-// #include "err.h"
+#include "err.h"
 // #include "x509.h"
 
 /* BEGIN ERROR CODES */
@@ -1546,7 +1546,7 @@ IMPLEMENT_ASN1_SET_OF(X509_EXTENSION)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "lhash.h"
+#include "lhash.h"
 // #include "x509.h"
 // #include "x509v3.h"
 
@@ -2276,7 +2276,7 @@ IMPLEMENT_STACK_OF(X509_OBJECT)
 // #include "lhash.h"
 // #include "objects.h"
 // #include "x509.h"
-// #include "buffer.h"
+#include "buffer.h"
 
 /*
  * Limit to ensure we don't overflow: much greater than
@@ -2503,7 +2503,7 @@ char *X509_NAME_oneline(X509_NAME *a, char *buf, int len)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "bn.h"
+#include "bn.h"
 // #include "evp.h"
 // #include "asn1.h"
 // #include "x509.h"

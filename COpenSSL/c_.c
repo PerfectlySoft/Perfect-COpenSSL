@@ -145,7 +145,7 @@ void OPENSSL_add_all_algorithms_noconf(void)
 // #include "cryptlib.h"
 // #include "evp.h"
 #include "pkcs12.h"
-// #include "objects.h"
+#include "objects.h"
 
 void OpenSSL_add_all_ciphers(void)
 {
@@ -621,7 +621,7 @@ void CAST_cfb64_encrypt(const unsigned char *in, unsigned char *out,
 
 // #include "cast.h"
 // #include "cast_lcl.h"
-// #include "opensslv.h"
+#include "opensslv.h"
 
 const char CAST_version[] = "CAST" OPENSSL_VERSION_PTEXT;
 
@@ -1075,7 +1075,7 @@ static int rle_expand_block(COMP_CTX *ctx, unsigned char *out,
  * [including the GNU Public Licence.]
  */
 
-// #include "crypto.h"
+#include "crypto.h"
 // #include "cast.h"
 // #include "cast_lcl.h"
 #include "cast_s.h"
@@ -1197,7 +1197,7 @@ void private_CAST_set_key(CAST_KEY *key, int len, const unsigned char *data)
 #include <string.h>
 // #include "objects.h"
 // #include "comp.h"
-// #include "err.h"
+#include "err.h"
 
 COMP_METHOD *COMP_zlib(void);
 

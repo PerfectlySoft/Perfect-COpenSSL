@@ -58,12 +58,12 @@
 
 #include <stdio.h>
 #include "asn1.h"
-// #include "bn.h"
+#include "bn.h"
 #ifndef OPENSSL_NO_EC
 # include "ec.h"
 #endif
 #include "buffer.h"
-// #include "bio.h"
+#include "bio.h"
 #ifndef OPENSSL_NO_COMP
 # include "comp.h"
 #endif
@@ -83,20 +83,20 @@
 # include "ecdh.h"
 #endif
 #include "evp.h"
-// #include "objects.h"
+#include "objects.h"
 #include "pem2.h"
 #include "x509.h"
 #include "x509v3.h"
-// #include "conf.h"
+#include "conf.h"
 #include "pkcs12.h"
 #include "rand.h"
 #include "dso.h"
 #ifndef OPENSSL_NO_ENGINE
 # include "engine.h"
 #endif
-// #include "ui.h"
+#include "ui.h"
 #include "ocsp.h"
-// #include "err.h"
+#include "err.h"
 #ifdef OPENSSL_FIPS
 # include <fips.h>
 #endif
@@ -226,8 +226,8 @@ void ERR_load_crypto_strings(void)
 
 #include <stdio.h>
 #include "cryptlib.h"
-// #include "lhash.h"
-// #include "crypto.h"
+#include "lhash.h"
+#include "crypto.h"
 // #include "buffer.h"
 // #include "err.h"
 

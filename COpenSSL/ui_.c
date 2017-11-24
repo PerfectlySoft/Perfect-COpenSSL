@@ -130,7 +130,7 @@ int _ossl_old_des_read_pw(char *buf, char *buff, int size, const char *prompt,
 
 #include <stdio.h>
 #include "err.h"
-// #include "ui.h"
+#include "ui.h"
 
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
@@ -239,8 +239,8 @@ void ERR_load_UI_strings(void)
 
 #include <string.h>
 #include "cryptlib.h"
-// #include "e_os2.h"
-// #include "buffer.h"
+#include "e_os2.h"
+#include "buffer.h"
 // #include "ui.h"
 // #include "err.h"
 #include "ui_locl.h"
@@ -700,6 +700,7 @@ int UI_process(UI *ui)
             }
         }
     }
+
  err:
     if (ui->meth->ui_close_session != NULL
         && ui->meth->ui_close_session(ui) <= 0)

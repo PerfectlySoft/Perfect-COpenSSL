@@ -1958,9 +1958,7 @@ int asn1_ex_i2c(ASN1_VALUE **pval, unsigned char *cout, int *putype,
 // #include "asn1.h"
 // #include "asn1t.h"
 // #include "objects.h"
-
-static void asn1_item_combine_free(ASN1_VALUE **pval, const ASN1_ITEM *it,
-                                   int combine);
+#include "asn1_int.h"
 
 /* Free up an ASN1 structure */
 
@@ -1974,8 +1972,7 @@ void ASN1_item_ex_free(ASN1_VALUE **pval, const ASN1_ITEM *it)
     asn1_item_combine_free(pval, it, 0);
 }
 
-static void asn1_item_combine_free(ASN1_VALUE **pval, const ASN1_ITEM *it,
-                                   int combine)
+void asn1_item_combine_free(ASN1_VALUE **pval, const ASN1_ITEM *it, int combine)
 {
     const ASN1_TEMPLATE *tt = NULL, *seqtt;
     const ASN1_EXTERN_FUNCS *ef;
@@ -2209,6 +2206,7 @@ void ASN1_primitive_free(ASN1_VALUE **pval, const ASN1_ITEM *it)
 // #include "err.h"
 // #include "asn1t.h"
 #include <string.h>
+// #include "asn1_int.h"
 
 static int asn1_item_ex_combine_new(ASN1_VALUE **pval, const ASN1_ITEM *it,
                                     int combine);
@@ -2345,7 +2343,7 @@ static int asn1_item_ex_combine_new(ASN1_VALUE **pval, const ASN1_ITEM *it,
     return 1;
 
  memerr2:
-    ASN1_item_ex_free(pval, it);
+    asn1_item_combine_free(pval, it, combine);
  memerr:
     ASN1err(ASN1_F_ASN1_ITEM_EX_COMBINE_NEW, ERR_R_MALLOC_FAILURE);
 #ifdef CRYPTO_MDEBUG
@@ -2355,7 +2353,7 @@ static int asn1_item_ex_combine_new(ASN1_VALUE **pval, const ASN1_ITEM *it,
     return 0;
 
  auxerr2:
-    ASN1_item_ex_free(pval, it);
+    asn1_item_combine_free(pval, it, combine);
  auxerr:
     ASN1err(ASN1_F_ASN1_ITEM_EX_COMBINE_NEW, ASN1_R_AUX_ERROR);
 #ifdef CRYPTO_MDEBUG

@@ -60,12 +60,12 @@
 #include "cryptlib.h"
 #include "bn.h"
 #include "evp.h"
-// #include "objects.h"
+#include "objects.h"
 #ifndef OPENSSL_NO_ENGINE
 # include "engine.h"
 #endif
-// #include "x509.h"
-// #include "asn1.h"
+#include "x509.h"
+#include "asn1.h"
 #include "asn1_locl.h"
 
 EVP_PKEY *d2i_PrivateKey(int type, EVP_PKEY **a, const unsigned char **pp,
@@ -240,13 +240,13 @@ EVP_PKEY *d2i_AutoPrivateKey(EVP_PKEY **a, const unsigned char **pp,
 // #include "objects.h"
 // #include "asn1.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 #ifndef OPENSSL_NO_EC
-// # include "ec.h"
+# include "ec.h"
 #endif
 
 EVP_PKEY *d2i_PublicKey(int type, EVP_PKEY **a, const unsigned char **pp,

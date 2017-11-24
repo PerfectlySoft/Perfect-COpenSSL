@@ -2022,8 +2022,8 @@ void AES_bi_ige_encrypt(const unsigned char *in, unsigned char *out,
  *
  */
 
-// #include "opensslv.h"
-// #include "crypto.h"
+#include "opensslv.h"
+#include "crypto.h"
 // #include "aes.h"
 // #include "aes_locl.h"
 

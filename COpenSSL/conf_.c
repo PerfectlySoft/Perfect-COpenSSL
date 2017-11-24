@@ -366,13 +366,13 @@ IMPLEMENT_STACK_OF(CONF_VALUE)
 #include <stdio.h>
 #include <string.h>
 #include "cryptlib.h"
-// #include "stack.h"
-// #include "lhash.h"
+#include "stack.h"
+#include "lhash.h"
 // #include "conf.h"
 // #include "conf_api.h"
 #include "conf_def.h"
-// #include "buffer.h"
-// #include "err.h"
+#include "buffer.h"
+#include "err.h"
 
 /*
  * The maximum length we can grow a value to after variable expansion. 64k
@@ -1216,7 +1216,7 @@ void ERR_load_CONF_strings(void)
  */
 
 #include <stdio.h>
-// #include "crypto.h"
+#include "crypto.h"
 // #include "err.h"
 // #include "conf.h"
 // #include "conf_api.h"
@@ -1612,7 +1612,7 @@ long NCONF_get_number(CONF *conf, char *group, char *name)
 // #include "conf.h"
 #include "dso.h"
 #include "x509.h"
-// #include "asn1.h"
+#include "asn1.h"
 #ifndef OPENSSL_NO_ENGINE
 # include "engine.h"
 #endif
@@ -2296,7 +2296,7 @@ int CONF_parse_list(const char *list_, int sep, int nospc,
 // #include "x509.h"
 // #include "asn1.h"
 #ifndef OPENSSL_NO_ENGINE
-// # include "engine.h"
+# include "engine.h"
 #endif
 
 /*

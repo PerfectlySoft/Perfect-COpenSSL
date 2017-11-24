@@ -58,7 +58,7 @@
 #include "cryptlib.h"
 #include "rand.h"
 #include "x509.h"
-// #include "asn1.h"
+#include "asn1.h"
 #include "asn1t.h"
 #include "asn1_locl.h"
 
@@ -1035,7 +1035,7 @@ static int strip_eol(char *linebuf, int *plen)
 
 #include <stdio.h>
 #include <ctype.h>
-// #include "crypto.h"
+#include "crypto.h"
 // #include "cryptlib.h"
 #include "conf.h"
 #include "dso.h"

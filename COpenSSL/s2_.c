@@ -113,9 +113,9 @@
 #ifndef OPENSSL_NO_SSL2
 # include <stdio.h>
 # include "rand.h"
-// # include "buffer.h"
-// # include "objects.h"
-// # include "evp.h"
+# include "buffer.h"
+# include "objects.h"
+# include "evp.h"
 
 static const SSL_METHOD *ssl2_get_client_method(int ver);
 static int get_server_finished(SSL *s);
@@ -1403,8 +1403,8 @@ static void *dummy = &dummy;
 // #include "ssl_locl.h"
 #ifndef OPENSSL_NO_SSL2
 # include <stdio.h>
-// # include "objects.h"
-// # include "evp.h"
+# include "objects.h"
+# include "evp.h"
 # include "md5.h"
 
 const char ssl2_version_str[] = "SSLv2" OPENSSL_VERSION_PTEXT;
@@ -1921,7 +1921,7 @@ static void *dummy = &dummy;
 #ifndef OPENSSL_NO_SSL2_METHOD
 # ifndef OPENSSL_NO_SSL2
 # include <stdio.h>
-// # include "objects.h"
+# include "objects.h"
 
 static const SSL_METHOD *ssl2_get_method(int ver);
 static const SSL_METHOD *ssl2_get_method(int ver)
@@ -2796,10 +2796,10 @@ static void *dummy = &dummy;
 #ifndef OPENSSL_NO_SSL2
 #include "constant_time_locl.h"
 # include <stdio.h>
-// # include "bio.h"
-// # include "rand.h"
-// # include "objects.h"
-// # include "evp.h"
+# include "bio.h"
+# include "rand.h"
+# include "objects.h"
+# include "evp.h"
 
 static const SSL_METHOD *ssl2_get_server_method(int ver);
 static int get_client_master_key(SSL *s);

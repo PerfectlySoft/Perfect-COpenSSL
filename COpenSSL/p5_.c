@@ -61,7 +61,7 @@
 #include <stdlib.h>
 #include "cryptlib.h"
 #include "x509.h"
-// #include "evp.h"
+#include "evp.h"
 
 /*
  * Doesn't do anything now: Builtin PBE algorithms in static table.
@@ -209,8 +209,8 @@ int PKCS5_PBE_keyivgen(EVP_CIPHER_CTX *cctx, const char *pass, int passlen,
 #include <stdlib.h>
 // #include "cryptlib.h"
 #if !defined(OPENSSL_NO_HMAC) && !defined(OPENSSL_NO_SHA)
-// # include "x509.h"
-// # include "evp.h"
+# include "x509.h"
+# include "evp.h"
 # include "hmac.h"
 # include "evp_locl.h"
 

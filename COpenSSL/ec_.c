@@ -59,8 +59,8 @@
 #include <stdio.h>
 #include "cryptlib.h"
 #include "x509.h"
-// #include "ec.h"
-// #include "bn.h"
+#include "ec.h"
+#include "bn.h"
 #ifndef OPENSSL_NO_CMS
 # include "cms.h"
 #endif
@@ -1025,9 +1025,9 @@ static int ecdh_cms_encrypt(CMS_RecipientInfo *ri)
 
 #include <string.h>
 // #include "ec_lcl.h"
-// #include "err.h"
+#include "err.h"
 // #include "asn1t.h"
-// #include "objects.h"
+#include "objects.h"
 
 #define OSSL_NELEM(x)    (sizeof(x)/sizeof(x[0]))
 
@@ -2491,7 +2491,7 @@ int EC_GROUP_check(const EC_GROUP *group, BN_CTX *ctx)
 // #include "ec_lcl.h"
 // #include "err.h"
 // #include "obj_mac.h"
-// #include "opensslconf.h"
+#include "opensslconf.h"
 
 #ifdef OPENSSL_FIPS
 # include <fips.h>
@@ -6806,7 +6806,7 @@ void EC_KEY_clear_flags(EC_KEY *key, int flags)
 #include <string.h>
 
 // #include "err.h"
-// #include "opensslv.h"
+#include "opensslv.h"
 
 // #include "ec_lcl.h"
 
@@ -9047,8 +9047,8 @@ int EC_POINT_oct2point(const EC_GROUP *group, EC_POINT *point,
 // #include "x509.h"
 // #include "ec.h"
 // #include "ec_lcl.h"
-// #include "ecdsa.h"
-// #include "evp.h"
+#include "ecdsa.h"
+#include "evp.h"
 #include "evp_locl.h"
 
 /* EC pkey context structure */
@@ -9568,7 +9568,7 @@ const EVP_PKEY_METHOD ec_pkey_meth = {
  *
  */
 
-// #include "crypto.h"
+#include "crypto.h"
 // #include "ec_lcl.h"
 
 BIGNUM *EC_POINT_point2bn(const EC_GROUP *group,

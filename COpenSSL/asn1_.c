@@ -1726,8 +1726,8 @@ unsigned char *ASN1_STRING_data(ASN1_STRING *x)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "buffer.h"
-// #include "objects.h"
+#include "buffer.h"
+#include "objects.h"
 // #include "asn1.h"
 
 #ifndef ASN1_PARSE_MAXDEPTH

@@ -56,6 +56,7 @@
  * [including the GNU Public Licence.]
  */
 
+#include <limits.h>
 #include <stdio.h>
 #include "cryptlib.h"
 #include "asn1.h"
@@ -133,6 +134,11 @@ ASN1_BIT_STRING *c2i_ASN1_BIT_STRING(ASN1_BIT_STRING **a,
 
     if (len < 1) {
         i = ASN1_R_STRING_TOO_SHORT;
+        goto err;
+    }
+
+    if (len > INT_MAX) {
+        i = ASN1_R_STRING_TOO_LONG;
         goto err;
     }
 
@@ -767,7 +773,7 @@ static int asn1_collate_primitive(ASN1_STRING *a, ASN1_const_CTX *c,
 #include <stdio.h>
 #include <limits.h>
 // #include "cryptlib.h"
-// #include "buffer.h"
+#include "buffer.h"
 #include "asn1_mac.h"
 
 static int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb);
@@ -1057,7 +1063,7 @@ static int asn1_d2i_read_bio(BIO *in, BUF_MEM **pb)
 # include <sys/types.h>
 #endif
 
-// #include "err.h"
+#include "err.h"
 #include "evp.h"
 // #include "buffer.h"
 #include "x509.h"
@@ -1283,7 +1289,7 @@ void *ASN1_item_dup(const ASN1_ITEM *it, void *x)
 #include <stdio.h>
 // #include "cryptlib.h"
 // #include "asn1.h"
-// #include "bn.h"
+#include "bn.h"
 
 /*
  * Code for ENUMERATED type: identical to INTEGER apart from a different tag.
@@ -2822,7 +2828,7 @@ static int is_printable(unsigned long value)
 // #include "cryptlib.h"
 // #include "buffer.h"
 // #include "asn1.h"
-// #include "objects.h"
+#include "objects.h"
 // #include "bn.h"
 
 int i2d_ASN1_OBJECT(ASN1_OBJECT *a, unsigned char **pp)
@@ -4008,7 +4014,7 @@ int ASN1_item_sign_ctx(const ASN1_ITEM *it,
 #include <stdio.h>
 #include <string.h>
 // #include "cryptlib.h"
-// #include "crypto.h"
+#include "crypto.h"
 // #include "x509.h"
 // #include "asn1.h"
 

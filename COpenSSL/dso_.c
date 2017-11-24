@@ -1158,7 +1158,7 @@ static void *dlfcn_globallookup(const char *name)
  */
 
 #include <stdio.h>
-// #include "err.h"
+#include "err.h"
 // #include "dso.h"
 
 /* BEGIN ERROR CODES */
@@ -1314,7 +1314,7 @@ void ERR_load_DSO_strings(void)
  */
 
 #include <stdio.h>
-// #include "crypto.h"
+#include "crypto.h"
 // #include "cryptlib.h"
 // #include "dso.h"
 

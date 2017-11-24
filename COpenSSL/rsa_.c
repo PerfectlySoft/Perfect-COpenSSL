@@ -61,8 +61,8 @@
 #include "cryptlib.h"
 #include "asn1t.h"
 #include "x509.h"
-// #include "rsa.h"
-// #include "bn.h"
+#include "rsa.h"
+#include "bn.h"
 #ifndef OPENSSL_NO_CMS
 # include "cms.h"
 #endif
@@ -768,6 +768,7 @@ static int rsa_item_sign(EVP_MD_CTX *ctx, const ASN1_ITEM *it, void *asn,
     return 2;
 }
 
+#ifndef OPENSSL_NO_CMS
 static RSA_OAEP_PARAMS *rsa_oaep_decode(const X509_ALGOR *alg,
                                         X509_ALGOR **pmaskHash)
 {
@@ -791,7 +792,6 @@ static RSA_OAEP_PARAMS *rsa_oaep_decode(const X509_ALGOR *alg,
     return pss;
 }
 
-#ifndef OPENSSL_NO_CMS
 static int rsa_cms_decrypt(CMS_RecipientInfo *ri)
 {
     EVP_PKEY_CTX *pkctx;
@@ -1147,7 +1147,7 @@ RSA *RSAPrivateKey_dup(RSA *rsa)
  */
 
 // #include "bn.h"
-// #include "err.h"
+#include "err.h"
 // #include "rsa.h"
 
 int RSA_check_key(const RSA *key)
@@ -1346,9 +1346,9 @@ int RSA_check_key(const RSA *key)
  */
 
 #include <stdio.h>
-// #include "crypto.h"
+#include "crypto.h"
 // #include "cryptlib.h"
-// #include "lhash.h"
+#include "lhash.h"
 // #include "bn.h"
 // #include "rsa.h"
 #include "rand.h"
@@ -3109,7 +3109,7 @@ static int rsa_builtin_keygen(RSA *rsa, int bits, BIGNUM *e_value,
 // #include "rsa.h"
 // #include "rand.h"
 #ifndef OPENSSL_NO_ENGINE
-// # include "engine.h"
+# include "engine.h"
 #endif
 
 #ifdef OPENSSL_FIPS
@@ -3652,12 +3652,12 @@ static int RSA_null_finish(RSA *rsa)
 
 #if !defined(OPENSSL_NO_SHA) && !defined(OPENSSL_NO_SHA1)
 # include <stdio.h>
-// # include "cryptlib.h"
-// # include "bn.h"
-// # include "rsa.h"
-// # include "evp.h"
-// # include "rand.h"
-// # include "sha.h"
+# include "cryptlib.h"
+# include "bn.h"
+# include "rsa.h"
+# include "evp.h"
+# include "rand.h"
+# include "sha.h"
 
 int RSA_padding_add_PKCS1_OAEP(unsigned char *to, int tlen,
                                const unsigned char *from, int flen,
@@ -3868,10 +3868,14 @@ int RSA_padding_check_PKCS1_OAEP_mgf1(unsigned char *to, int tlen,
     RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_OAEP_MGF1,
            RSA_R_OAEP_DECODING_ERROR);
  cleanup:
-    if (db != NULL)
+    if (db != NULL) {
+        OPENSSL_cleanse(db, dblen);
         OPENSSL_free(db);
-    if (em != NULL)
+    }
+    if (em != NULL) {
+        OPENSSL_cleanse(em, num);
         OPENSSL_free(em);
+    }
     return mlen;
 }
 
@@ -4173,8 +4177,6 @@ int RSA_padding_check_PKCS1_type_2(unsigned char *to, int tlen,
      * We can't continue in constant-time because we need to copy the result
      * and we cannot fake its length. This unavoidably leaks timing
      * information at the API boundary.
-     * TODO(emilia): this could be addressed at the call site,
-     * see BoringSSL commit 0aa0767340baf925bda4804882aab0cb974b2d26.
      */
     if (!good) {
         mlen = -1;
@@ -4184,8 +4186,10 @@ int RSA_padding_check_PKCS1_type_2(unsigned char *to, int tlen,
     memcpy(to, em + msg_index, mlen);
 
  err:
-    if (em != NULL)
+    if (em != NULL) {
+        OPENSSL_cleanse(em, num);
         OPENSSL_free(em);
+    }
     if (mlen == -1)
         RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_2,
                RSA_R_PKCS_DECODING_ERROR);
@@ -4256,10 +4260,10 @@ int RSA_padding_check_PKCS1_type_2(unsigned char *to, int tlen,
 // #include "x509.h"
 // #include "rsa.h"
 // #include "bn.h"
-// #include "evp.h"
+#include "evp.h"
 #include "x509v3.h"
 #ifndef OPENSSL_NO_CMS
-// # include "cms.h"
+# include "cms.h"
 #endif
 #ifdef OPENSSL_FIPS
 # include <fips.h>
@@ -4373,27 +4377,25 @@ static void pkey_rsa_cleanup(EVP_PKEY_CTX *ctx)
  * FIPS mode.
  */
 
-static int pkey_fips_check_ctx(EVP_PKEY_CTX *ctx)
+static int pkey_fips_check_rsa(const RSA *rsa, const EVP_MD **pmd,
+                               const EVP_MD **pmgf1md)
 {
-    RSA_PKEY_CTX *rctx = ctx->data;
-    RSA *rsa = ctx->pkey->pkey.rsa;
     int rv = -1;
+
     if (!FIPS_mode())
         return 0;
     if (rsa->flags & RSA_FLAG_NON_FIPS_ALLOW)
         rv = 0;
     if (!(rsa->meth->flags & RSA_FLAG_FIPS_METHOD) && rv)
         return -1;
-    if (rctx->md) {
-        const EVP_MD *fmd;
-        fmd = FIPS_get_digestbynid(EVP_MD_type(rctx->md));
-        if (!fmd || !(fmd->flags & EVP_MD_FLAG_FIPS))
+    if (*pmd != NULL) {
+        *pmd = FIPS_get_digestbynid(EVP_MD_type(*pmd));
+        if (*pmd == NULL || !((*pmd)->flags & EVP_MD_FLAG_FIPS))
             return rv;
     }
-    if (rctx->mgf1md && !(rctx->mgf1md->flags & EVP_MD_FLAG_FIPS)) {
-        const EVP_MD *fmd;
-        fmd = FIPS_get_digestbynid(EVP_MD_type(rctx->mgf1md));
-        if (!fmd || !(fmd->flags & EVP_MD_FLAG_FIPS))
+    if (*pmgf1md != NULL) {
+        *pmgf1md = FIPS_get_digestbynid(EVP_MD_type(*pmgf1md));
+        if (*pmgf1md == NULL || !((*pmgf1md)->flags & EVP_MD_FLAG_FIPS))
             return rv;
     }
     return 1;
@@ -4407,27 +4409,27 @@ static int pkey_rsa_sign(EVP_PKEY_CTX *ctx, unsigned char *sig,
     int ret;
     RSA_PKEY_CTX *rctx = ctx->data;
     RSA *rsa = ctx->pkey->pkey.rsa;
+    const EVP_MD *md = rctx->md;
+    const EVP_MD *mgf1md = rctx->mgf1md;
 
 #ifdef OPENSSL_FIPS
-    ret = pkey_fips_check_ctx(ctx);
+    ret = pkey_fips_check_rsa(rsa, &md, &mgf1md);
     if (ret < 0) {
         RSAerr(RSA_F_PKEY_RSA_SIGN, RSA_R_OPERATION_NOT_ALLOWED_IN_FIPS_MODE);
         return -1;
     }
 #endif
 
-    if (rctx->md) {
-        if (tbslen != (size_t)EVP_MD_size(rctx->md)) {
+    if (md != NULL) {
+        if (tbslen != (size_t)EVP_MD_size(md)) {
             RSAerr(RSA_F_PKEY_RSA_SIGN, RSA_R_INVALID_DIGEST_LENGTH);
             return -1;
         }
 #ifdef OPENSSL_FIPS
         if (ret > 0) {
             unsigned int slen;
-            ret = FIPS_rsa_sign_digest(rsa, tbs, tbslen, rctx->md,
-                                       rctx->pad_mode,
-                                       rctx->saltlen,
-                                       rctx->mgf1md, sig, &slen);
+            ret = FIPS_rsa_sign_digest(rsa, tbs, tbslen, md, rctx->pad_mode,
+                                       rctx->saltlen, mgf1md, sig, &slen);
             if (ret > 0)
                 *siglen = slen;
             else
@@ -4436,12 +4438,12 @@ static int pkey_rsa_sign(EVP_PKEY_CTX *ctx, unsigned char *sig,
         }
 #endif
 
-        if (EVP_MD_type(rctx->md) == NID_mdc2) {
+        if (EVP_MD_type(md) == NID_mdc2) {
             unsigned int sltmp;
             if (rctx->pad_mode != RSA_PKCS1_PADDING)
                 return -1;
-            ret = RSA_sign_ASN1_OCTET_STRING(NID_mdc2,
-                                             tbs, tbslen, sig, &sltmp, rsa);
+            ret = RSA_sign_ASN1_OCTET_STRING(NID_mdc2, tbs, tbslen, sig, &sltmp,
+                                             rsa);
 
             if (ret <= 0)
                 return ret;
@@ -4456,23 +4458,20 @@ static int pkey_rsa_sign(EVP_PKEY_CTX *ctx, unsigned char *sig,
                 return -1;
             }
             memcpy(rctx->tbuf, tbs, tbslen);
-            rctx->tbuf[tbslen] = RSA_X931_hash_id(EVP_MD_type(rctx->md));
+            rctx->tbuf[tbslen] = RSA_X931_hash_id(EVP_MD_type(md));
             ret = RSA_private_encrypt(tbslen + 1, rctx->tbuf,
                                       sig, rsa, RSA_X931_PADDING);
         } else if (rctx->pad_mode == RSA_PKCS1_PADDING) {
             unsigned int sltmp;
-            ret = RSA_sign(EVP_MD_type(rctx->md),
-                           tbs, tbslen, sig, &sltmp, rsa);
+            ret = RSA_sign(EVP_MD_type(md), tbs, tbslen, sig, &sltmp, rsa);
             if (ret <= 0)
                 return ret;
             ret = sltmp;
         } else if (rctx->pad_mode == RSA_PKCS1_PSS_PADDING) {
             if (!setup_tbuf(rctx, ctx))
                 return -1;
-            if (!RSA_padding_add_PKCS1_PSS_mgf1(rsa,
-                                                rctx->tbuf, tbs,
-                                                rctx->md, rctx->mgf1md,
-                                                rctx->saltlen))
+            if (!RSA_padding_add_PKCS1_PSS_mgf1(rsa, rctx->tbuf, tbs,
+                                                md, mgf1md, rctx->saltlen))
                 return -1;
             ret = RSA_private_encrypt(RSA_size(rsa), rctx->tbuf,
                                       sig, rsa, RSA_NO_PADDING);
@@ -4541,32 +4540,31 @@ static int pkey_rsa_verify(EVP_PKEY_CTX *ctx,
 {
     RSA_PKEY_CTX *rctx = ctx->data;
     RSA *rsa = ctx->pkey->pkey.rsa;
+    const EVP_MD *md = rctx->md;
+    const EVP_MD *mgf1md = rctx->mgf1md;
     size_t rslen;
+
 #ifdef OPENSSL_FIPS
-    int rv;
-    rv = pkey_fips_check_ctx(ctx);
+    int rv = pkey_fips_check_rsa(rsa, &md, &mgf1md);
+
     if (rv < 0) {
         RSAerr(RSA_F_PKEY_RSA_VERIFY,
                RSA_R_OPERATION_NOT_ALLOWED_IN_FIPS_MODE);
         return -1;
     }
 #endif
-    if (rctx->md) {
+    if (md != NULL) {
 #ifdef OPENSSL_FIPS
         if (rv > 0) {
-            return FIPS_rsa_verify_digest(rsa,
-                                          tbs, tbslen,
-                                          rctx->md,
-                                          rctx->pad_mode,
-                                          rctx->saltlen,
-                                          rctx->mgf1md, sig, siglen);
+            return FIPS_rsa_verify_digest(rsa, tbs, tbslen, md, rctx->pad_mode,
+                                          rctx->saltlen, mgf1md, sig, siglen);
 
         }
 #endif
         if (rctx->pad_mode == RSA_PKCS1_PADDING)
-            return RSA_verify(EVP_MD_type(rctx->md), tbs, tbslen,
+            return RSA_verify(EVP_MD_type(md), tbs, tbslen,
                               sig, siglen, rsa);
-        if (tbslen != (size_t)EVP_MD_size(rctx->md)) {
+        if (tbslen != (size_t)EVP_MD_size(md)) {
             RSAerr(RSA_F_PKEY_RSA_VERIFY, RSA_R_INVALID_DIGEST_LENGTH);
             return -1;
         }
@@ -4581,8 +4579,7 @@ static int pkey_rsa_verify(EVP_PKEY_CTX *ctx,
                                      rsa, RSA_NO_PADDING);
             if (ret <= 0)
                 return 0;
-            ret = RSA_verify_PKCS1_PSS_mgf1(rsa, tbs,
-                                            rctx->md, rctx->mgf1md,
+            ret = RSA_verify_PKCS1_PSS_mgf1(rsa, tbs, md, mgf1md,
                                             rctx->tbuf, rctx->saltlen);
             if (ret <= 0)
                 return 0;
@@ -5133,7 +5130,7 @@ int RSA_print(BIO *bp, const RSA *x, int off)
 // #include "rsa.h"
 // #include "evp.h"
 // #include "rand.h"
-// #include "sha.h"
+#include "sha.h"
 
 static const unsigned char zeroes[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
@@ -5429,7 +5426,7 @@ int RSA_padding_add_PKCS1_PSS_mgf1(RSA *rsa, unsigned char *EM,
 // #include "cryptlib.h"
 // #include "bn.h"
 // #include "rsa.h"
-// #include "objects.h"
+#include "objects.h"
 // #include "x509.h"
 
 int RSA_sign_ASN1_OCTET_STRING(int type,

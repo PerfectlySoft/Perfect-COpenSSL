@@ -3,7 +3,7 @@
 # Fetches the version of OpenSSL specified in $SSL_VERS and reconfigures the
 # sources for use in a Swift module.
 
-SSL_VERS=1.0.2l
+SSL_VERS=1.0.2m
 
 # cd to this script's directory (cannot have spaces in path)
 cd $(dirname $(cd "${BASH_SOURCE[0]%/*}" && echo "$PWD/${0##*/}"))
@@ -152,15 +152,16 @@ then
 fi
 
 # amalgamate source files named with these prefixes
-# not included: b_ des_ e_ ecp_ m_ rand_ tb_ v3_
+# not included: b_ des_ e_ ecp_ m_ tb_
 PREFIXES="a_ aes_ asn_ asn1_ bf_ bio_ bn_ bss_ buf_ by_ c_ cbc_ cm_ cmll_ cms_ \
 	comp_ conf_ d1_ d2i_ dh_ dsa_ dso_ ec_ ec2_ ech_ ecs_ enc_ eng_ err_ evp_ \
 	f_ gost_ hm_ i_ i2d_ md4_ md5_ mem_ o_ obj_ ocsp_ p_ p5_ p12_ pcy_ pem_ \
-	pk7_ pmeth_ rc2_ rc4_ rmd_ rsa_ s2_ s3_ s23_ seed_ sha_ srp_ ssl_ t_ t1_ \
-	tasn_ ts_ ui_ wp_ x_ x509_"
+	pk7_ pmeth_ rand_ rc2_ rc4_ rmd_ rsa_ s2_ s3_ s23_ seed_ sha_ srp_ ssl_ t_ \
+	t1_ tasn_ ts_ ui_ v3_ wp_ x_ x509_"
 
 if [ -d COpenSSL-flat ]
 then
+	mv COpenSSL-flat/ COpenSSL-combined/
 	# fetch and patch the amalgamation script
 	if [ ! -x amalgamate_.py ]
 	then
@@ -199,6 +200,15 @@ then
  			f.write(amalgamation)
  		
  		print("...done!\n")
+@@ -117,7 +118,7 @@
+ 	# directives where macros and defines needs to expanded is
+ 	# not a concern right now.
+ 	include_pattern = re.compile(
+-		r'#\s*include\s+(<|")(?P<path>.*?)("|>)', re.S)
++		r'#include\s+(<|")(?P<path>.*?)("|>)', re.S)
+ 
+ 	# #pragma once
+ 	pragma_once_pattern = re.compile(r'#\s*pragma\s+once', re.S)
 @@ -193,7 +194,7 @@
  		
  		# Handle all collected pragma once directives.
@@ -240,19 +250,22 @@ EOF
 		mv amalgamate.py amalgamate_.py
 	fi
 
+	# skip a few specific files
+	mv COpenSSL-combined/{d1_lib.c,v3_lib.c} .
+
 	# for each prefix, generate a .json file for all matching .c files
 	# unless the amalgamated .c file is already present
 	for p in ${PREFIXES}
 	do
 		FIRST=true
 		JSON=${p}.c.json
-		BATCH=$(cd COpenSSL-flat; ls ${p}*.c)
+		BATCH=$(cd COpenSSL-combined; ls ${p}*.c)
 		if [ "${BATCH}" == ${p}.c ]
 		then
 			continue
 		fi
 		echo '{
-		"project": "COpenSSL-flat",
+		"project": "COpenSSL-combined",
 		"target": "'${p}'.c",
 		"sources": [' > "${JSON}"
 		for b in ${BATCH}
@@ -274,20 +287,21 @@ EOF
 
 	# perform amalgamation and swap in new sources for originals, then remove .json files
 	for j in $(find . -name "*.c.json"); do
-		./amalgamate_.py -v=no -c ${j} -s COpenSSL-flat/
+		./amalgamate_.py -v=no -c ${j} -s COpenSSL-combined/
 		PREFIX=${j%.c.json}
-		find COpenSSL-flat -name "${PREFIX#*/}*".c -exec mv {} openssl-${SSL_VERS}/ \;
-		mv "${PREFIX#*/}"*.c COpenSSL-flat/
+		find COpenSSL-combined -name "${PREFIX#*/}*".c -exec mv {} openssl-${SSL_VERS}/ \;
+		mv "${PREFIX#*/}"*.c COpenSSL-combined/
 		find ${j} -exec rm -f {} \;
 	done
 	
-	mv COpenSSL-flat/ COpenSSL/
+	mv COpenSSL-combined/ COpenSSL/
 fi
 
 if [ -d COpenSSL ]
 then
 	cp -a ../COpenSSL/include COpenSSL/
-	mv ../COpenSSL COpenSSL-orig
+	rm -rf COpenSSL-orig
+	mv ../COpenSSL/ COpenSSL-orig/
 	mv COpenSSL/ ..
 	echo "Update complete. Remember to remove amalgamate_.py, COpenSSL-orig/, and openssl-${SSL_VERS}/ from this directory."
 fi

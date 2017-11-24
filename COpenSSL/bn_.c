@@ -1792,7 +1792,7 @@ BN_BLINDING *BN_BLINDING_create_param(BN_BLINDING *b,
 /* crypto/bn/knownprimes.c */
 /* Insert boilerplate */
 
-// #include "bn.h"
+#include "bn.h"
 
 /*-
  * "First Oakley Default Group" from RFC2409, section 6.1.
@@ -3438,7 +3438,7 @@ X) -> 0x%08X\n", n0, n1, d0, q);
  */
 
 #include <stdio.h>
-// #include "err.h"
+#include "err.h"
 // #include "bn.h"
 
 /* BEGIN ERROR CODES */
@@ -3677,7 +3677,8 @@ int BN_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, BN_CTX *ctx)
     int i, bits, ret = 0;
     BIGNUM *v, *rr;
 
-    if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0) {
+    if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0
+            || BN_get_flags(a, BN_FLG_CONSTTIME) != 0) {
         /* BN_FLG_CONSTTIME only supported by BN_mod_exp_mont() */
         BNerr(BN_F_BN_EXP, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
         return -1;
@@ -3777,7 +3778,9 @@ int BN_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p, const BIGNUM *m,
     if (BN_is_odd(m)) {
 # ifdef MONT_EXP_WORD
         if (a->top == 1 && !a->neg
-            && (BN_get_flags(p, BN_FLG_CONSTTIME) == 0)) {
+            && (BN_get_flags(p, BN_FLG_CONSTTIME) == 0)
+            && (BN_get_flags(a, BN_FLG_CONSTTIME) == 0)
+            && (BN_get_flags(m, BN_FLG_CONSTTIME) == 0)) {
             BN_ULONG A = a->d[0];
             ret = BN_mod_exp_mont_word(r, A, p, m, ctx, NULL);
         } else
@@ -3809,7 +3812,9 @@ int BN_mod_exp_recp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
     BIGNUM *val[TABLE_SIZE];
     BN_RECP_CTX recp;
 
-    if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0) {
+    if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0
+            || BN_get_flags(a, BN_FLG_CONSTTIME) != 0
+            || BN_get_flags(m, BN_FLG_CONSTTIME) != 0) {
         /* BN_FLG_CONSTTIME only supported by BN_mod_exp_mont() */
         BNerr(BN_F_BN_MOD_EXP_RECP, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
         return -1;
@@ -3943,7 +3948,9 @@ int BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
     BIGNUM *val[TABLE_SIZE];
     BN_MONT_CTX *mont = NULL;
 
-    if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0) {
+    if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0
+            || BN_get_flags(a, BN_FLG_CONSTTIME) != 0
+            || BN_get_flags(m, BN_FLG_CONSTTIME) != 0) {
         return BN_mod_exp_mont_consttime(rr, a, p, m, ctx, in_mont);
     }
 
@@ -4749,7 +4756,8 @@ int BN_mod_exp_mont_word(BIGNUM *rr, BN_ULONG a, const BIGNUM *p,
 #define BN_TO_MONTGOMERY_WORD(r, w, mont) \
                 (BN_set_word(r, (w)) && BN_to_montgomery(r, r, (mont), ctx))
 
-    if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0) {
+    if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0
+            || BN_get_flags(m, BN_FLG_CONSTTIME) != 0) {
         /* BN_FLG_CONSTTIME only supported by BN_mod_exp_mont() */
         BNerr(BN_F_BN_MOD_EXP_MONT_WORD, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
         return -1;
@@ -4880,7 +4888,9 @@ int BN_mod_exp_simple(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
     /* Table of variables obtained from 'ctx' */
     BIGNUM *val[TABLE_SIZE];
 
-    if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0) {
+    if (BN_get_flags(p, BN_FLG_CONSTTIME) != 0
+            || BN_get_flags(a, BN_FLG_CONSTTIME) != 0
+            || BN_get_flags(m, BN_FLG_CONSTTIME) != 0) {
         /* BN_FLG_CONSTTIME only supported by BN_mod_exp_mont() */
         BNerr(BN_F_BN_MOD_EXP_SIMPLE, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
         return -1;
@@ -8005,6 +8015,9 @@ BIGNUM *BN_copy(BIGNUM *a, const BIGNUM *b)
     memcpy(a->d, b->d, sizeof(b->d[0]) * b->top);
 #endif
 
+    if (BN_get_flags(b, BN_FLG_CONSTTIME) != 0)
+        BN_set_flags(a, BN_FLG_CONSTTIME);
+
     a->top = b->top;
     a->neg = b->neg;
     bn_check_top(a);
@@ -9106,6 +9119,9 @@ int BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
         tmod.d = buf;
         tmod.dmax = 2;
         tmod.neg = 0;
+
+        if (BN_get_flags(mod, BN_FLG_CONSTTIME) != 0)
+            BN_set_flags(&tmod, BN_FLG_CONSTTIME);
 
         mont->ri = (BN_num_bits(mod) + (BN_BITS2 - 1)) / BN_BITS2 * BN_BITS2;
 
@@ -10431,46 +10447,6 @@ int BN_mul(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx)
             rr->top = top;
             goto end;
         }
-# if 0
-        if (i == 1 && !BN_get_flags(b, BN_FLG_STATIC_DATA)) {
-            BIGNUM *tmp_bn = (BIGNUM *)b;
-            if (bn_wexpand(tmp_bn, al) == NULL)
-                goto err;
-            tmp_bn->d[bl] = 0;
-            bl++;
-            i--;
-        } else if (i == -1 && !BN_get_flags(a, BN_FLG_STATIC_DATA)) {
-            BIGNUM *tmp_bn = (BIGNUM *)a;
-            if (bn_wexpand(tmp_bn, bl) == NULL)
-                goto err;
-            tmp_bn->d[al] = 0;
-            al++;
-            i++;
-        }
-        if (i == 0) {
-            /* symmetric and > 4 */
-            /* 16 or larger */
-            j = BN_num_bits_word((BN_ULONG)al);
-            j = 1 << (j - 1);
-            k = j + j;
-            t = BN_CTX_get(ctx);
-            if (al == j) {      /* exact multiple */
-                if (bn_wexpand(t, k * 2) == NULL)
-                    goto err;
-                if (bn_wexpand(rr, k * 2) == NULL)
-                    goto err;
-                bn_mul_recursive(rr->d, a->d, b->d, al, t->d);
-            } else {
-                if (bn_wexpand(t, k * 4) == NULL)
-                    goto err;
-                if (bn_wexpand(rr, k * 4) == NULL)
-                    goto err;
-                bn_mul_part_recursive(rr->d, a->d, b->d, al - j, j, t->d);
-            }
-            rr->top = top;
-            goto end;
-        }
-# endif
     }
 #endif                          /* BN_RECURSION */
     if (bn_wexpand(rr, top) == NULL)
@@ -12390,7 +12366,7 @@ static int probable_prime_dh_safe(BIGNUM *p, int bits, const BIGNUM *padd,
 #include <ctype.h>
 #include <limits.h>
 // #include "cryptlib.h"
-// #include "buffer.h"
+#include "buffer.h"
 // #include "bn_lcl.h"
 
 static const char Hex[] = "0123456789ABCDEF";
@@ -14668,6 +14644,8 @@ int BN_X931_generate_Xpq(BIGNUM *Xp, BIGNUM *Xq, int nbits, BN_CTX *ctx)
 
     BN_CTX_start(ctx);
     t = BN_CTX_get(ctx);
+    if (t == NULL)
+        goto err;
 
     for (i = 0; i < 1000; i++) {
         if (!BN_rand(Xq, nbits, 1, 0))
@@ -14706,10 +14684,12 @@ int BN_X931_generate_prime_ex(BIGNUM *p, BIGNUM *p1, BIGNUM *p2,
     int ret = 0;
 
     BN_CTX_start(ctx);
-    if (!Xp1)
+    if (Xp1 == NULL)
         Xp1 = BN_CTX_get(ctx);
-    if (!Xp2)
+    if (Xp2 == NULL)
         Xp2 = BN_CTX_get(ctx);
+    if (Xp1 == NULL || Xp2 == NULL)
+        goto error;
 
     if (!BN_rand(Xp1, 101, 0, 0))
         goto error;

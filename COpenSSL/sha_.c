@@ -57,13 +57,13 @@
  */
 
 #include "crypto.h"
-// #include "opensslconf.h"
+#include "opensslconf.h"
 #if !defined(OPENSSL_NO_SHA0) && !defined(OPENSSL_NO_SHA)
 
 # undef  SHA_1
 # define SHA_0
 
-// # include "opensslv.h"
+# include "opensslv.h"
 
 const char SHA_version[] = "SHA" OPENSSL_VERSION_PTEXT;
 
@@ -132,7 +132,7 @@ const char SHA_version[] = "SHA" OPENSSL_VERSION_PTEXT;
 
 #include <stdio.h>
 #include <string.h>
-// #include "sha.h"
+#include "sha.h"
 // #include "crypto.h"
 
 #ifndef OPENSSL_NO_SHA0

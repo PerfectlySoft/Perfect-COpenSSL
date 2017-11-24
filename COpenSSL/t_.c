@@ -164,10 +164,10 @@ int ASN1_BIT_STRING_num_asc(char *name, BIT_STRING_BITNAME *tbl)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "buffer.h"
-// #include "bn.h"
-// #include "objects.h"
-// #include "x509.h"
+#include "buffer.h"
+#include "bn.h"
+#include "objects.h"
+#include "x509.h"
 // #include "x509v3.h"
 
 #ifndef OPENSSL_NO_FP_API
@@ -415,10 +415,10 @@ int ASN1_bn_print(BIO *bp, const char *number, const BIGNUM *num,
 // #include "x509.h"
 // #include "x509v3.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 
 #ifndef OPENSSL_NO_FP_API
@@ -666,12 +666,12 @@ int X509_REQ_print(BIO *bp, X509_REQ *x)
 #include <stdio.h>
 // #include "cryptlib.h"
 // #include "x509.h"
-// #include "asn1.h"
+#include "asn1.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 // #include "bn.h"
 
@@ -775,13 +775,13 @@ int NETSCAPE_SPKI_print(BIO *out, NETSCAPE_SPKI *spki)
 // #include "buffer.h"
 // #include "bn.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 #ifndef OPENSSL_NO_EC
-// # include "ec.h"
+# include "ec.h"
 #endif
 // #include "objects.h"
 // #include "x509.h"
@@ -1329,7 +1329,7 @@ int X509_NAME_print(BIO *bp, X509_NAME *name, int obase)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "evp.h"
+#include "evp.h"
 // #include "asn1.h"
 // #include "x509.h"
 

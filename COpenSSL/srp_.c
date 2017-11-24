@@ -60,7 +60,7 @@
 #ifndef OPENSSL_NO_SRP
 # include "cryptlib.h"
 # include "srp_lcl.h"
-// # include "srp.h"
+# include "srp.h"
 # include "evp.h"
 
 # if (BN_BYTES == 8)
@@ -421,11 +421,11 @@ SRP_gN *SRP_get_default_gN(const char *id)
  *
  */
 #ifndef OPENSSL_NO_SRP
-// # include "cryptlib.h"
-// # include "srp_lcl.h"
-// # include "srp.h"
-// # include "evp.h"
-// # include "buffer.h"
+# include "cryptlib.h"
+# include "srp_lcl.h"
+# include "srp.h"
+# include "evp.h"
+# include "buffer.h"
 # include "rand.h"
 # include "txt_db.h"
 

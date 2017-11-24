@@ -392,7 +392,7 @@ void RC4(RC4_KEY *key, size_t len, const unsigned char *indata,
 
 // #include "rc4.h"
 // #include "rc4_locl.h"
-// #include "opensslv.h"
+#include "opensslv.h"
 
 const char RC4_version[] = "RC4" OPENSSL_VERSION_PTEXT;
 
@@ -500,7 +500,7 @@ void private_RC4_set_key(RC4_KEY *key, int len, const unsigned char *data)
  */
 
 // #include "opensslv.h"
-// #include "crypto.h"
+#include "crypto.h"
 // #include "rc4.h"
 
 void RC4_set_key(RC4_KEY *key, int len, const unsigned char *data)

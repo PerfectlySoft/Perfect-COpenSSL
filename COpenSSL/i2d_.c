@@ -139,17 +139,17 @@ int i2d_PrivateKey(EVP_PKEY *a, unsigned char **pp)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "bn.h"
+#include "bn.h"
 // #include "evp.h"
-// #include "objects.h"
+#include "objects.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 #ifndef OPENSSL_NO_EC
-// # include "ec.h"
+# include "ec.h"
 #endif
 
 int i2d_PublicKey(EVP_PKEY *a, unsigned char **pp)

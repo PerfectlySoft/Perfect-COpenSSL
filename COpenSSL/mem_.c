@@ -189,9 +189,9 @@ void OPENSSL_cleanse(void *ptr, size_t len)
 #include <time.h>
 #include "cryptlib.h"
 // #include "crypto.h"
-// #include "buffer.h"
-// #include "bio.h"
-// #include "lhash.h"
+#include "buffer.h"
+#include "bio.h"
+#include "lhash.h"
 
 static int mh_mode = CRYPTO_MEM_CHECK_OFF;
 /*

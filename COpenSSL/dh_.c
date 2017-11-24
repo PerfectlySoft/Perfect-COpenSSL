@@ -59,9 +59,9 @@
 #include <stdio.h>
 #include "cryptlib.h"
 #include "x509.h"
-// #include "asn1.h"
-// #include "dh.h"
-// #include "bn.h"
+#include "asn1.h"
+#include "dh.h"
+#include "bn.h"
 #include "asn1_locl.h"
 #ifndef OPENSSL_NO_CMS
 # include "cms.h"
@@ -1018,7 +1018,7 @@ static int dh_cms_encrypt(CMS_RecipientInfo *ri)
 // #include "cryptlib.h"
 // #include "bn.h"
 // #include "dh.h"
-// #include "objects.h"
+#include "objects.h"
 #include "asn1t.h"
 
 /* Override the default free and new methods */
@@ -1475,7 +1475,7 @@ DH *DH_generate_parameters(int prime_len, int generator,
  */
 
 #include <stdio.h>
-// #include "err.h"
+#include "err.h"
 // #include "dh.h"
 
 /* BEGIN ERROR CODES */
@@ -1796,11 +1796,14 @@ static int dh_builtin_genparams(DH *ret, int prime_len, int generator,
  * ====================================================================
  */
 
+#include "e_os.h"
+
+#ifndef OPENSSL_NO_CMS
 #include <string.h>
 // #include "dh.h"
-// #include "evp.h"
+#include "evp.h"
 // #include "asn1.h"
-// #include "cms.h"
+#include "cms.h"
 
 /* Key derivation from X9.42/RFC2631 */
 
@@ -1930,6 +1933,7 @@ int DH_KDF_X9_42(unsigned char *out, size_t outlen,
     EVP_MD_CTX_cleanup(&mctx);
     return rv;
 }
+#endif
 /* crypto/dh/dh_key.c */
 /* Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)
  * All rights reserved.
@@ -2550,7 +2554,7 @@ int DH_size(const DH *dh)
 // #include "dh.h"
 // #include "bn.h"
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 // #include "objects.h"
 #include "evp_locl.h"
@@ -2693,7 +2697,11 @@ static int pkey_dh_ctrl(EVP_PKEY_CTX *ctx, int type, int p1, void *p2)
     case EVP_PKEY_CTRL_DH_KDF_TYPE:
         if (p1 == -2)
             return dctx->kdf_type;
+#ifdef OPENSSL_NO_CMS
+        if (p1 != EVP_PKEY_DH_KDF_NONE)
+#else
         if (p1 != EVP_PKEY_DH_KDF_NONE && p1 != EVP_PKEY_DH_KDF_X9_42)
+#endif
             return -2;
         dctx->kdf_type = p1;
         return 1;
@@ -2934,7 +2942,9 @@ static int pkey_dh_derive(EVP_PKEY_CTX *ctx, unsigned char *key,
             return ret;
         *keylen = ret;
         return 1;
-    } else if (dctx->kdf_type == EVP_PKEY_DH_KDF_X9_42) {
+    }
+#ifndef OPENSSL_NO_CMS
+    else if (dctx->kdf_type == EVP_PKEY_DH_KDF_X9_42) {
         unsigned char *Z = NULL;
         size_t Zlen = 0;
         if (!dctx->kdf_outlen || !dctx->kdf_oid)
@@ -2965,6 +2975,7 @@ static int pkey_dh_derive(EVP_PKEY_CTX *ctx, unsigned char *key,
         }
         return ret;
     }
+#endif
     return 1;
 }
 

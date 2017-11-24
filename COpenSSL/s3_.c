@@ -118,11 +118,11 @@
 #include <string.h>
 #include <stdio.h>
 #include "ssl_locl.h"
-// #include "buffer.h"
+#include "buffer.h"
 #include "rand.h"
-// #include "objects.h"
-// #include "evp.h"
-// #include "x509.h"
+#include "objects.h"
+#include "evp.h"
+#include "x509.h"
 
 /*
  * send s->init_buf in records of type 'type' (SSL3_RT_HANDSHAKE or
@@ -815,7 +815,7 @@ int ssl3_release_read_buffer(SSL *s)
 // #include "ssl_locl.h"
 
 #include "md5.h"
-// #include "sha.h"
+#include "sha.h"
 
 /*
  * MAX_HASH_BIT_COUNT_BYTES is the maximum number of bytes in the hash's
@@ -1738,9 +1738,9 @@ void tls_fips_digest_extra(const EVP_CIPHER_CTX *cipher_ctx,
 # include <fips.h>
 #endif
 #ifndef OPENSSL_NO_DH
-// # include "dh.h"
+# include "dh.h"
 #endif
-// #include "bn.h"
+#include "bn.h"
 #ifndef OPENSSL_NO_ENGINE
 # include "engine.h"
 #endif
@@ -6519,7 +6519,7 @@ int ssl3_alert_code(int code)
 // #include "kssl_lcl.h"
 // #include "md5.h"
 #ifndef OPENSSL_NO_DH
-// # include "dh.h"
+# include "dh.h"
 #endif
 
 const char ssl3_version_str[] = "SSLv3" OPENSSL_VERSION_PTEXT;
@@ -12405,7 +12405,7 @@ int ssl3_read_bytes(SSL *s, int type, unsigned char *buf, int len, int peek)
         (s->s3->handshake_fragment_len >= 4) &&
         (s->s3->handshake_fragment[0] == SSL3_MT_CLIENT_HELLO) &&
         (s->session != NULL) && (s->session->cipher != NULL) &&
-        !(s->ctx->options & SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION)) {
+        !(s->options & SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION)) {
         /*
          * s->s3->handshake_fragment_len = 0;
          */
@@ -12904,10 +12904,10 @@ int ssl3_dispatch_alert(SSL *s)
 // #include "rand.h"
 // #include "objects.h"
 // #include "evp.h"
-// #include "hmac.h"
+#include "hmac.h"
 // #include "x509.h"
 #ifndef OPENSSL_NO_DH
-// # include "dh.h"
+# include "dh.h"
 #endif
 // #include "bn.h"
 #ifndef OPENSSL_NO_KRB5
@@ -14947,7 +14947,7 @@ int ssl3_get_client_key_exchange(SSL *s)
         unsigned char rand_premaster_secret[SSL_MAX_MASTER_KEY_LENGTH];
         int decrypt_len;
         unsigned char decrypt_good, version_good;
-        size_t j;
+        size_t j, padding_len;
 
         /* FIX THIS UP EAY EAY EAY EAY */
         if (s->s3->tmp.use_rsa_tmp) {
@@ -15015,16 +15015,38 @@ int ssl3_get_client_key_exchange(SSL *s)
         if (RAND_bytes(rand_premaster_secret,
                        sizeof(rand_premaster_secret)) <= 0)
             goto err;
-        decrypt_len =
-            RSA_private_decrypt((int)n, p, p, rsa, RSA_PKCS1_PADDING);
-        ERR_clear_error();
 
         /*
-         * decrypt_len should be SSL_MAX_MASTER_KEY_LENGTH. decrypt_good will
-         * be 0xff if so and zero otherwise.
+         * Decrypt with no padding. PKCS#1 padding will be removed as part of
+         * the timing-sensitive code below.
          */
-        decrypt_good =
-            constant_time_eq_int_8(decrypt_len, SSL_MAX_MASTER_KEY_LENGTH);
+        decrypt_len =
+            RSA_private_decrypt((int)n, p, p, rsa, RSA_NO_PADDING);
+        if (decrypt_len < 0)
+            goto err;
+
+        /* Check the padding. See RFC 3447, section 7.2.2. */
+
+        /*
+         * The smallest padded premaster is 11 bytes of overhead. Small keys
+         * are publicly invalid, so this may return immediately. This ensures
+         * PS is at least 8 bytes.
+         */
+        if (decrypt_len < 11 + SSL_MAX_MASTER_KEY_LENGTH) {
+            al = SSL_AD_DECRYPT_ERROR;
+            SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE,
+                   SSL_R_DECRYPTION_FAILED);
+            goto f_err;
+        }
+
+        padding_len = decrypt_len - SSL_MAX_MASTER_KEY_LENGTH;
+        decrypt_good = constant_time_eq_int_8(p[0], 0) &
+                       constant_time_eq_int_8(p[1], 2);
+        for (j = 2; j < padding_len - 1; j++) {
+            decrypt_good &= ~constant_time_is_zero_8(p[j]);
+        }
+        decrypt_good &= constant_time_is_zero_8(p[padding_len - 1]);
+        p += padding_len;
 
         /*
          * If the version in the decrypted pre-master secret is correct then

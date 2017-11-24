@@ -60,7 +60,7 @@
 #include <errno.h>
 #define USE_SOCKETS
 #include "cryptlib.h"
-// #include "bio.h"
+#include "bio.h"
 
 #ifndef OPENSSL_NO_SOCK
 
@@ -544,10 +544,10 @@ BIO *BIO_new_accept(const char *str)
 #include <string.h>
 
 // #include "bio.h"
-// #include "err.h"
-// #include "crypto.h"
+#include "err.h"
+#include "crypto.h"
 
-// #include "e_os.h"
+#include "e_os.h"
 
 /* VxWorks defines SSIZE_MAX with an empty value causing compile errors */
 #if defined(OPENSSL_SYS_VXWORKS)
@@ -4460,9 +4460,9 @@ int BIO_fd_non_fatal_error(int err)
 
 # include <stdio.h>
 # include <errno.h>
-// # include "cryptlib.h"
-// # include "bio_lcl.h"
-// # include "err.h"
+# include "cryptlib.h"
+# include "bio_lcl.h"
+# include "err.h"
 
 # if defined(OPENSSL_SYS_NETWARE) && defined(NETWARE_CLIB)
 #  include <nwfileio.h>
@@ -4951,7 +4951,7 @@ void *_malloc32(__size_t);
 # include <syslog.h>
 #endif
 
-// #include "buffer.h"
+#include "buffer.h"
 // #include "err.h"
 
 #ifndef NO_SYSLOG
@@ -5837,7 +5837,7 @@ static int null_puts(BIO *bp, const char *str)
 
 #ifndef OPENSSL_NO_SOCK
 
-// # include "bio.h"
+# include "bio.h"
 
 # ifdef WATT32
 #  define sock_write SockWrite  /* Watt-32 uses same names */

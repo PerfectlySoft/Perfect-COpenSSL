@@ -11,8 +11,8 @@
 #include "crypto.h"
 #include "err.h"
 #include "engine.h"
-// #include "evp.h"
-// #include "asn1.h"
+#include "evp.h"
+#include "asn1.h"
 #ifndef OPENSSL_NO_CMS
 # include "cms.h"
 #endif
@@ -964,8 +964,8 @@ int register_ameth_gost(int nid, EVP_PKEY_ASN1_METHOD **ameth,
  *          Requires OpenSSL 0.9.9 for compilation                    *
  **********************************************************************/
 #include <stdio.h>
-// #include "asn1t.h"
-// #include "x509.h"
+#include "asn1t.h"
+#include "x509.h"
 // #include "gost_lcl.h"
 
 ASN1_NDEF_SEQUENCE(GOST_KEY_TRANSPORT) = {
@@ -1020,8 +1020,8 @@ IMPLEMENT_ASN1_FUNCTIONS(GOST_CLIENT_KEY_EXCHANGE_PARAMS)
  *          Requires OpenSSL 0.9.9 for compilation                    *
  **********************************************************************/
 #include <string.h>
-// #include "gost89.h"
-// #include "rand.h"
+#include "gost89.h"
+#include "rand.h"
 // #include "e_gost_err.h"
 // #include "gost_lcl.h"
 
@@ -1647,7 +1647,7 @@ int gost_imit_cleanup(EVP_MD_CTX *ctx)
 // #include "crypto.h"
 // #include "err.h"
 // #include "engine.h"
-// #include "buffer.h"
+#include "buffer.h"
 // #include "gost_lcl.h"
 
 static char *gost_params[GOST_PARAM_MAX + 1] = { NULL };
@@ -1741,7 +1741,7 @@ int gost_set_default_param(int param, const char *value)
 // #include "err.h"
 // #include "evp.h"
 // #include "engine.h"
-// #include "obj_mac.h"
+#include "obj_mac.h"
 // #include "e_gost_err.h"
 // #include "gost_lcl.h"
 static const char *engine_gost_id = "gost";
@@ -2124,7 +2124,7 @@ int keyUnwrapCryptoPro(gost_ctx * ctx, const unsigned char *keyExchangeKey,
  **********************************************************************/
 #include <string.h>
 // #include "gost_lcl.h"
-// #include "gosthash.h"
+#include "gosthash.h"
 // #include "e_gost_err.h"
 
 /* implementation of GOST 34.11 hash function See gost_md.c*/
@@ -2200,7 +2200,7 @@ int gost_digest_cleanup(EVP_MD_CTX *ctx)
  *                              this code                             *
  **********************************************************************/
 // #include "gost_params.h"
-// #include "objects.h"
+#include "objects.h"
 /* Parameters of GOST 34.10 */
 
 R3410_params R3410_paramset[] = {
@@ -2408,7 +2408,7 @@ R3410_2001_params R3410_2001_paramset[] = {
  **********************************************************************/
 // #include "evp.h"
 // #include "objects.h"
-// #include "ec.h"
+#include "ec.h"
 #include "x509v3.h"     /* For string_to_hex */
 #include <stdlib.h>
 #include <string.h>
@@ -3033,8 +3033,8 @@ int register_pmeth_gost(int id, EVP_PKEY_METHOD **pmeth, int flags)
  **********************************************************************/
 #include <string.h>
 // #include "rand.h"
-// #include "bn.h"
-// #include "dsa.h"
+#include "bn.h"
+#include "dsa.h"
 // #include "evp.h"
 // #include "err.h"
 

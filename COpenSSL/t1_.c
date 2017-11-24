@@ -58,10 +58,10 @@
 
 #include <stdio.h>
 #include "ssl_locl.h"
-// #include "buffer.h"
+#include "buffer.h"
 #include "rand.h"
-// #include "objects.h"
-// #include "evp.h"
+#include "objects.h"
+#include "evp.h"
 
 static const SSL_METHOD *tls1_get_client_method(int ver);
 static const SSL_METHOD *tls1_get_client_method(int ver)
@@ -228,10 +228,10 @@ IMPLEMENT_tls_meth_func(TLS1_2_VERSION, TLSv1_2_client_method,
 #include <stdio.h>
 // #include "ssl_locl.h"
 #ifndef OPENSSL_NO_COMP
-// # include "comp.h"
+# include "comp.h"
 #endif
 // #include "evp.h"
-// #include "hmac.h"
+#include "hmac.h"
 #include "md5.h"
 // #include "rand.h"
 #ifdef KSSL_DEBUG
@@ -1898,7 +1898,7 @@ int SSL_extension_supported(unsigned int ext_type)
 // #include "hmac.h"
 #ifndef OPENSSL_NO_EC
 #ifdef OPENSSL_NO_EC2M
-// # include "ec.h"
+# include "ec.h"
 #endif
 #endif
 #include "ocsp.h"
@@ -6780,7 +6780,7 @@ int ssl_parse_serverhello_renegotiate_ext(SSL *s, unsigned char *d, int len,
 // #include "rand.h"
 // #include "objects.h"
 // #include "evp.h"
-// #include "x509.h"
+#include "x509.h"
 
 static const SSL_METHOD *tls1_get_server_method(int ver);
 static const SSL_METHOD *tls1_get_server_method(int ver)

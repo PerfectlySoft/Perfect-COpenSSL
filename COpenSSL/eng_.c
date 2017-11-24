@@ -405,10 +405,10 @@ void ENGINE_add_conf_module(void)
  */
 
 #include <string.h>
-// #include "objects.h"
-// #include "engine.h"
-// #include "evp.h"
-// #include "bn.h"
+#include "objects.h"
+#include "engine.h"
+#include "evp.h"
+#include "bn.h"
 
 #if (defined(__unix__) || defined(unix)) && !defined(USG) && \
         (defined(OpenBSD) || defined(__FreeBSD__))
@@ -433,10 +433,10 @@ void ENGINE_load_cryptodev(void)
 
 # include <sys/types.h>
 # include <crypto/cryptodev.h>
-// # include "dh.h"
-// # include "dsa.h"
-// # include "err.h"
-// # include "rsa.h"
+# include "dh.h"
+# include "dsa.h"
+# include "err.h"
+# include "rsa.h"
 # include <sys/ioctl.h>
 # include <errno.h>
 # include <stdio.h>
@@ -2942,7 +2942,7 @@ static int dynamic_load(ENGINE *e, dynamic_data_ctx *ctx)
  */
 
 #include <stdio.h>
-// #include "err.h"
+#include "err.h"
 // #include "engine.h"
 
 /* BEGIN ERROR CODES */
@@ -3459,7 +3459,7 @@ int ENGINE_finish(ENGINE *e)
  */
 
 // #include "eng_int.h"
-// #include "rand.h"
+#include "rand.h"
 
 /* The "new"/"free" stuff first */
 
@@ -4216,7 +4216,7 @@ int ENGINE_up_ref(ENGINE *e)
  */
 
 #include <stdio.h>
-// #include "crypto.h"
+#include "crypto.h"
 // #include "cryptlib.h"
 // #include "engine.h"
 // #include "dso.h"
@@ -4224,13 +4224,13 @@ int ENGINE_up_ref(ENGINE *e)
 // #include "evp.h"
 // #include "rand.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 #ifndef OPENSSL_NO_DH
-// # include "dh.h"
+# include "dh.h"
 #endif
 
 /*
@@ -4470,7 +4470,7 @@ static int openssl_ciphers(ENGINE *e, const EVP_CIPHER **cipher,
 
 #ifdef TEST_ENG_OPENSSL_SHA
 /* Much the same sort of comment as for TEST_ENG_OPENSSL_RC4 */
-// # include "sha.h"
+# include "sha.h"
 static int test_digest_nids[] = { NID_sha1 };
 
 static int test_digest_nids_number = 1;
@@ -4788,7 +4788,7 @@ int ENGINE_load_ssl_client_cert(ENGINE *e, SSL *s,
  * ====================================================================
  */
 
-// #include "opensslconf.h"
+#include "opensslconf.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -4944,7 +4944,7 @@ void ENGINE_load_rdrand(void)
 
 // #include "cryptlib.h"
 // #include "evp.h"
-// #include "lhash.h"
+#include "lhash.h"
 // #include "eng_int.h"
 
 /* The type of the items in the table */

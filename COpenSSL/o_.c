@@ -237,10 +237,10 @@ int FIPS_mode_set(int r)
  */
 
 // #include "e_os.h"
-// #include "err.h"
+#include "err.h"
 #ifdef OPENSSL_FIPS
 # include <fips.h>
-// # include "rand.h"
+# include "rand.h"
 #endif
 
 /*
@@ -272,10 +272,10 @@ void OPENSSL_init(void)
 #include <string.h>
 
 // #include "err.h"
-// #include "lhash.h"
+#include "lhash.h"
 #include "objects.h"
-// #include "safestack.h"
-// #include "e_os2.h"
+#include "safestack.h"
+#include "e_os2.h"
 
 /*
  * Later versions of DEC C has started to add lnkage information to certain
@@ -695,7 +695,7 @@ void OBJ_NAME_cleanup(int type)
 
 #include <ctype.h>
 // #include "e_os.h"
-// #include "o_str.h"
+#include "o_str.h"
 
 #if !defined(OPENSSL_IMPLEMENTS_strncasecmp) && \
     !defined(OPENSSL_SYSNAME_WIN32) && !defined(OPENSSL_SYSNAME_WINCE) && \

@@ -128,7 +128,7 @@ IMPLEMENT_ASN1_FUNCTIONS_const(ECDSA_SIG)
 
 #include <stdio.h>
 // #include "err.h"
-// #include "ecdsa.h"
+#include "ecdsa.h"
 
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
@@ -233,7 +233,7 @@ void ERR_load_ECDSA_strings(void)
 # include "engine.h"
 #endif
 // #include "err.h"
-// #include "bn.h"
+#include "bn.h"
 #ifdef OPENSSL_FIPS
 # include <fips.h>
 #endif
@@ -377,9 +377,16 @@ ECDSA_DATA *ecdsa_check(EC_KEY *key)
              */
             ecdsa_data_free(ecdsa_data);
             ecdsa_data = (ECDSA_DATA *)data;
+        } else if (EC_KEY_get_key_method_data(key, ecdsa_data_dup,
+                                              ecdsa_data_free,
+                                              ecdsa_data_free) != ecdsa_data) {
+            /* Or an out of memory error in EC_KEY_insert_key_method_data. */
+            ecdsa_data_free(ecdsa_data);
+            return NULL;
         }
-    } else
+    } else {
         ecdsa_data = (ECDSA_DATA *)data;
+    }
 #ifdef OPENSSL_FIPS
     if (FIPS_mode() && !(ecdsa_data->flags & ECDSA_FLAG_FIPS_METHOD)
         && !(EC_KEY_get_flags(key) & EC_FLAG_NON_FIPS_ALLOW)) {
@@ -586,7 +593,7 @@ void *ECDSA_METHOD_get_app_data(ECDSA_METHOD *ecdsa_method)
 
 // #include "ecs_locl.h"
 // #include "err.h"
-// #include "obj_mac.h"
+#include "obj_mac.h"
 // #include "bn.h"
 
 static ECDSA_SIG *ecdsa_do_sign(const unsigned char *dgst, int dlen,
@@ -623,6 +630,7 @@ static int ecdsa_sign_setup(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp,
     EC_POINT *tmp_point = NULL;
     const EC_GROUP *group;
     int ret = 0;
+    int order_bits;
 
     if (eckey == NULL || (group = EC_KEY_get0_group(eckey)) == NULL) {
         ECDSAerr(ECDSA_F_ECDSA_SIGN_SETUP, ERR_R_PASSED_NULL_PARAMETER);
@@ -654,6 +662,13 @@ static int ecdsa_sign_setup(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp,
         goto err;
     }
 
+    /* Preallocate space */
+    order_bits = BN_num_bits(order);
+    if (!BN_set_bit(k, order_bits)
+        || !BN_set_bit(r, order_bits)
+        || !BN_set_bit(X, order_bits))
+        goto err;
+
     do {
         /* get random k */
         do
@@ -667,13 +682,19 @@ static int ecdsa_sign_setup(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp,
         /*
          * We do not want timing information to leak the length of k, so we
          * compute G*k using an equivalent scalar of fixed bit-length.
+         *
+         * We unconditionally perform both of these additions to prevent a
+         * small timing information leakage.  We then choose the sum that is
+         * one bit longer than the order.  This guarantees the code
+         * path used in the constant time implementations elsewhere.
+         *
+         * TODO: revisit the BN_copy aiming for a memory access agnostic
+         * conditional copy.
          */
-
-        if (!BN_add(k, k, order))
+        if (!BN_add(r, k, order)
+            || !BN_add(X, r, order)
+            || !BN_copy(k, BN_num_bits(r) > order_bits ? r : X))
             goto err;
-        if (BN_num_bits(k) <= BN_num_bits(order))
-            if (!BN_add(k, k, order))
-                goto err;
 
         /* compute r the x-coordinate of generator * k */
         if (!EC_POINT_mul(group, tmp_point, k, NULL, NULL, ctx)) {
@@ -1047,9 +1068,9 @@ static int ecdsa_do_verify(const unsigned char *dgst, int dgst_len,
 
 // #include "ecs_locl.h"
 #ifndef OPENSSL_NO_ENGINE
-// # include "engine.h"
+# include "engine.h"
 #endif
-// #include "rand.h"
+#include "rand.h"
 
 ECDSA_SIG *ECDSA_do_sign(const unsigned char *dgst, int dlen, EC_KEY *eckey)
 {
@@ -1157,7 +1178,7 @@ int ECDSA_sign_setup(EC_KEY *eckey, BN_CTX *ctx_in, BIGNUM **kinvp,
 // #include "ecs_locl.h"
 #include <string.h>
 #ifndef OPENSSL_NO_ENGINE
-// # include "engine.h"
+# include "engine.h"
 #endif
 
 /*-

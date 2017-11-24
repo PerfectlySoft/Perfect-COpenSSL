@@ -310,13 +310,13 @@ IMPLEMENT_ASN1_PRINT_FUNCTION(PKCS7)
 
 #include <stdio.h>
 #include <stdlib.h>
-// #include "bio.h"
-// #include "asn1.h"
+#include "bio.h"
+#include "asn1.h"
 // #include "asn1t.h"
 #include "pem.h"
 // #include "pkcs7.h"
 // #include "x509.h"
-// #include "err.h"
+#include "err.h"
 
 int PKCS7_add_attrib_smimecap(PKCS7_SIGNER_INFO *si,
                               STACK_OF(X509_ALGOR) *cap)
@@ -474,9 +474,9 @@ int PKCS7_add1_attrib_digest(PKCS7_SIGNER_INFO *si,
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "evp.h"
+#include "evp.h"
 #include "rand.h"
-// #include "objects.h"
+#include "objects.h"
 // #include "x509.h"
 // #include "pkcs7.h"
 /* crypto/pkcs7/pk7_doit.c */

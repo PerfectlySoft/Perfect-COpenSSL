@@ -58,7 +58,7 @@
 
 #include <stdio.h>
 #include "md5_locl.h"
-// #include "opensslv.h"
+#include "opensslv.h"
 // #include "crypto.h"
 
 const char MD5_version[] = "MD5" OPENSSL_VERSION_PTEXT;
@@ -278,7 +278,7 @@ void md5_block_data_order(MD5_CTX *c, const void *data_, size_t num)
 // #include "crypto.h"
 
 #ifdef CHARSET_EBCDIC
-// # include "ebcdic.h"
+# include "ebcdic.h"
 #endif
 
 unsigned char *MD5(const unsigned char *d, size_t n, unsigned char *md)

@@ -63,7 +63,7 @@
 # include "rsa.h"
 #endif
 #include "evp.h"
-// #include "objects.h"
+#include "objects.h"
 #include "x509.h"
 
 int EVP_PKEY_decrypt_old(unsigned char *key, const unsigned char *ek, int ekl,
@@ -147,7 +147,7 @@ int EVP_PKEY_decrypt_old(unsigned char *key, const unsigned char *ek, int ekl,
 // #include "cryptlib.h"
 // #include "rand.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 // #include "evp.h"
 // #include "objects.h"
@@ -232,20 +232,20 @@ int EVP_PKEY_encrypt_old(unsigned char *ek, const unsigned char *key,
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "bn.h"
-// #include "err.h"
+#include "bn.h"
+#include "err.h"
 // #include "objects.h"
 // #include "evp.h"
 #include "asn1_mac.h"
 // #include "x509.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 #ifndef OPENSSL_NO_DH
-// # include "dh.h"
+# include "dh.h"
 #endif
 
 #ifndef OPENSSL_NO_ENGINE
@@ -699,10 +699,10 @@ int EVP_PKEY_get_default_digest_nid(EVP_PKEY *pkey, int *pnid)
 
 #ifndef OPENSSL_NO_RSA
 
-// # include "evp.h"
-// # include "objects.h"
-// # include "x509.h"
-// # include "rsa.h"
+# include "evp.h"
+# include "objects.h"
+# include "x509.h"
+# include "rsa.h"
 
 int EVP_OpenInit(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *type,
                  const unsigned char *ek, int ekl, const unsigned char *iv,
@@ -827,7 +827,7 @@ static void *dummy = &dummy;
 // #include "cryptlib.h"
 // #include "rand.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 // #include "evp.h"
 // #include "objects.h"

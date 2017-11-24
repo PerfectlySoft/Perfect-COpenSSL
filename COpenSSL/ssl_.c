@@ -242,7 +242,7 @@ int SSL_library_init(void)
 // #include "ssl_locl.h"
 #include "asn1_mac.h"
 // #include "objects.h"
-// #include "x509.h"
+#include "x509.h"
 
 typedef struct ssl_session_asn1_st {
     ASN1_INTEGER version;
@@ -912,20 +912,20 @@ SSL_SESSION *d2i_SSL_SESSION(SSL_SESSION **a, const unsigned char **pp,
 
 #include <stdio.h>
 
-// #include "e_os.h"
+#include "e_os.h"
 #ifndef NO_SYS_TYPES_H
 # include <sys/types.h>
 #endif
 
 #include "o_dir.h"
 // #include "objects.h"
-// #include "bio.h"
-// #include "pem.h"
+#include "bio.h"
+#include "pem.h"
 #include "x509v3.h"
 #ifndef OPENSSL_NO_DH
-// # include "dh.h"
+# include "dh.h"
 #endif
-// #include "bn.h"
+#include "bn.h"
 // #include "ssl_locl.h"
 
 int SSL_get_ex_data_X509_STORE_CTX_idx(void)
@@ -2200,7 +2200,7 @@ int ssl_cert_set_cert_store(CERT *c, X509_STORE *store, int chain, int ref)
 #include <stdio.h>
 // #include "objects.h"
 #ifndef OPENSSL_NO_COMP
-// # include "comp.h"
+# include "comp.h"
 #endif
 #ifndef OPENSSL_NO_ENGINE
 # include "engine.h"
@@ -3262,7 +3262,7 @@ static int ssl_cipher_process_rulestr(const char *rule_str,
                    ((ch >= '0') && (ch <= '9')) ||
                    ((ch >= 'a') && (ch <= 'z')) || (ch == '-') || (ch == '.'))
 #else
-            while (isalnum(ch) || (ch == '-') || (ch == '.'))
+            while (isalnum((unsigned char)ch) || (ch == '-') || (ch == '.'))
 #endif
             {
                 ch = *(++l);
@@ -4210,10 +4210,10 @@ const SSL_CIPHER *SSL_CIPHER_find(SSL *ssl, const unsigned char *ptr)
 #endif
 #include <stdio.h>
 // #include "ssl_locl.h"
-// #include "conf.h"
+#include "conf.h"
 // #include "objects.h"
 #ifndef OPENSSL_NO_DH
-// # include "dh.h"
+# include "dh.h"
 #endif
 
 /*
@@ -4901,8 +4901,8 @@ void SSL_CONF_CTX_set_ssl_ctx(SSL_CONF_CTX *cctx, SSL_CTX *ctx)
  */
 
 #include <stdio.h>
-// #include "err.h"
-// #include "ssl.h"
+#include "err.h"
+#include "ssl.h"
 
 /* BEGIN ERROR CODES */
 #ifndef OPENSSL_NO_ERR
@@ -5901,13 +5901,13 @@ void SSL_load_error_strings(void)
 // #include "objects.h"
 // #include "lhash.h"
 // #include "x509v3.h"
-// #include "rand.h"
+#include "rand.h"
 #include "ocsp.h"
 #ifndef OPENSSL_NO_DH
-// # include "dh.h"
+# include "dh.h"
 #endif
 #ifndef OPENSSL_NO_ENGINE
-// # include "engine.h"
+# include "engine.h"
 #endif
 
 const char *SSL_version_str = OPENSSL_VERSION_TEXT;
@@ -7575,15 +7575,15 @@ void SSL_get0_alpn_selected(const SSL *ssl, const unsigned char **data,
 
 int SSL_export_keying_material(SSL *s, unsigned char *out, size_t olen,
                                const char *label, size_t llen,
-                               const unsigned char *p, size_t plen,
+                               const unsigned char *context, size_t contextlen,
                                int use_context)
 {
     if (s->version < TLS1_VERSION && s->version != DTLS1_BAD_VER)
         return -1;
 
     return s->method->ssl3_enc->export_keying_material(s, out, olen, label,
-                                                       llen, p, plen,
-                                                       use_context);
+                                                       llen, context,
+                                                       contextlen, use_context);
 }
 
 static unsigned long ssl_session_hash(const SSL_SESSION *a)
@@ -8930,6 +8930,7 @@ SSL_CTX *SSL_set_SSL_CTX(SSL *ssl, SSL_CTX *ctx)
 #endif
     ssl->cert = ssl_cert_dup(ctx->cert);
     if (ocert) {
+        int i;
         /* Preserve any already negotiated parameters */
         if (ssl->server) {
             ssl->cert->peer_sigalgs = ocert->peer_sigalgs;
@@ -8938,6 +8939,9 @@ SSL_CTX *SSL_set_SSL_CTX(SSL *ssl, SSL_CTX *ctx)
             ssl->cert->ciphers_raw = ocert->ciphers_raw;
             ssl->cert->ciphers_rawlen = ocert->ciphers_rawlen;
             ocert->ciphers_raw = NULL;
+        }
+        for (i = 0; i < SSL_PKEY_NUM; i++) {
+            ssl->cert->pkeys[i].digest = ocert->pkeys[i].digest;
         }
 #ifndef OPENSSL_NO_TLSEXT
         ssl->cert->alpn_proposed = ocert->alpn_proposed;
@@ -9390,7 +9394,7 @@ IMPLEMENT_OBJ_BSEARCH_GLOBAL_CMP_FN(SSL_CIPHER, SSL_CIPHER, ssl_cipher_id);
 // #include "ssl_locl.h"
 // #include "bio.h"
 // #include "objects.h"
-// #include "evp.h"
+#include "evp.h"
 // #include "x509.h"
 // #include "pem.h"
 
@@ -10517,7 +10521,7 @@ int SSL_CTX_use_serverinfo_file(SSL_CTX *ctx, const char *file)
 // #include "lhash.h"
 // #include "rand.h"
 #ifndef OPENSSL_NO_ENGINE
-// # include "engine.h"
+# include "engine.h"
 #endif
 // #include "ssl_locl.h"
 
@@ -10639,7 +10643,6 @@ SSL_SESSION *ssl_session_dup(SSL_SESSION *src, int ticket)
 #ifndef OPENSSL_NO_SRP
     dest->srp_username = NULL;
 #endif
-    memset(&dest->ex_data, 0, sizeof(dest->ex_data));
 
     /* We deliberately don't copy the prev and next pointers */
     dest->prev = NULL;
@@ -10652,6 +10655,9 @@ SSL_SESSION *ssl_session_dup(SSL_SESSION *src, int ticket)
 
     if (src->peer != NULL)
         CRYPTO_add(&src->peer->references, 1, CRYPTO_LOCK_X509);
+
+    if (!CRYPTO_new_ex_data(CRYPTO_EX_INDEX_SSL_SESSION, dest, &dest->ex_data))
+        goto err;
 
 #ifndef OPENSSL_NO_PSK
     if (src->psk_identity_hint) {
@@ -10703,7 +10709,7 @@ SSL_SESSION *ssl_session_dup(SSL_SESSION *src, int ticket)
     }
 # endif
 
-    if (ticket != 0) {
+    if (ticket != 0 && src->tlsext_tick != NULL) {
         dest->tlsext_tick = BUF_memdup(src->tlsext_tick, src->tlsext_ticklen);
         if(dest->tlsext_tick == NULL)
             goto err;
@@ -12826,7 +12832,7 @@ const char *SSL_rstate_string(const SSL *s)
  */
 
 #include <stdio.h>
-// #include "buffer.h"
+#include "buffer.h"
 // #include "ssl_locl.h"
 
 #ifndef OPENSSL_NO_FP_API

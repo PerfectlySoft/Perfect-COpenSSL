@@ -385,7 +385,7 @@ TS_TST_INFO *PKCS7_to_TS_TST_INFO(PKCS7 *token)
 
 #include <string.h>
 
-// #include "crypto.h"
+#include "crypto.h"
 #include "cryptlib.h"
 #include "pem.h"
 #ifndef OPENSSL_NO_ENGINE
@@ -1064,9 +1064,9 @@ void ERR_load_TS_strings(void)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "objects.h"
-// #include "bn.h"
-// #include "x509v3.h"
+#include "objects.h"
+#include "bn.h"
+#include "x509v3.h"
 // #include "ts.h"
 
 /* Local function declarations. */
@@ -1829,7 +1829,7 @@ static int TS_ACCURACY_print_bio(BIO *bio, const TS_ACCURACY *accuracy)
 
 // #include "objects.h"
 // #include "ts.h"
-// #include "pkcs7.h"
+#include "pkcs7.h"
 
 /* Private function declarations. */
 

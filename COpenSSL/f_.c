@@ -58,7 +58,7 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-// #include "buffer.h"
+#include "buffer.h"
 #include "asn1.h"
 
 /* Based on a_int.c: equivalent ENUMERATED functions */

@@ -59,7 +59,7 @@
 
 #include <stddef.h>
 #include "x509.h"
-// #include "asn1.h"
+#include "asn1.h"
 #include "asn1t.h"
 
 ASN1_SEQUENCE(X509_ALGOR) = {
@@ -205,18 +205,18 @@ int X509_ALGOR_cmp(const X509_ALGOR *a, const X509_ALGOR *b)
  */
 
 #include <stdio.h>
-// #include "stack.h"
+#include "stack.h"
 #include "cryptlib.h"
-// #include "buffer.h"
+#include "buffer.h"
 // #include "asn1.h"
-// #include "evp.h"
+#include "evp.h"
 // #include "x509.h"
 #include "ocsp.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 
 int X509_verify(X509 *a, EVP_PKEY *r)
@@ -764,7 +764,7 @@ EVP_PKEY *d2i_PUBKEY_bio(BIO *bp, EVP_PKEY **a)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "objects.h"
+#include "objects.h"
 // #include "asn1t.h"
 // #include "x509.h"
 
@@ -890,7 +890,7 @@ X509_ATTRIBUTE *X509_ATTRIBUTE_create(int nid, int atrtype, void *value)
 #include <stdio.h>
 // #include "cryptlib.h"
 // #include "asn1t.h"
-// #include "bn.h"
+#include "bn.h"
 
 /*
  * Custom primitive type for BIGNUM handling. This reads in an ASN1_INTEGER
@@ -1057,7 +1057,7 @@ static int bn_print(BIO *out, ASN1_VALUE **pval, const ASN1_ITEM *it,
 // #include "asn1t.h"
 #include "asn1_locl.h"
 // #include "x509.h"
-// #include "x509v3.h"
+#include "x509v3.h"
 
 static int X509_REVOKED_cmp(const X509_REVOKED *const *a,
                             const X509_REVOKED *const *b);
@@ -2449,19 +2449,11 @@ static int i2d_name_canon(STACK_OF(STACK_OF_X509_NAME_ENTRY) * _intname,
 
 int X509_NAME_set(X509_NAME **xn, X509_NAME *name)
 {
-    X509_NAME *in;
-
-    if (!xn || !name)
-        return (0);
-
-    if (*xn != name) {
-        in = X509_NAME_dup(name);
-        if (in != NULL) {
-            X509_NAME_free(*xn);
-            *xn = in;
-        }
-    }
-    return (*xn != NULL);
+    if ((name = X509_NAME_dup(name)) == NULL)
+        return 0;
+    X509_NAME_free(*xn);
+    *xn = name;
+    return 1;
 }
 
 IMPLEMENT_STACK_OF(X509_NAME_ENTRY)
@@ -2647,10 +2639,14 @@ X509_PKEY *X509_PKEY_new(void)
     X509_PKEY *ret = NULL;
     ASN1_CTX c;
 
-    M_ASN1_New_Malloc(ret, X509_PKEY);
+    ret = OPENSSL_malloc(sizeof(X509_PKEY));
+    if (ret == NULL) {
+        c.line = __LINE__;
+        goto err;
+    }
     ret->version = 0;
-    M_ASN1_New(ret->enc_algor, X509_ALGOR_new);
-    M_ASN1_New(ret->enc_pkey, M_ASN1_OCTET_STRING_new);
+    ret->enc_algor = X509_ALGOR_new();
+    ret->enc_pkey = M_ASN1_OCTET_STRING_new();
     ret->dec_pkey = NULL;
     ret->key_length = 0;
     ret->key_data = NULL;
@@ -2658,8 +2654,15 @@ X509_PKEY *X509_PKEY_new(void)
     ret->cipher.cipher = NULL;
     memset(ret->cipher.iv, 0, EVP_MAX_IV_LENGTH);
     ret->references = 1;
-    return (ret);
-    M_ASN1_New_Error(ASN1_F_X509_PKEY_NEW);
+    if (ret->enc_algor == NULL || ret->enc_pkey == NULL) {
+        c.line = __LINE__;
+        goto err;
+    }
+    return ret;
+err:
+    X509_PKEY_free(ret);
+    ASN1_MAC_H_err(ASN1_F_X509_PKEY_NEW, ERR_R_MALLOC_FAILURE, c.line);
+    return NULL;
 }
 
 void X509_PKEY_free(X509_PKEY *x)
@@ -2756,10 +2759,10 @@ void X509_PKEY_free(X509_PKEY *x)
 // #include "x509.h"
 // #include "asn1_locl.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 
 /* Minor tweak to operation: free up EVP_PKEY */

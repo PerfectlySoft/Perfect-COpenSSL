@@ -131,7 +131,7 @@ void OPENSSL_add_all_algorithms_conf(void)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "asn1.h"
+#include "asn1.h"
 #include "asn1_mac.h"
 
 int ASN1_TYPE_set_octetstring(ASN1_TYPE *a, unsigned char *data, int len)
@@ -327,7 +327,7 @@ int ASN1_TYPE_get_int_octetstring(ASN1_TYPE *a, long *num,
 
 #include <stdio.h>
 #include <ctype.h>
-// #include "crypto.h"
+#include "crypto.h"
 // #include "cryptlib.h"
 // #include "conf.h"
 #include "dso.h"
@@ -445,7 +445,7 @@ void EVP_add_alg_module(void)
 #include <stdio.h>
 // #include "cryptlib.h"
 // #include "evp.h"
-// #include "err.h"
+#include "err.h"
 #include "rand.h"
 #ifndef OPENSSL_NO_ENGINE
 # include "engine.h"
@@ -1373,9 +1373,9 @@ void ERR_load_EVP_strings(void)
 #include <stdio.h>
 // #include "cryptlib.h"
 // #include "x509.h"
-// #include "objects.h"
+#include "objects.h"
 // #include "evp.h"
-// #include "ui.h"
+#include "ui.h"
 
 /* should be init to zeros. */
 static char prompt_string[80];
@@ -1411,7 +1411,7 @@ int EVP_read_pw_string(char *buf, int len, const char *prompt, int verify)
 int EVP_read_pw_string_min(char *buf, int min, int len, const char *prompt,
                            int verify)
 {
-    int ret;
+    int ret = -1;
     char buff[BUFSIZ];
     UI *ui;
 
@@ -1419,16 +1419,18 @@ int EVP_read_pw_string_min(char *buf, int min, int len, const char *prompt,
         prompt = prompt_string;
     ui = UI_new();
     if (ui == NULL)
-        return -1;
-    UI_add_input_string(ui, prompt, 0, buf, min,
-                        (len >= BUFSIZ) ? BUFSIZ - 1 : len);
-    if (verify)
-        UI_add_verify_string(ui, prompt, 0,
-                             buff, min, (len >= BUFSIZ) ? BUFSIZ - 1 : len,
-                             buf);
+        return ret;
+    if (UI_add_input_string(ui, prompt, 0, buf, min,
+                            (len >= BUFSIZ) ? BUFSIZ - 1 : len) < 0
+        || (verify
+            && UI_add_verify_string(ui, prompt, 0, buff, min,
+                                    (len >= BUFSIZ) ? BUFSIZ - 1 : len,
+                                    buf) < 0))
+        goto end;
     ret = UI_process(ui);
-    UI_free(ui);
     OPENSSL_cleanse(buff, BUFSIZ);
+ end:
+    UI_free(ui);
     return ret;
 }
 
@@ -1571,7 +1573,7 @@ int EVP_BytesToKey(const EVP_CIPHER *type, const EVP_MD *md,
 // #include "objects.h"
 #ifdef OPENSSL_FIPS
 # include <fips.h>
-// # include "evp_locl.h"
+# include "evp_locl.h"
 #endif
 
 int EVP_CIPHER_param_to_asn1(EVP_CIPHER_CTX *c, ASN1_TYPE *type)

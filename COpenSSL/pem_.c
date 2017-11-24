@@ -111,19 +111,19 @@
 
 #include <stdio.h>
 #include "cryptlib.h"
-// #include "bio.h"
+#include "bio.h"
 #include "evp.h"
 #include "x509.h"
-// #include "pkcs7.h"
+#include "pkcs7.h"
 #include "pem.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 #ifndef OPENSSL_NO_DH
-// # include "dh.h"
+# include "dh.h"
 #endif
 
 #ifndef OPENSSL_NO_RSA
@@ -487,7 +487,7 @@ IMPLEMENT_PEM_rw(PUBKEY, EVP_PKEY, PEM_STRING_PUBLIC, PUBKEY)
  */
 
 #include <stdio.h>
-// #include "err.h"
+#include "err.h"
 // #include "pem.h"
 
 /* BEGIN ERROR CODES */
@@ -654,16 +654,16 @@ void ERR_load_PEM_strings(void)
 
 #include <stdio.h>
 // #include "cryptlib.h"
-// #include "buffer.h"
-// #include "objects.h"
+#include "buffer.h"
+#include "objects.h"
 // #include "evp.h"
 // #include "x509.h"
 // #include "pem.h"
 #ifndef OPENSSL_NO_RSA
-// # include "rsa.h"
+# include "rsa.h"
 #endif
 #ifndef OPENSSL_NO_DSA
-// # include "dsa.h"
+# include "dsa.h"
 #endif
 
 #ifndef OPENSSL_NO_FP_API
@@ -1526,7 +1526,8 @@ int PEM_get_EVP_CIPHER_INFO(char *header, EVP_CIPHER_INFO *cipher)
               ((c >= '0') && (c <= '9'))))
             break;
 #else
-        if (!(isupper(c) || (c == '-') || isdigit(c)))
+        if (!(isupper((unsigned char)c) || (c == '-')
+            || isdigit((unsigned char)c)))
             break;
 #endif
         header++;
@@ -2125,6 +2126,7 @@ EVP_PKEY *d2i_PKCS8PrivateKey_bio(BIO *bp, EVP_PKEY **x, pem_password_cb *cb,
     }
     p8inf = PKCS8_decrypt(p8, psbuf, klen);
     X509_SIG_free(p8);
+    OPENSSL_cleanse(psbuf, klen);
     if (!p8inf)
         return NULL;
     ret = EVP_PKCS82PKEY(p8inf);
@@ -2272,10 +2274,10 @@ IMPLEMENT_PEM_rw(PKCS8_PRIV_KEY_INFO, PKCS8_PRIV_KEY_INFO, PEM_STRING_PKCS8INF,
 // #include "pkcs12.h"
 // #include "pem.h"
 #ifndef OPENSSL_NO_ENGINE
-// # include "engine.h"
+# include "engine.h"
 #endif
 #ifndef OPENSSL_NO_DH
-// # include "dh.h"
+# include "dh.h"
 #endif
 // #include "asn1_locl.h"
 
@@ -2326,6 +2328,7 @@ EVP_PKEY *PEM_read_bio_PrivateKey(BIO *bp, EVP_PKEY **x, pem_password_cb *cb,
         }
         p8inf = PKCS8_decrypt(p8, psbuf, klen);
         X509_SIG_free(p8);
+        OPENSSL_cleanse(psbuf, klen);
         if (!p8inf)
             goto p8err;
         ret = EVP_PKCS82PKEY(p8inf);
@@ -2555,16 +2558,16 @@ DH *PEM_read_DHparams(FILE *fp, DH **x, pem_password_cb *cb, void *u)
  * [including the GNU Public Licence.]
  */
 
-// #include "opensslconf.h" /* for OPENSSL_NO_RSA */
+#include "opensslconf.h" /* for OPENSSL_NO_RSA */
 #ifndef OPENSSL_NO_RSA
 # include <stdio.h>
-// # include "cryptlib.h"
-// # include "evp.h"
-// # include "rand.h"
-// # include "objects.h"
-// # include "x509.h"
-// # include "pem.h"
-// # include "rsa.h"
+# include "cryptlib.h"
+# include "evp.h"
+# include "rand.h"
+# include "objects.h"
+# include "x509.h"
+# include "pem.h"
+# include "rsa.h"
 
 int PEM_SealInit(PEM_ENCODE_SEAL_CTX *ctx, EVP_CIPHER *type, EVP_MD *md_type,
                  unsigned char **ek, int *ekl, unsigned char *iv,

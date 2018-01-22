@@ -7,3 +7,8 @@
 #include "../hmac.h"
 #include "../rand.h"
 #include "../cms.h"
+#include "../md4.h"
+#include "../md5.h"
+#include "../sha.h"
+#include "../ripemd.h"
+#include "../whrlpool.h"

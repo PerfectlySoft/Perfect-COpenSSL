@@ -1787,12 +1787,12 @@ STACK_OF(CONF_VALUE) *i2v_GENERAL_NAME(X509V3_EXT_METHOD *method,
     case GEN_IPADD:
         p = gen->d.ip->data;
         if (gen->d.ip->length == 4)
-            BIO_snprintf(oline, sizeof oline,
+            BIO_snprintf(oline, sizeof(oline),
                          "%d.%d.%d.%d", p[0], p[1], p[2], p[3]);
         else if (gen->d.ip->length == 16) {
             oline[0] = 0;
             for (i = 0; i < 8; i++) {
-                BIO_snprintf(htmp, sizeof htmp, "%X", p[0] << 8 | p[1]);
+                BIO_snprintf(htmp, sizeof(htmp), "%X", p[0] << 8 | p[1]);
                 p += 2;
                 strcat(oline, htmp);
                 if (i != 7)
@@ -3425,7 +3425,7 @@ ASN1_BIT_STRING *v2i_ASN1_BIT_STRING(X509V3_EXT_METHOD *method,
  * 1999.
  */
 /* ====================================================================
- * Copyright (c) 1999-2002 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1999-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -3761,8 +3761,12 @@ int X509V3_EXT_add_nconf_sk(CONF *conf, X509V3_CTX *ctx, char *section,
         val = sk_CONF_VALUE_value(nval, i);
         if (!(ext = X509V3_EXT_nconf(conf, ctx, val->name, val->value)))
             return 0;
-        if (sk)
-            X509v3_add_ext(sk, ext, -1);
+        if (sk != NULL) {
+            if (X509v3_add_ext(sk, ext, -1) == NULL) {
+                X509_EXTENSION_free(ext);
+                return 0;
+            }
+        }
         X509_EXTENSION_free(ext);
     }
     return 1;
@@ -5759,7 +5763,7 @@ static STACK_OF(CONF_VALUE) *i2v_AUTHORITY_INFO_ACCESS(
             goto err;
         tret = tmp;
         vtmp = sk_CONF_VALUE_value(tret, i);
-        i2t_ASN1_OBJECT(objtmp, sizeof objtmp, desc->method);
+        i2t_ASN1_OBJECT(objtmp, sizeof(objtmp), desc->method);
         nlen = strlen(objtmp) + strlen(vtmp->name) + 5;
         ntmp = OPENSSL_malloc(nlen);
         if (ntmp == NULL)

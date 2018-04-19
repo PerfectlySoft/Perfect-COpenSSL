@@ -1430,13 +1430,13 @@ SESS_CERT *ssl_sess_cert_new(void)
 {
     SESS_CERT *ret;
 
-    ret = OPENSSL_malloc(sizeof *ret);
+    ret = OPENSSL_malloc(sizeof(*ret));
     if (ret == NULL) {
         SSLerr(SSL_F_SSL_SESS_CERT_NEW, ERR_R_MALLOC_FAILURE);
         return NULL;
     }
 
-    memset(ret, 0, sizeof *ret);
+    memset(ret, 0, sizeof(*ret));
     ret->peer_key = &(ret->peer_pkeys[SSL_PKEY_RSA_ENC]);
     ret->references = 1;
 
@@ -1812,15 +1812,15 @@ int SSL_add_dir_cert_subjects_to_stack(STACK_OF(X509_NAME) *stack,
         char buf[1024];
         int r;
 
-        if (strlen(dir) + strlen(filename) + 2 > sizeof buf) {
+        if (strlen(dir) + strlen(filename) + 2 > sizeof(buf)) {
             SSLerr(SSL_F_SSL_ADD_DIR_CERT_SUBJECTS_TO_STACK,
                    SSL_R_PATH_TOO_LONG);
             goto err;
         }
 #ifdef OPENSSL_SYS_VMS
-        r = BIO_snprintf(buf, sizeof buf, "%s%s", dir, filename);
+        r = BIO_snprintf(buf, sizeof(buf), "%s%s", dir, filename);
 #else
-        r = BIO_snprintf(buf, sizeof buf, "%s/%s", dir, filename);
+        r = BIO_snprintf(buf, sizeof(buf), "%s/%s", dir, filename);
 #endif
         if (r <= 0 || r >= (int)sizeof(buf))
             goto err;
@@ -6093,7 +6093,7 @@ SSL *SSL_new(SSL_CTX *ctx)
     s->verify_depth = ctx->verify_depth;
 #endif
     s->sid_ctx_length = ctx->sid_ctx_length;
-    OPENSSL_assert(s->sid_ctx_length <= sizeof s->sid_ctx);
+    OPENSSL_assert(s->sid_ctx_length <= sizeof(s->sid_ctx));
     memcpy(&s->sid_ctx, &ctx->sid_ctx, sizeof(s->sid_ctx));
     s->verify_callback = ctx->default_verify_callback;
     s->generate_session_id = ctx->generate_session_id;
@@ -6187,7 +6187,7 @@ SSL *SSL_new(SSL_CTX *ctx)
 int SSL_CTX_set_session_id_context(SSL_CTX *ctx, const unsigned char *sid_ctx,
                                    unsigned int sid_ctx_len)
 {
-    if (sid_ctx_len > sizeof ctx->sid_ctx) {
+    if (sid_ctx_len > sizeof(ctx->sid_ctx)) {
         SSLerr(SSL_F_SSL_CTX_SET_SESSION_ID_CONTEXT,
                SSL_R_SSL_SESSION_ID_CONTEXT_TOO_LONG);
         return 0;
@@ -6240,7 +6240,7 @@ int SSL_has_matching_session_id(const SSL *ssl, const unsigned char *id,
      */
     SSL_SESSION r, *p;
 
-    if (id_len > sizeof r.session_id)
+    if (id_len > sizeof(r.session_id))
         return 0;
 
     r.ssl_version = ssl->version;
@@ -10911,7 +10911,7 @@ int ssl_get_new_session(SSL *s, int session)
         ss->session_id_length = 0;
     }
 
-    if (s->sid_ctx_length > sizeof ss->sid_ctx) {
+    if (s->sid_ctx_length > sizeof(ss->sid_ctx)) {
         SSLerr(SSL_F_SSL_GET_NEW_SESSION, ERR_R_INTERNAL_ERROR);
         SSL_SESSION_free(ss);
         return 0;
@@ -11252,9 +11252,9 @@ void SSL_SESSION_free(SSL_SESSION *ss)
 
     CRYPTO_free_ex_data(CRYPTO_EX_INDEX_SSL_SESSION, ss, &ss->ex_data);
 
-    OPENSSL_cleanse(ss->key_arg, sizeof ss->key_arg);
-    OPENSSL_cleanse(ss->master_key, sizeof ss->master_key);
-    OPENSSL_cleanse(ss->session_id, sizeof ss->session_id);
+    OPENSSL_cleanse(ss->key_arg, sizeof(ss->key_arg));
+    OPENSSL_cleanse(ss->master_key, sizeof(ss->master_key));
+    OPENSSL_cleanse(ss->session_id, sizeof(ss->session_id));
     if (ss->sess_cert != NULL)
         ssl_sess_cert_free(ss->sess_cert);
     if (ss->peer != NULL)

@@ -1489,7 +1489,7 @@ int i2d_ASN1_GENERALIZEDTIME(ASN1_GENERALIZEDTIME *a, unsigned char **pp)
     ASN1_STRING tmpstr = *(ASN1_STRING *)a;
 
     len = tmpstr.length;
-    ebcdic2ascii(tmp, tmpstr.data, (len >= sizeof tmp) ? sizeof tmp : len);
+    ebcdic2ascii(tmp, tmpstr.data, (len >= sizeof(tmp)) ? sizeof(tmp) : len);
     tmpstr.data = tmp;
 
     a = (ASN1_GENERALIZEDTIME *)&tmpstr;
@@ -2496,14 +2496,14 @@ int ASN1_mbstring_ncopy(ASN1_STRING **out, const unsigned char *in, int len,
 
     if ((minsize > 0) && (nchar < minsize)) {
         ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY, ASN1_R_STRING_TOO_SHORT);
-        BIO_snprintf(strbuf, sizeof strbuf, "%ld", minsize);
+        BIO_snprintf(strbuf, sizeof(strbuf), "%ld", minsize);
         ERR_add_error_data(2, "minsize=", strbuf);
         return -1;
     }
 
     if ((maxsize > 0) && (nchar > maxsize)) {
         ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY, ASN1_R_STRING_TOO_LONG);
-        BIO_snprintf(strbuf, sizeof strbuf, "%ld", maxsize);
+        BIO_snprintf(strbuf, sizeof(strbuf), "%ld", maxsize);
         ERR_add_error_data(2, "maxsize=", strbuf);
         return -1;
     }
@@ -2859,7 +2859,7 @@ int a2d_ASN1_OBJECT(unsigned char *out, int olen, const char *buf, int num)
 {
     int i, first, len = 0, c, use_bn;
     char ftmp[24], *tmp = ftmp;
-    int tmpsize = sizeof ftmp;
+    int tmpsize = sizeof(ftmp);
     const char *p;
     unsigned long l;
     BIGNUM *bl = NULL;
@@ -2996,7 +2996,7 @@ int i2a_ASN1_OBJECT(BIO *bp, ASN1_OBJECT *a)
 
     if ((a == NULL) || (a->data == NULL))
         return (BIO_write(bp, "NULL", 4));
-    i = i2t_ASN1_OBJECT(buf, sizeof buf, a);
+    i = i2t_ASN1_OBJECT(buf, sizeof(buf), a);
     if (i > (int)(sizeof(buf) - 1)) {
         p = OPENSSL_malloc(i + 1);
         if (!p)
@@ -4087,13 +4087,13 @@ static int do_esc_char(unsigned long c, unsigned char flags, char *do_quotes,
     if (c > 0xffffffffL)
         return -1;
     if (c > 0xffff) {
-        BIO_snprintf(tmphex, sizeof tmphex, "\\W%08lX", c);
+        BIO_snprintf(tmphex, sizeof(tmphex), "\\W%08lX", c);
         if (!io_ch(arg, tmphex, 10))
             return -1;
         return 10;
     }
     if (c > 0xff) {
-        BIO_snprintf(tmphex, sizeof tmphex, "\\U%04lX", c);
+        BIO_snprintf(tmphex, sizeof(tmphex), "\\U%04lX", c);
         if (!io_ch(arg, tmphex, 6))
             return -1;
         return 6;
@@ -4193,7 +4193,7 @@ static int do_buf(unsigned char *buf, int buflen,
         if (type & BUF_TYPE_CONVUTF8) {
             unsigned char utfbuf[6];
             int utflen;
-            utflen = UTF8_putc(utfbuf, sizeof utfbuf, c);
+            utflen = UTF8_putc(utfbuf, sizeof(utfbuf), c);
             for (i = 0; i < utflen; i++) {
                 /*
                  * We don't need to worry about setting orflags correctly
@@ -4490,7 +4490,7 @@ static int do_name_ex(char_io *io_ch, void *arg, X509_NAME *n,
         if (fn_opt != XN_FLAG_FN_NONE) {
             int objlen, fld_len;
             if ((fn_opt == XN_FLAG_FN_OID) || (fn_nid == NID_undef)) {
-                OBJ_obj2txt(objtmp, sizeof objtmp, fn, 1);
+                OBJ_obj2txt(objtmp, sizeof(objtmp), fn, 1);
                 fld_len = 0;    /* XXX: what should this be? */
                 objbuf = objtmp;
             } else {
@@ -5007,7 +5007,7 @@ int i2d_ASN1_TIME(ASN1_TIME *a, unsigned char **pp)
         tmpstr = *(ASN1_STRING *)a;
         len = tmpstr.length;
         ebcdic2ascii(tmp, tmpstr.data,
-                     (len >= sizeof tmp) ? sizeof tmp : len);
+                     (len >= sizeof(tmp)) ? sizeof(tmp) : len);
         tmpstr.data = tmp;
         a = (ASN1_GENERALIZEDTIME *)&tmpstr;
     }
@@ -5388,7 +5388,7 @@ int i2d_ASN1_UTCTIME(ASN1_UTCTIME *a, unsigned char **pp)
     ASN1_STRING x = *(ASN1_STRING *)a;
 
     len = x.length;
-    ebcdic2ascii(tmp, x.data, (len >= sizeof tmp) ? sizeof tmp : len);
+    ebcdic2ascii(tmp, x.data, (len >= sizeof(tmp)) ? sizeof(tmp) : len);
     x.data = tmp;
     return i2d_ASN1_bytes(&x, pp, V_ASN1_UTCTIME, V_ASN1_UNIVERSAL);
 # endif
@@ -5629,7 +5629,7 @@ time_t ASN1_UTCTIME_get(const ASN1_UTCTIME *s)
     struct tm tm;
     int offset;
 
-    memset(&tm, '\0', sizeof tm);
+    memset(&tm, '\0', sizeof(tm));
 
 # define g2(p) (((p)[0]-'0')*10+(p)[1]-'0')
     tm.tm_year = g2(s->data);

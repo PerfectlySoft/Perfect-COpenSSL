@@ -728,7 +728,7 @@ static int def_load_bio(CONF *conf, BIO *in, long *line)
         OPENSSL_free(section);
     if (line != NULL)
         *line = eline;
-    BIO_snprintf(btmp, sizeof btmp, "%ld", eline);
+    BIO_snprintf(btmp, sizeof(btmp), "%ld", eline);
     ERR_add_error_data(2, "line ", btmp);
     if ((h != conf->data) && (conf->data != NULL)) {
         CONF_free(conf->data);
@@ -1851,7 +1851,7 @@ static int module_run(const CONF *cnf, char *name, char *value,
         if (!(flags & CONF_MFLAGS_SILENT)) {
             char rcode[DECIMAL_SIZE(ret) + 1];
             CONFerr(CONF_F_MODULE_RUN, CONF_R_MODULE_INITIALIZATION_ERROR);
-            BIO_snprintf(rcode, sizeof rcode, "%-8d", ret);
+            BIO_snprintf(rcode, sizeof(rcode), "%-8d", ret);
             ERR_add_error_data(6, "module=", name, ", value=", value,
                                ", retcode=", rcode);
         }

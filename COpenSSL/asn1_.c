@@ -1,6 +1,6 @@
 /* crypto/asn1/asn1_err.c */
 /* ====================================================================
- * Copyright (c) 1999-2014 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1999-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -279,6 +279,7 @@ static ERR_STRING_DATA ASN1_str_reasons[] = {
     {ERR_REASON(ASN1_R_MSTRING_NOT_UNIVERSAL), "mstring not universal"},
     {ERR_REASON(ASN1_R_MSTRING_WRONG_TAG), "mstring wrong tag"},
     {ERR_REASON(ASN1_R_NESTED_ASN1_STRING), "nested asn1 string"},
+    {ERR_REASON(ASN1_R_NESTED_TOO_DEEP), "nested too deep"},
     {ERR_REASON(ASN1_R_NON_HEX_CHARACTERS), "non hex characters"},
     {ERR_REASON(ASN1_R_NOT_ASCII_FORMAT), "not ascii format"},
     {ERR_REASON(ASN1_R_NOT_ENOUGH_DATA), "not enough data"},
@@ -1641,8 +1642,8 @@ void asn1_add_error(const unsigned char *address, int offset)
 {
     char buf1[DECIMAL_SIZE(address) + 1], buf2[DECIMAL_SIZE(offset) + 1];
 
-    BIO_snprintf(buf1, sizeof buf1, "%lu", (unsigned long)address);
-    BIO_snprintf(buf2, sizeof buf2, "%d", offset);
+    BIO_snprintf(buf1, sizeof(buf1), "%lu", (unsigned long)address);
+    BIO_snprintf(buf2, sizeof(buf2), "%d", offset);
     ERR_add_error_data(4, "address=", buf1, " offset=", buf2);
 }
 
@@ -1755,13 +1756,13 @@ static int asn1_print_info(BIO *bp, int tag, int xclass, int constructed,
 
     p = str;
     if ((xclass & V_ASN1_PRIVATE) == V_ASN1_PRIVATE)
-        BIO_snprintf(str, sizeof str, "priv [ %d ] ", tag);
+        BIO_snprintf(str, sizeof(str), "priv [ %d ] ", tag);
     else if ((xclass & V_ASN1_CONTEXT_SPECIFIC) == V_ASN1_CONTEXT_SPECIFIC)
-        BIO_snprintf(str, sizeof str, "cont [ %d ]", tag);
+        BIO_snprintf(str, sizeof(str), "cont [ %d ]", tag);
     else if ((xclass & V_ASN1_APPLICATION) == V_ASN1_APPLICATION)
-        BIO_snprintf(str, sizeof str, "appl [ %d ]", tag);
+        BIO_snprintf(str, sizeof(str), "appl [ %d ]", tag);
     else if (tag > 30)
-        BIO_snprintf(str, sizeof str, "<ASN1 %d>", tag);
+        BIO_snprintf(str, sizeof(str), "<ASN1 %d>", tag);
     else
         p = ASN1_tag2str(tag);
 

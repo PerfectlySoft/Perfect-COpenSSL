@@ -3572,7 +3572,7 @@ const char *X509_verify_cert_error_string(long n)
         return ("proxy subject name violation");
 
     default:
-        BIO_snprintf(buf, sizeof buf, "error number %ld", n);
+        BIO_snprintf(buf, sizeof(buf), "error number %ld", n);
         return (buf);
     }
 }
@@ -3755,7 +3755,7 @@ STACK_OF(X509_EXTENSION) *X509v3_add_ext(STACK_OF(X509_EXTENSION) **x,
  err2:
     if (new_ex != NULL)
         X509_EXTENSION_free(new_ex);
-    if (sk != NULL)
+    if (x != NULL && *x == NULL && sk != NULL)
         sk_X509_EXTENSION_free(sk);
     return (NULL);
 }
@@ -6664,7 +6664,7 @@ X509_VERIFY_PARAM *X509_VERIFY_PARAM_new(void)
     X509_VERIFY_PARAM *param;
     X509_VERIFY_PARAM_ID *paramid;
 
-    param = OPENSSL_malloc(sizeof *param);
+    param = OPENSSL_malloc(sizeof(*param));
     if (!param)
         return NULL;
     memset(param, 0, sizeof(*param));

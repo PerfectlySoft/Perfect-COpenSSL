@@ -1062,7 +1062,7 @@ int tls1_final_finish_mac(SSL *s,
             int hashsize = EVP_MD_size(md);
             EVP_MD_CTX *hdgst = s->s3->handshake_dgst[idx];
             if (!hdgst || hashsize < 0
-                || hashsize > (int)(sizeof buf - (size_t)(q - buf))) {
+                || hashsize > (int)(sizeof(buf) - (size_t)(q - buf))) {
                 /*
                  * internal error: 'buf' is too small for this cipersuite!
                  */
@@ -1080,7 +1080,7 @@ int tls1_final_finish_mac(SSL *s,
     if (!tls1_PRF(ssl_get_algorithm2(s),
                   str, slen, buf, (int)(q - buf), NULL, 0, NULL, 0, NULL, 0,
                   s->session->master_key, s->session->master_key_length,
-                  out, buf2, sizeof buf2))
+                  out, buf2, sizeof(buf2)))
         err = 1;
     EVP_MD_CTX_cleanup(&ctx);
 
@@ -1089,7 +1089,7 @@ int tls1_final_finish_mac(SSL *s,
     if (err)
         return 0;
     else
-        return sizeof buf2;
+        return sizeof(buf2);
 }
 
 int tls1_mac(SSL *ssl, unsigned char *md, int send)
@@ -1255,8 +1255,8 @@ int tls1_generate_master_secret(SSL *s, unsigned char *out, unsigned char *p,
              s->s3->client_random, SSL3_RANDOM_SIZE,
              co, col,
              s->s3->server_random, SSL3_RANDOM_SIZE,
-             so, sol, p, len, s->session->master_key, buff, sizeof buff);
-    OPENSSL_cleanse(buff, sizeof buff);
+             so, sol, p, len, s->session->master_key, buff, sizeof(buff));
+    OPENSSL_cleanse(buff, sizeof(buff));
 #ifdef SSL_DEBUG
     fprintf(stderr, "Premaster Secret:\n");
     BIO_dump_fp(stderr, (char *)p, len);
@@ -1839,7 +1839,7 @@ int SSL_extension_supported(unsigned int ext_type)
  * [including the GNU Public Licence.]
  */
 /* ====================================================================
- * Copyright (c) 1998-2007 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1998-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -4067,8 +4067,12 @@ static int ssl_scan_clienthello_tlsext(SSL *s, unsigned char **p,
 # ifndef OPENSSL_NO_EC
         else if (type == TLSEXT_TYPE_ec_point_formats) {
             unsigned char *sdata = data;
-            int ecpointformatlist_length = *(sdata++);
+            int ecpointformatlist_length;
 
+            if (size == 0)
+                goto err;
+
+            ecpointformatlist_length = *(sdata++);
             if (ecpointformatlist_length != size - 1 ||
                 ecpointformatlist_length < 1)
                 goto err;
@@ -4494,8 +4498,14 @@ static int ssl_scan_serverhello_tlsext(SSL *s, unsigned char **p,
 # ifndef OPENSSL_NO_EC
         else if (type == TLSEXT_TYPE_ec_point_formats) {
             unsigned char *sdata = data;
-            int ecpointformatlist_length = *(sdata++);
+            int ecpointformatlist_length;
 
+            if (size == 0) {
+                *al = TLS1_AD_DECODE_ERROR;
+                return 0;
+            }
+
+            ecpointformatlist_length = *(sdata++);
             if (ecpointformatlist_length != size - 1) {
                 *al = TLS1_AD_DECODE_ERROR;
                 return 0;
@@ -5288,6 +5298,10 @@ static int tls_decrypt_ticket(SSL *s, const unsigned char *etick,
     EVP_CIPHER_CTX ctx;
     SSL_CTX *tctx = s->initial_ctx;
 
+    /* Need at least keyname + iv */
+    if (eticklen < 16 + EVP_MAX_IV_LENGTH)
+        return 2;
+
     /* Initialize session ticket encryption and HMAC contexts */
     HMAC_CTX_init(&hctx);
     EVP_CIPHER_CTX_init(&ctx);
@@ -5296,9 +5310,12 @@ static int tls_decrypt_ticket(SSL *s, const unsigned char *etick,
         int rv = tctx->tlsext_ticket_key_cb(s, nctick, nctick + 16,
                                             &ctx, &hctx, 0);
         if (rv < 0)
-            return -1;
-        if (rv == 0)
+            goto err;
+        if (rv == 0) {
+            HMAC_CTX_cleanup(&hctx);
+            EVP_CIPHER_CTX_cleanup(&ctx);
             return 2;
+        }
         if (rv == 2)
             renew_ticket = 1;
     } else {
@@ -8057,13 +8074,15 @@ void SSL_trace(int write_p, int version, int content_type,
         break;
 
     case SSL3_RT_ALERT:
-        if (msglen != 2)
+        if (msglen != 2) {
             BIO_puts(bio, "    Illegal Alert Length\n");
-        else {
+        } else {
             BIO_printf(bio, "    Level=%s(%d), description=%s(%d)\n",
                        SSL_alert_type_string_long(msg[0] << 8),
                        msg[0], SSL_alert_desc_string_long(msg[1]), msg[1]);
         }
+        break;
+
     case TLS1_RT_HEARTBEAT:
         ssl_print_heartbeat(bio, 4, msg, msglen);
         break;

@@ -3588,7 +3588,7 @@ void ERR_load_BN_strings(void)
  * [including the GNU Public Licence.]
  */
 /* ====================================================================
- * Copyright (c) 1998-2005 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1998-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -4259,7 +4259,11 @@ int BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
 
     top = m->top;
 
-    bits = BN_num_bits(p);
+    /*
+     * Use all bits stored in |p|, rather than |BN_num_bits|, so we do not leak
+     * whether the top bits are zero.
+     */
+    bits = p->top * BN_BITS2;
     if (bits == 0) {
         /* x**0 mod 1 is still zero. */
         if (BN_is_one(m)) {
@@ -7635,74 +7639,47 @@ const BIGNUM *BN_value_one(void)
 
 int BN_num_bits_word(BN_ULONG l)
 {
-    static const unsigned char bits[256] = {
-        0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
-        5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
-        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-        8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-    };
+    BN_ULONG x, mask;
+    int bits = (l != 0);
 
-#if defined(SIXTY_FOUR_BIT_LONG)
-    if (l & 0xffffffff00000000L) {
-        if (l & 0xffff000000000000L) {
-            if (l & 0xff00000000000000L) {
-                return (bits[(int)(l >> 56)] + 56);
-            } else
-                return (bits[(int)(l >> 48)] + 48);
-        } else {
-            if (l & 0x0000ff0000000000L) {
-                return (bits[(int)(l >> 40)] + 40);
-            } else
-                return (bits[(int)(l >> 32)] + 32);
-        }
-    } else
-#else
-# ifdef SIXTY_FOUR_BIT
-    if (l & 0xffffffff00000000LL) {
-        if (l & 0xffff000000000000LL) {
-            if (l & 0xff00000000000000LL) {
-                return (bits[(int)(l >> 56)] + 56);
-            } else
-                return (bits[(int)(l >> 48)] + 48);
-        } else {
-            if (l & 0x0000ff0000000000LL) {
-                return (bits[(int)(l >> 40)] + 40);
-            } else
-                return (bits[(int)(l >> 32)] + 32);
-        }
-    } else
-# endif
+#if BN_BITS2 > 32
+    x = l >> 32;
+    mask = (0 - x) & BN_MASK2;
+    mask = (0 - (mask >> (BN_BITS2 - 1)));
+    bits += 32 & mask;
+    l ^= (x ^ l) & mask;
 #endif
-    {
-#if defined(THIRTY_TWO_BIT) || defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG)
-        if (l & 0xffff0000L) {
-            if (l & 0xff000000L)
-                return (bits[(int)(l >> 24L)] + 24);
-            else
-                return (bits[(int)(l >> 16L)] + 16);
-        } else
-#endif
-        {
-#if defined(THIRTY_TWO_BIT) || defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG)
-            if (l & 0xff00L)
-                return (bits[(int)(l >> 8)] + 8);
-            else
-#endif
-                return (bits[(int)(l)]);
-        }
-    }
+
+    x = l >> 16;
+    mask = (0 - x) & BN_MASK2;
+    mask = (0 - (mask >> (BN_BITS2 - 1)));
+    bits += 16 & mask;
+    l ^= (x ^ l) & mask;
+
+    x = l >> 8;
+    mask = (0 - x) & BN_MASK2;
+    mask = (0 - (mask >> (BN_BITS2 - 1)));
+    bits += 8 & mask;
+    l ^= (x ^ l) & mask;
+
+    x = l >> 4;
+    mask = (0 - x) & BN_MASK2;
+    mask = (0 - (mask >> (BN_BITS2 - 1)));
+    bits += 4 & mask;
+    l ^= (x ^ l) & mask;
+
+    x = l >> 2;
+    mask = (0 - x) & BN_MASK2;
+    mask = (0 - (mask >> (BN_BITS2 - 1)));
+    bits += 2 & mask;
+    l ^= (x ^ l) & mask;
+
+    x = l >> 1;
+    mask = (0 - x) & BN_MASK2;
+    mask = (0 - (mask >> (BN_BITS2 - 1)));
+    bits += 1 & mask;
+
+    return bits;
 }
 
 int BN_num_bits(const BIGNUM *a)
@@ -8014,9 +7991,6 @@ BIGNUM *BN_copy(BIGNUM *a, const BIGNUM *b)
 #else
     memcpy(a->d, b->d, sizeof(b->d[0]) * b->top);
 #endif
-
-    if (BN_get_flags(b, BN_FLG_CONSTTIME) != 0)
-        BN_set_flags(a, BN_FLG_CONSTTIME);
 
     a->top = b->top;
     a->neg = b->neg;
@@ -8782,7 +8756,7 @@ int BN_mod_lshift_quick(BIGNUM *r, const BIGNUM *a, int n, const BIGNUM *m)
  * [including the GNU Public Licence.]
  */
 /* ====================================================================
- * Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1998-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -8933,26 +8907,13 @@ static int BN_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont)
     r->top = max;
     n0 = mont->n0[0];
 
-# ifdef BN_COUNT
-    fprintf(stderr, "word BN_from_montgomery_word %d * %d\n", nl, nl);
-# endif
+    /*
+     * Add multiples of |n| to |r| until R = 2^(nl * BN_BITS2) divides it. On
+     * input, we had |r| < |n| * R, so now |r| < 2 * |n| * R. Note that |r|
+     * includes |carry| which is stored separately.
+     */
     for (carry = 0, i = 0; i < nl; i++, rp++) {
-# ifdef __TANDEM
-        {
-            long long t1;
-            long long t2;
-            long long t3;
-            t1 = rp[0] * (n0 & 0177777);
-            t2 = 037777600000l;
-            t2 = n0 & t2;
-            t3 = rp[0] & 0177777;
-            t2 = (t3 * t2) & BN_MASK2;
-            t1 = t1 + t2;
-            v = bn_mul_add_words(rp, np, nl, (BN_ULONG)t1);
-        }
-# else
         v = bn_mul_add_words(rp, np, nl, (rp[0] * n0) & BN_MASK2);
-# endif
         v = (v + carry + rp[nl]) & BN_MASK2;
         carry |= (v != rp[nl]);
         carry &= (v <= rp[nl]);
@@ -8965,46 +8926,24 @@ static int BN_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont)
     ret->neg = r->neg;
 
     rp = ret->d;
+
+    /*
+     * Shift |nl| words to divide by R. We have |ap| < 2 * |n|. Note that |ap|
+     * includes |carry| which is stored separately.
+     */
     ap = &(r->d[nl]);
 
-# define BRANCH_FREE 1
-# if BRANCH_FREE
-    {
-        BN_ULONG *nrp;
-        size_t m;
-
-        v = bn_sub_words(rp, ap, np, nl) - carry;
-        /*
-         * if subtraction result is real, then trick unconditional memcpy
-         * below to perform in-place "refresh" instead of actual copy.
-         */
-        m = (0 - (size_t)v);
-        nrp =
-            (BN_ULONG *)(((PTR_SIZE_INT) rp & ~m) | ((PTR_SIZE_INT) ap & m));
-
-        for (i = 0, nl -= 4; i < nl; i += 4) {
-            BN_ULONG t1, t2, t3, t4;
-
-            t1 = nrp[i + 0];
-            t2 = nrp[i + 1];
-            t3 = nrp[i + 2];
-            ap[i + 0] = 0;
-            t4 = nrp[i + 3];
-            ap[i + 1] = 0;
-            rp[i + 0] = t1;
-            ap[i + 2] = 0;
-            rp[i + 1] = t2;
-            ap[i + 3] = 0;
-            rp[i + 2] = t3;
-            rp[i + 3] = t4;
-        }
-        for (nl += 4; i < nl; i++)
-            rp[i] = nrp[i], ap[i] = 0;
+    /*
+     * |v| is one if |ap| - |np| underflowed or zero if it did not. Note |v|
+     * cannot be -1. That would imply the subtraction did not fit in |nl| words,
+     * and we know at most one subtraction is needed.
+     */
+    v = bn_sub_words(rp, ap, np, nl) - carry;
+    v = 0 - v;
+    for (i = 0; i < nl; i++) {
+        rp[i] = (v & ap[i]) | (~v & rp[i]);
+        ap[i] = 0;
     }
-# else
-    if (bn_sub_words(rp, ap, np, nl) - carry)
-        memcpy(rp, ap, nl * sizeof(BN_ULONG));
-# endif
     bn_correct_top(r);
     bn_correct_top(ret);
     bn_check_top(ret);
@@ -9108,6 +9047,8 @@ int BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
     R = &(mont->RR);            /* grab RR as a temp */
     if (!BN_copy(&(mont->N), mod))
         goto err;               /* Set N */
+    if (BN_get_flags(mod, BN_FLG_CONSTTIME) != 0)
+        BN_set_flags(&(mont->N), BN_FLG_CONSTTIME);
     mont->N.neg = 0;
 
 #ifdef MONT_WORD
@@ -12697,10 +12638,10 @@ char *BN_options(void)
     if (!init) {
         init++;
 #ifdef BN_LLONG
-        BIO_snprintf(data, sizeof data, "bn(%d,%d)",
+        BIO_snprintf(data, sizeof(data), "bn(%d,%d)",
                      (int)sizeof(BN_ULLONG) * 8, (int)sizeof(BN_ULONG) * 8);
 #else
-        BIO_snprintf(data, sizeof data, "bn(%d,%d)",
+        BIO_snprintf(data, sizeof(data), "bn(%d,%d)",
                      (int)sizeof(BN_ULONG) * 8, (int)sizeof(BN_ULONG) * 8);
 #endif
     }

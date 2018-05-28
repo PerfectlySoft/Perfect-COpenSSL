@@ -950,7 +950,7 @@ int PEM_X509_INFO_write_bio(BIO *bp, X509_INFO *xi, EVP_CIPHER *enc,
 
             /* create the right magic header stuff */
             OPENSSL_assert(strlen(objstr) + 23 + 2 * enc->iv_len + 13 <=
-                           sizeof buf);
+                           sizeof(buf));
             buf[0] = '\0';
             PEM_proc_type(buf, PEM_TYPE_ENCRYPTED);
             PEM_dek_info(buf, objstr, enc->iv_len, (char *)iv);
@@ -1396,7 +1396,7 @@ int PEM_ASN1_write_bio(i2d_of_void *i2d, const char *name, BIO *bp,
             OPENSSL_cleanse(buf, PEM_BUFSIZE);
 
         OPENSSL_assert(strlen(objstr) + 23 + 2 * enc->iv_len + 13 <=
-                       sizeof buf);
+                       sizeof(buf));
 
         buf[0] = '\0';
         PEM_proc_type(buf, PEM_TYPE_ENCRYPTED);

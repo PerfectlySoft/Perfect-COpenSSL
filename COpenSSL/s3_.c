@@ -2562,7 +2562,7 @@ int ssl3_get_server_hello(SSL *s)
     /* get the session-id */
     j = *(p++);
 
-    if ((j > sizeof s->session->session_id) || (j > SSL3_SESSION_ID_SIZE)) {
+    if ((j > sizeof(s->session->session_id)) || (j > SSL3_SESSION_ID_SIZE)) {
         al = SSL_AD_ILLEGAL_PARAMETER;
         SSLerr(SSL_F_SSL3_GET_SERVER_HELLO, SSL_R_SSL3_SESSION_ID_TOO_LONG);
         goto f_err;
@@ -4139,16 +4139,16 @@ int ssl3_send_client_key_exchange(SSL *s)
 
             tmp_buf[0] = s->client_version >> 8;
             tmp_buf[1] = s->client_version & 0xff;
-            if (RAND_bytes(&(tmp_buf[2]), sizeof tmp_buf - 2) <= 0)
+            if (RAND_bytes(&(tmp_buf[2]), sizeof(tmp_buf) - 2) <= 0)
                 goto err;
 
-            s->session->master_key_length = sizeof tmp_buf;
+            s->session->master_key_length = sizeof(tmp_buf);
 
             q = p;
             /* Fix buf for TLS and beyond */
             if (s->version > SSL3_VERSION)
                 p += 2;
-            n = RSA_public_encrypt(sizeof tmp_buf,
+            n = RSA_public_encrypt(sizeof(tmp_buf),
                                    tmp_buf, p, rsa, RSA_PKCS1_PADDING);
 # ifdef PKCS1_CHECK
             if (s->options & SSL_OP_PKCS1_CHECK_1)
@@ -4173,8 +4173,8 @@ int ssl3_send_client_key_exchange(SSL *s)
                                                             s->
                                                             session->master_key,
                                                             tmp_buf,
-                                                            sizeof tmp_buf);
-            OPENSSL_cleanse(tmp_buf, sizeof tmp_buf);
+                                                            sizeof(tmp_buf));
+            OPENSSL_cleanse(tmp_buf, sizeof(tmp_buf));
         }
 #endif
 #ifndef OPENSSL_NO_KRB5
@@ -4266,7 +4266,7 @@ int ssl3_send_client_key_exchange(SSL *s)
 
             tmp_buf[0] = s->client_version >> 8;
             tmp_buf[1] = s->client_version & 0xff;
-            if (RAND_bytes(&(tmp_buf[2]), sizeof tmp_buf - 2) <= 0)
+            if (RAND_bytes(&(tmp_buf[2]), sizeof(tmp_buf) - 2) <= 0)
                 goto err;
 
             /*-
@@ -4277,13 +4277,13 @@ int ssl3_send_client_key_exchange(SSL *s)
              *      EVP_EncryptInit_ex(&ciph_ctx,NULL, key,iv);
              */
 
-            memset(iv, 0, sizeof iv); /* per RFC 1510 */
+            memset(iv, 0, sizeof(iv)); /* per RFC 1510 */
             EVP_EncryptInit_ex(&ciph_ctx, enc, NULL, kssl_ctx->key, iv);
             EVP_EncryptUpdate(&ciph_ctx, epms, &outl, tmp_buf,
-                              sizeof tmp_buf);
+                              sizeof(tmp_buf));
             EVP_EncryptFinal_ex(&ciph_ctx, &(epms[outl]), &padl);
             outl += padl;
-            if (outl > (int)sizeof epms) {
+            if (outl > (int)sizeof(epms)) {
                 SSLerr(SSL_F_SSL3_SEND_CLIENT_KEY_EXCHANGE,
                        ERR_R_INTERNAL_ERROR);
                 goto err;
@@ -4301,9 +4301,9 @@ int ssl3_send_client_key_exchange(SSL *s)
                                                             s->
                                                             session->master_key,
                                                             tmp_buf,
-                                                            sizeof tmp_buf);
+                                                            sizeof(tmp_buf));
 
-            OPENSSL_cleanse(tmp_buf, sizeof tmp_buf);
+            OPENSSL_cleanse(tmp_buf, sizeof(tmp_buf));
             OPENSSL_cleanse(epms, outl);
         }
 #endif
@@ -9383,9 +9383,9 @@ int ssl3_new(SSL *s)
 {
     SSL3_STATE *s3;
 
-    if ((s3 = OPENSSL_malloc(sizeof *s3)) == NULL)
+    if ((s3 = OPENSSL_malloc(sizeof(*s3))) == NULL)
         goto err;
-    memset(s3, 0, sizeof *s3);
+    memset(s3, 0, sizeof(*s3));
     memset(s3->rrec.seq_num, 0, sizeof(s3->rrec.seq_num));
     memset(s3->wrec.seq_num, 0, sizeof(s3->wrec.seq_num));
 
@@ -9443,7 +9443,7 @@ void ssl3_free(SSL *s)
 #ifndef OPENSSL_NO_SRP
     SSL_SRP_CTX_free(s);
 #endif
-    OPENSSL_cleanse(s->s3, sizeof *s->s3);
+    OPENSSL_cleanse(s->s3, sizeof(*s->s3));
     OPENSSL_free(s->s3);
     s->s3 = NULL;
 }
@@ -9507,7 +9507,7 @@ void ssl3_clear(SSL *s)
         s->s3->alpn_selected = NULL;
     }
 #endif
-    memset(s->s3, 0, sizeof *s->s3);
+    memset(s->s3, 0, sizeof(*s->s3));
     s->s3->rbuf.buf = rp;
     s->s3->wbuf.buf = wp;
     s->s3->rbuf.len = rlen;
@@ -11034,7 +11034,7 @@ IMPLEMENT_ssl3_meth_func(SSLv3_method,
  * [including the GNU Public Licence.]
  */
 /* ====================================================================
- * Copyright (c) 1998-2002 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1998-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -12074,10 +12074,9 @@ int ssl3_write_pending(SSL *s, int type, const unsigned char *buf,
     int i;
     SSL3_BUFFER *wb = &(s->s3->wbuf);
 
-/* XXXX */
     if ((s->s3->wpend_tot > (int)len)
-        || ((s->s3->wpend_buf != buf) &&
-            !(s->mode & SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER))
+        || (!(s->mode & SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER)
+            && (s->s3->wpend_buf != buf))
         || (s->s3->wpend_type != type)) {
         SSLerr(SSL_F_SSL3_WRITE_PENDING, SSL_R_BAD_WRITE_RETRY);
         return (-1);
@@ -12292,11 +12291,11 @@ int ssl3_read_bytes(SSL *s, int type, unsigned char *buf, int len, int peek)
         unsigned int *dest_len = NULL;
 
         if (rr->type == SSL3_RT_HANDSHAKE) {
-            dest_maxlen = sizeof s->s3->handshake_fragment;
+            dest_maxlen = sizeof(s->s3->handshake_fragment);
             dest = s->s3->handshake_fragment;
             dest_len = &s->s3->handshake_fragment_len;
         } else if (rr->type == SSL3_RT_ALERT) {
-            dest_maxlen = sizeof s->s3->alert_fragment;
+            dest_maxlen = sizeof(s->s3->alert_fragment);
             dest = s->s3->alert_fragment;
             dest_len = &s->s3->alert_fragment_len;
         }
@@ -12399,26 +12398,25 @@ int ssl3_read_bytes(SSL *s, int type, unsigned char *buf, int len, int peek)
          */
         goto start;
     }
+
     /*
      * If we are a server and get a client hello when renegotiation isn't
-     * allowed send back a no renegotiation alert and carry on. WARNING:
-     * experimental code, needs reviewing (steve)
+     * allowed send back a no renegotiation alert and carry on.
      */
-    if (s->server &&
-        SSL_is_init_finished(s) &&
-        !s->s3->send_connection_binding &&
-        (s->version > SSL3_VERSION) &&
-        (s->s3->handshake_fragment_len >= 4) &&
-        (s->s3->handshake_fragment[0] == SSL3_MT_CLIENT_HELLO) &&
-        (s->session != NULL) && (s->session->cipher != NULL) &&
-        !(s->options & SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION)) {
-        /*
-         * s->s3->handshake_fragment_len = 0;
-         */
+    if (s->server
+            && SSL_is_init_finished(s)
+            && !s->s3->send_connection_binding
+            && s->version > SSL3_VERSION
+            && s->s3->handshake_fragment_len >= SSL3_HM_HEADER_LENGTH
+            && s->s3->handshake_fragment[0] == SSL3_MT_CLIENT_HELLO
+            && s->s3->previous_client_finished_len != 0
+            && (s->options & SSL_OP_ALLOW_UNSAFE_LEGACY_RENEGOTIATION) == 0) {
+        s->s3->handshake_fragment_len = 0;
         rr->length = 0;
         ssl3_send_alert(s, SSL3_AL_WARNING, SSL_AD_NO_RENEGOTIATION);
         goto start;
     }
+
     if (s->s3->alert_fragment_len >= 2) {
         int alert_level = s->s3->alert_fragment[0];
         int alert_descr = s->s3->alert_fragment[1];
@@ -12476,7 +12474,7 @@ int ssl3_read_bytes(SSL *s, int type, unsigned char *buf, int len, int peek)
             s->rwstate = SSL_NOTHING;
             s->s3->fatal_alert = alert_descr;
             SSLerr(SSL_F_SSL3_READ_BYTES, SSL_AD_REASON_OFFSET + alert_descr);
-            BIO_snprintf(tmp, sizeof tmp, "%d", alert_descr);
+            BIO_snprintf(tmp, sizeof(tmp), "%d", alert_descr);
             ERR_add_error_data(2, "SSL alert number ", tmp);
             s->shutdown |= SSL_RECEIVED_SHUTDOWN;
             SSL_CTX_remove_session(s->session_ctx, s->session);
@@ -15261,7 +15259,7 @@ int ssl3_get_client_key_exchange(SSL *s)
         /*
          * Note that the length is checked again below, ** after decryption
          */
-        if (enc_pms.length > sizeof pms) {
+        if (enc_pms.length > sizeof(pms)) {
             SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE,
                    SSL_R_DATA_LENGTH_TOO_LONG);
             goto err;
@@ -15314,7 +15312,7 @@ int ssl3_get_client_key_exchange(SSL *s)
         if (enc == NULL)
             goto err;
 
-        memset(iv, 0, sizeof iv); /* per RFC 1510 */
+        memset(iv, 0, sizeof(iv)); /* per RFC 1510 */
 
         if (!EVP_DecryptInit_ex(&ciph_ctx, enc, NULL, kssl_ctx->key, iv)) {
             SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE,

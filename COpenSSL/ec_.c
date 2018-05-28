@@ -6827,7 +6827,7 @@ EC_GROUP *EC_GROUP_new(const EC_METHOD *meth)
         return NULL;
     }
 
-    ret = OPENSSL_malloc(sizeof *ret);
+    ret = OPENSSL_malloc(sizeof(*ret));
     if (ret == NULL) {
         ECerr(EC_F_EC_GROUP_NEW, ERR_R_MALLOC_FAILURE);
         return NULL;
@@ -6906,7 +6906,7 @@ void EC_GROUP_clear_free(EC_GROUP *group)
         OPENSSL_free(group->seed);
     }
 
-    OPENSSL_cleanse(group, sizeof *group);
+    OPENSSL_cleanse(group, sizeof(*group));
     OPENSSL_free(group);
 }
 
@@ -7317,7 +7317,7 @@ int EC_EX_DATA_set_data(EC_EXTRA_DATA **ex_data, void *data,
         /* no explicit entry needed */
         return 1;
 
-    d = OPENSSL_malloc(sizeof *d);
+    d = OPENSSL_malloc(sizeof(*d));
     if (d == NULL)
         return 0;
 
@@ -7454,7 +7454,7 @@ EC_POINT *EC_POINT_new(const EC_GROUP *group)
         return NULL;
     }
 
-    ret = OPENSSL_malloc(sizeof *ret);
+    ret = OPENSSL_malloc(sizeof(*ret));
     if (ret == NULL) {
         ECerr(EC_F_EC_POINT_NEW, ERR_R_MALLOC_FAILURE);
         return NULL;
@@ -7489,7 +7489,7 @@ void EC_POINT_clear_free(EC_POINT *point)
         point->meth->point_clear_finish(point);
     else if (point->meth->point_finish != 0)
         point->meth->point_finish(point);
-    OPENSSL_cleanse(point, sizeof *point);
+    OPENSSL_cleanse(point, sizeof(*point));
     OPENSSL_free(point);
 }
 
@@ -8045,11 +8045,11 @@ static void ec_pre_comp_clear_free(void *pre_)
 
         for (p = pre->points; *p != NULL; p++) {
             EC_POINT_clear_free(*p);
-            OPENSSL_cleanse(p, sizeof *p);
+            OPENSSL_cleanse(p, sizeof(*p));
         }
         OPENSSL_free(pre->points);
     }
-    OPENSSL_cleanse(pre, sizeof *pre);
+    OPENSSL_cleanse(pre, sizeof(*pre));
     OPENSSL_free(pre);
 }
 
@@ -8306,11 +8306,11 @@ int ec_wNAF_mul(const EC_GROUP *group, EC_POINT *r, const BIGNUM *scalar,
 
     totalnum = num + numblocks;
 
-    wsize = OPENSSL_malloc(totalnum * sizeof wsize[0]);
-    wNAF_len = OPENSSL_malloc(totalnum * sizeof wNAF_len[0]);
-    wNAF = OPENSSL_malloc((totalnum + 1) * sizeof wNAF[0]); /* includes space
-                                                             * for pivot */
-    val_sub = OPENSSL_malloc(totalnum * sizeof val_sub[0]);
+    wsize = OPENSSL_malloc(totalnum * sizeof(wsize[0]));
+    wNAF_len = OPENSSL_malloc(totalnum * sizeof(wNAF_len[0]));
+    /* include space for pivot */
+    wNAF = OPENSSL_malloc((totalnum + 1) * sizeof(wNAF[0]));
+    val_sub = OPENSSL_malloc(totalnum * sizeof(val_sub[0]));
 
     /* Ensure wNAF is initialised in case we end up going to err */
     if (wNAF)
@@ -8456,7 +8456,7 @@ int ec_wNAF_mul(const EC_GROUP *group, EC_POINT *r, const BIGNUM *scalar,
      * 'val_sub[i]' is a pointer to the subarray for the i-th point, or to a
      * subarray of 'pre_comp->points' if we already have precomputation.
      */
-    val = OPENSSL_malloc((num_val + 1) * sizeof val[0]);
+    val = OPENSSL_malloc((num_val + 1) * sizeof(val[0]));
     if (val == NULL) {
         ECerr(EC_F_EC_WNAF_MUL, ERR_R_MALLOC_FAILURE);
         goto err;

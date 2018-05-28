@@ -1508,7 +1508,7 @@ BN_BLINDING *RSA_setup_blinding(RSA *rsa, BN_CTX *in_ctx)
          * if PRNG is not properly seeded, resort to secret exponent as
          * unpredictable seed
          */
-        RAND_add(rsa->d->d, rsa->d->dmax * sizeof rsa->d->d[0], 0.0);
+        RAND_add(rsa->d->d, rsa->d->dmax * sizeof(rsa->d->d[0]), 0.0);
     }
 
     if (!(rsa->flags & RSA_FLAG_NO_CONSTTIME)) {
@@ -2903,6 +2903,7 @@ static int rsa_builtin_keygen(RSA *rsa, int bits, BIGNUM *e_value,
     BIGNUM *pr0, *d, *p;
     int bitsp, bitsq, ok = -1, n = 0;
     BN_CTX *ctx = NULL;
+    unsigned long error = 0;
 
     /*
      * When generating ridiculously small keys, we can get stuck
@@ -2949,16 +2950,26 @@ static int rsa_builtin_keygen(RSA *rsa, int bits, BIGNUM *e_value,
     if (BN_copy(rsa->e, e_value) == NULL)
         goto err;
 
+    BN_set_flags(r2, BN_FLG_CONSTTIME);
     /* generate p and q */
     for (;;) {
         if (!BN_generate_prime_ex(rsa->p, bitsp, 0, NULL, NULL, cb))
             goto err;
         if (!BN_sub(r2, rsa->p, BN_value_one()))
             goto err;
-        if (!BN_gcd(r1, r2, rsa->e, ctx))
-            goto err;
-        if (BN_is_one(r1))
+        ERR_set_mark();
+        if (BN_mod_inverse(r1, r2, rsa->e, ctx) != NULL) {
+            /* GCD == 1 since inverse exists */
             break;
+        }
+        error = ERR_peek_last_error();
+        if (ERR_GET_LIB(error) == ERR_LIB_BN
+            && ERR_GET_REASON(error) == BN_R_NO_INVERSE) {
+            /* GCD != 1 */
+            ERR_pop_to_mark();
+        } else {
+            goto err;
+        }
         if (!BN_GENCB_call(cb, 2, n++))
             goto err;
     }
@@ -2971,10 +2982,19 @@ static int rsa_builtin_keygen(RSA *rsa, int bits, BIGNUM *e_value,
         } while (BN_cmp(rsa->p, rsa->q) == 0);
         if (!BN_sub(r2, rsa->q, BN_value_one()))
             goto err;
-        if (!BN_gcd(r1, r2, rsa->e, ctx))
-            goto err;
-        if (BN_is_one(r1))
+        ERR_set_mark();
+        if (BN_mod_inverse(r1, r2, rsa->e, ctx) != NULL) {
+            /* GCD == 1 since inverse exists */
             break;
+        }
+        error = ERR_peek_last_error();
+        if (ERR_GET_LIB(error) == ERR_LIB_BN
+            && ERR_GET_REASON(error) == BN_R_NO_INVERSE) {
+            /* GCD != 1 */
+            ERR_pop_to_mark();
+        } else {
+            goto err;
+        }
         if (!BN_GENCB_call(cb, 2, n++))
             goto err;
     }
@@ -5223,7 +5243,7 @@ int RSA_verify_PKCS1_PSS_mgf1(RSA *rsa, const unsigned char *mHash,
         goto err;
     }
     if (!EVP_DigestInit_ex(&ctx, Hash, NULL)
-        || !EVP_DigestUpdate(&ctx, zeroes, sizeof zeroes)
+        || !EVP_DigestUpdate(&ctx, zeroes, sizeof(zeroes))
         || !EVP_DigestUpdate(&ctx, mHash, hLen))
         goto err;
     if (maskedDBLen - i) {
@@ -5318,7 +5338,7 @@ int RSA_padding_add_PKCS1_PSS_mgf1(RSA *rsa, unsigned char *EM,
     H = EM + maskedDBLen;
     EVP_MD_CTX_init(&ctx);
     if (!EVP_DigestInit_ex(&ctx, Hash, NULL)
-        || !EVP_DigestUpdate(&ctx, zeroes, sizeof zeroes)
+        || !EVP_DigestUpdate(&ctx, zeroes, sizeof(zeroes))
         || !EVP_DigestUpdate(&ctx, mHash, hLen))
         goto err;
     if (sLen && !EVP_DigestUpdate(&ctx, salt, sLen))

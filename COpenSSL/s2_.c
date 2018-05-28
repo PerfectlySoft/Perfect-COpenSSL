@@ -523,7 +523,7 @@ static int get_server_hello(SSL *s)
     }
 
     s->s2->conn_id_length = s->s2->tmp.conn_id_length;
-    if (s->s2->conn_id_length > sizeof s->s2->conn_id) {
+    if (s->s2->conn_id_length > sizeof(s->s2->conn_id)) {
         ssl2_return_error(s, SSL2_PE_UNDEFINED_ERROR);
         SSLerr(SSL_F_GET_SERVER_HELLO, SSL_R_SSL2_CONNECTION_ID_TOO_LONG);
         return -1;
@@ -708,7 +708,7 @@ static int client_finished(SSL *s)
     if (s->state == SSL2_ST_SEND_CLIENT_FINISHED_A) {
         p = (unsigned char *)s->init_buf->data;
         *(p++) = SSL2_MT_CLIENT_FINISHED;
-        if (s->s2->conn_id_length > sizeof s->s2->conn_id) {
+        if (s->s2->conn_id_length > sizeof(s->s2->conn_id)) {
             SSLerr(SSL_F_CLIENT_FINISHED, ERR_R_INTERNAL_ERROR);
             return -1;
         }
@@ -981,7 +981,7 @@ static int get_server_finished(SSL *s)
     } else {
         if (!(s->options & SSL_OP_MICROSOFT_SESS_ID_BUG)) {
             if ((s->session->session_id_length >
-                 sizeof s->session->session_id)
+                 sizeof(s->session->session_id))
                 || (0 !=
                     memcmp(buf + 1, s->session->session_id,
                            (unsigned int)s->session->session_id_length))) {
@@ -1193,7 +1193,7 @@ int ssl2_enc_init(SSL *s, int client)
 
     num = c->key_len;
     s->s2->key_material_length = num * 2;
-    OPENSSL_assert(s->s2->key_material_length <= sizeof s->s2->key_material);
+    OPENSSL_assert(s->s2->key_material_length <= sizeof(s->s2->key_material));
 
     if (ssl2_generate_key_material(s) <= 0)
         return 0;
@@ -1617,9 +1617,9 @@ int ssl2_new(SSL *s)
 {
     SSL2_STATE *s2;
 
-    if ((s2 = OPENSSL_malloc(sizeof *s2)) == NULL)
+    if ((s2 = OPENSSL_malloc(sizeof(*s2))) == NULL)
         goto err;
-    memset(s2, 0, sizeof *s2);
+    memset(s2, 0, sizeof(*s2));
 
 # if SSL2_MAX_RECORD_LENGTH_3_BYTE_HEADER + 3 > SSL2_MAX_RECORD_LENGTH_2_BYTE_HEADER + 2
 #  error "assertion failed"
@@ -1662,7 +1662,7 @@ void ssl2_free(SSL *s)
         OPENSSL_free(s2->rbuf);
     if (s2->wbuf != NULL)
         OPENSSL_free(s2->wbuf);
-    OPENSSL_cleanse(s2, sizeof *s2);
+    OPENSSL_cleanse(s2, sizeof(*s2));
     OPENSSL_free(s2);
     s->s2 = NULL;
 }
@@ -1677,7 +1677,7 @@ void ssl2_clear(SSL *s)
     rbuf = s2->rbuf;
     wbuf = s2->wbuf;
 
-    memset(s2, 0, sizeof *s2);
+    memset(s2, 0, sizeof(*s2));
 
     s2->rbuf = rbuf;
     s2->wbuf = wbuf;
@@ -3407,7 +3407,7 @@ static int get_client_hello(SSL *s)
     p += s->s2->tmp.session_id_length;
 
     /* challenge */
-    if (s->s2->challenge_length > sizeof s->s2->challenge) {
+    if (s->s2->challenge_length > sizeof(s->s2->challenge)) {
         ssl2_return_error(s, SSL2_PE_UNDEFINED_ERROR);
         SSLerr(SSL_F_GET_CLIENT_HELLO, ERR_R_INTERNAL_ERROR);
         return -1;
@@ -3555,7 +3555,7 @@ static int get_client_finished(SSL *s)
     }
 
     /* SSL2_ST_GET_CLIENT_FINISHED_B */
-    if (s->s2->conn_id_length > sizeof s->s2->conn_id) {
+    if (s->s2->conn_id_length > sizeof(s->s2->conn_id)) {
         ssl2_return_error(s, SSL2_PE_UNDEFINED_ERROR);
         SSLerr(SSL_F_GET_CLIENT_FINISHED, ERR_R_INTERNAL_ERROR);
         return -1;
@@ -3586,7 +3586,7 @@ static int server_verify(SSL *s)
     if (s->state == SSL2_ST_SEND_SERVER_VERIFY_A) {
         p = (unsigned char *)s->init_buf->data;
         *(p++) = SSL2_MT_SERVER_VERIFY;
-        if (s->s2->challenge_length > sizeof s->s2->challenge) {
+        if (s->s2->challenge_length > sizeof(s->s2->challenge)) {
             SSLerr(SSL_F_SERVER_VERIFY, ERR_R_INTERNAL_ERROR);
             return -1;
         }
@@ -3608,7 +3608,7 @@ static int server_finish(SSL *s)
         p = (unsigned char *)s->init_buf->data;
         *(p++) = SSL2_MT_SERVER_FINISHED;
 
-        if (s->session->session_id_length > sizeof s->session->session_id) {
+        if (s->session->session_id_length > sizeof(s->session->session_id)) {
             SSLerr(SSL_F_SERVER_FINISH, ERR_R_INTERNAL_ERROR);
             return -1;
         }

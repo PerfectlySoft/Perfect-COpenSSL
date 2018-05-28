@@ -241,6 +241,11 @@ int FIPS_mode_set(int r)
 #ifdef OPENSSL_FIPS
 # include <fips.h>
 # include "rand.h"
+
+# ifndef OPENSSL_NO_DEPRECATED
+/* the prototype is missing in <openssl/fips.h> */
+void FIPS_crypto_set_id_callback(unsigned long (*func)(void));
+# endif
 #endif
 
 /*
@@ -581,13 +586,13 @@ void OBJ_NAME_do_all_sorted(int type,
 
     d.type = type;
     d.names =
-        OPENSSL_malloc(lh_OBJ_NAME_num_items(names_lh) * sizeof *d.names);
+        OPENSSL_malloc(lh_OBJ_NAME_num_items(names_lh) * sizeof(*d.names));
     /* Really should return an error if !d.names...but its a void function! */
     if (d.names) {
         d.n = 0;
         OBJ_NAME_do_all(type, do_all_sorted_fn, &d);
 
-        qsort((void *)d.names, d.n, sizeof *d.names, do_all_sorted_cmp);
+        qsort((void *)d.names, d.n, sizeof(*d.names), do_all_sorted_cmp);
 
         for (n = 0; n < d.n; ++n)
             fn(d.names[n], arg);
@@ -760,7 +765,7 @@ int OPENSSL_memcmp(const void *v1, const void *v2, size_t n)
  * 2008.
  */
 /* ====================================================================
- * Copyright (c) 2001 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 2001-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -857,7 +862,7 @@ struct tm *OPENSSL_gmtime(const time_t *timer, struct tm *result)
 {
     struct tm *ts = NULL;
 
-#if defined(OPENSSL_THREADS) && !defined(OPENSSL_SYS_WIN32) && !defined(OPENSSL_SYS_OS2) && (!defined(OPENSSL_SYS_VMS) || defined(gmtime_r)) && !defined(OPENSSL_SYS_MACOSX) && !defined(OPENSSL_SYS_SUNOS)
+#if defined(OPENSSL_THREADS) && !defined(OPENSSL_SYS_WIN32) && !defined(OPENSSL_SYS_OS2) && (!defined(OPENSSL_SYS_VMS) || defined(gmtime_r)) && !defined(OPENSSL_SYS_SUNOS)
     if (gmtime_r(timer, result) == NULL)
         return NULL;
     ts = result;
@@ -893,14 +898,14 @@ struct tm *OPENSSL_gmtime(const time_t *timer, struct tm *result)
         pitem->ileb_64$w_mbo = 1;
         pitem->ileb_64$w_code = LNM$_STRING;
         pitem->ileb_64$l_mbmo = -1;
-        pitem->ileb_64$q_length = sizeof (logvalue);
+        pitem->ileb_64$q_length = sizeof(logvalue);
         pitem->ileb_64$pq_bufaddr = logvalue;
         pitem->ileb_64$pq_retlen_addr = (unsigned __int64 *) &reslen;
         pitem++;
         /* Last item of the item list is null terminated */
         pitem->ileb_64$q_length = pitem->ileb_64$w_code = 0;
 # else
-        pitem->ile3$w_length = sizeof (logvalue);
+        pitem->ile3$w_length = sizeof(logvalue);
         pitem->ile3$w_code = LNM$_STRING;
         pitem->ile3$ps_bufaddr = logvalue;
         pitem->ile3$ps_retlen_addr = (unsigned short int *) &reslen;

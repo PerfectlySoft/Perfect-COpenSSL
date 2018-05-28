@@ -814,6 +814,14 @@ static int b64_read(BIO *b, char *out, int outl)
                                  (unsigned char *)ctx->tmp, i);
             ctx->tmp_len = 0;
         }
+        /*
+         * If eof or an error was signalled, then the condition
+         * 'ctx->cont <= 0' will prevent b64_read() from reading
+         * more data on subsequent calls. This assignment was
+         * deleted accidentally in commit 5562cfaca4f3.
+         */
+        ctx->cont = i;
+
         ctx->buf_off = 0;
         if (i < 0) {
             ret_code = 0;
@@ -1133,7 +1141,7 @@ long MS_CALLBACK BIO_debug_callback(BIO *bio, int cmd, const char *argp,
     if (BIO_CB_RETURN & cmd)
         r = ret;
 
-    len = BIO_snprintf(buf,sizeof buf,"BIO[%p]: ",(void *)bio);
+    len = BIO_snprintf(buf,sizeof(buf),"BIO[%p]: ",(void *)bio);
 
     /* Ignore errors and continue printing the other information. */
     if (len < 0)

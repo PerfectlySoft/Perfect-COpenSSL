@@ -1435,7 +1435,7 @@ static int crparam2bn(struct crparam *crp, BIGNUM *a)
         return (-1);
 
     for (i = 0; i < bytes; i++)
-        pd[i] = crp->crp_p[bytes - i - 1];
+        pd[i] = ((char *)crp->crp_p)[bytes - i - 1];
 
     BN_bin2bn(pd, bytes, a);
     free(pd);
@@ -1511,7 +1511,7 @@ cryptodev_bn_mod_exp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
         return (ret);
     }
 
-    memset(&kop, 0, sizeof kop);
+    memset(&kop, 0, sizeof(kop));
     kop.crk_op = CRK_MOD_EXP;
 
     /* inputs: a^p % m */
@@ -1562,7 +1562,7 @@ cryptodev_rsa_mod_exp(BIGNUM *r0, const BIGNUM *I, RSA *rsa, BN_CTX *ctx)
         return (0);
     }
 
-    memset(&kop, 0, sizeof kop);
+    memset(&kop, 0, sizeof(kop));
     kop.crk_op = CRK_MOD_EXP_CRT;
     /* inputs: rsa->p rsa->q I rsa->dmp1 rsa->dmq1 rsa->iqmp */
     if (bn2crparam(rsa->p, &kop.crk_param[0]))
@@ -1665,7 +1665,7 @@ static DSA_SIG *cryptodev_dsa_do_sign(const unsigned char *dgst, int dlen,
         goto err;
     }
 
-    memset(&kop, 0, sizeof kop);
+    memset(&kop, 0, sizeof(kop));
     kop.crk_op = CRK_DSA_SIGN;
 
     /* inputs: dgst dsa->p dsa->q dsa->g dsa->priv_key */
@@ -1708,7 +1708,7 @@ cryptodev_dsa_verify(const unsigned char *dgst, int dlen,
     struct crypt_kop kop;
     int dsaret = 1;
 
-    memset(&kop, 0, sizeof kop);
+    memset(&kop, 0, sizeof(kop));
     kop.crk_op = CRK_DSA_VERIFY;
 
     /* inputs: dgst dsa->p dsa->q dsa->g dsa->pub_key sig->r sig->s */
@@ -1781,7 +1781,7 @@ cryptodev_dh_compute_key(unsigned char *key, const BIGNUM *pub_key, DH *dh)
 
     keylen = BN_num_bits(dh->p);
 
-    memset(&kop, 0, sizeof kop);
+    memset(&kop, 0, sizeof(kop));
     kop.crk_op = CRK_DH_COMPUTE_KEY;
 
     /* inputs: dh->priv_key pub_key dh->p key */
@@ -4890,7 +4890,7 @@ void ENGINE_load_rdrand(void)
 }
 #endif
 /* ====================================================================
- * Copyright (c) 2001 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 2001-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -5050,6 +5050,11 @@ int engine_table_register(ENGINE_TABLE **table, ENGINE_CLEANUP_CB *cleanup,
             }
             fnd->funct = NULL;
             (void)lh_ENGINE_PILE_insert(&(*table)->piles, fnd);
+            if (lh_ENGINE_PILE_retrieve(&(*table)->piles, &tmplate) != fnd) {
+                sk_ENGINE_free(fnd->sk);
+                OPENSSL_free(fnd);
+                goto end;
+            }
         }
         /* A registration shouldn't add duplciate entries */
         (void)sk_ENGINE_delete_ptr(fnd->sk, e);

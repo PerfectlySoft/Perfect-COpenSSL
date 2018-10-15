@@ -3,7 +3,7 @@
  * 2006.
  */
 /* ====================================================================
- * Copyright (c) 2006 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 2006-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -143,19 +143,19 @@ static int eckey_pub_encode(X509_PUBKEY *pk, const EVP_PKEY *pkey)
 static EC_KEY *eckey_type2param(int ptype, void *pval)
 {
     EC_KEY *eckey = NULL;
+    EC_GROUP *group = NULL;
+
     if (ptype == V_ASN1_SEQUENCE) {
-        ASN1_STRING *pstr = pval;
-        const unsigned char *pm = NULL;
-        int pmlen;
-        pm = pstr->data;
-        pmlen = pstr->length;
-        if (!(eckey = d2i_ECParameters(NULL, &pm, pmlen))) {
+        const ASN1_STRING *pstr = pval;
+        const unsigned char *pm = pstr->data;
+        int pmlen = pstr->length;
+
+        if ((eckey = d2i_ECParameters(NULL, &pm, pmlen)) == NULL) {
             ECerr(EC_F_ECKEY_TYPE2PARAM, EC_R_DECODE_ERROR);
             goto ecerr;
         }
     } else if (ptype == V_ASN1_OBJECT) {
-        ASN1_OBJECT *poid = pval;
-        EC_GROUP *group;
+        const ASN1_OBJECT *poid = pval;
 
         /*
          * type == V_ASN1_OBJECT => the parameters are given by an asn1 OID
@@ -179,8 +179,8 @@ static EC_KEY *eckey_type2param(int ptype, void *pval)
     return eckey;
 
  ecerr:
-    if (eckey)
-        EC_KEY_free(eckey);
+    EC_KEY_free(eckey);
+    EC_GROUP_free(group);
     return NULL;
 }
 
@@ -6745,7 +6745,7 @@ void EC_KEY_clear_flags(EC_KEY *key, int flags)
  * Originally written by Bodo Moeller for the OpenSSL project.
  */
 /* ====================================================================
- * Copyright (c) 1998-2003 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1998-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -7061,12 +7061,16 @@ int EC_GROUP_set_generator(EC_GROUP *group, const EC_POINT *generator,
         BN_zero(&group->cofactor);
 
     /*
-     * We ignore the return value because some groups have an order with
+     * Some groups have an order with
      * factors of two, which makes the Montgomery setup fail.
      * |group->mont_data| will be NULL in this case.
      */
-    ec_precompute_mont_data(group);
+    if (BN_is_odd(&group->order)) {
+        return ec_precompute_mont_data(group);
+    }
 
+    BN_MONT_CTX_free(group->mont_data);
+    group->mont_data = NULL;
     return 1;
 }
 

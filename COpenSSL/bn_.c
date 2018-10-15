@@ -3191,6 +3191,7 @@ int BN_div(BIGNUM *dv, BIGNUM *rm, const BIGNUM *num, const BIGNUM *divisor,
     wnum.neg = 0;
     wnum.d = &(snum->d[loop]);
     wnum.top = div_n;
+    wnum.flags = BN_FLG_STATIC_DATA;
     /*
      * only needed when BN_ucmp messes up the values between top and max
      */
@@ -3822,8 +3823,8 @@ int BN_mod_exp_recp(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
 
     bits = BN_num_bits(p);
     if (bits == 0) {
-        /* x**0 mod 1 is still zero. */
-        if (BN_is_one(m)) {
+        /* x**0 mod 1, or x**0 mod -1 is still zero. */
+        if (BN_abs_is_word(m, 1)) {
             ret = 1;
             BN_zero(r);
         } else {
@@ -3964,8 +3965,8 @@ int BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
     }
     bits = BN_num_bits(p);
     if (bits == 0) {
-        /* x**0 mod 1 is still zero. */
-        if (BN_is_one(m)) {
+        /* x**0 mod 1, or x**0 mod -1 is still zero. */
+        if (BN_abs_is_word(m, 1)) {
             ret = 1;
             BN_zero(rr);
         } else {
@@ -4005,17 +4006,17 @@ int BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
         ret = 1;
         goto err;
     }
-    if (!BN_to_montgomery(val[0], aa, mont, ctx))
+    if (!bn_to_mont_fixed_top(val[0], aa, mont, ctx))
         goto err;               /* 1 */
 
     window = BN_window_bits_for_exponent_size(bits);
     if (window > 1) {
-        if (!BN_mod_mul_montgomery(d, val[0], val[0], mont, ctx))
+        if (!bn_mul_mont_fixed_top(d, val[0], val[0], mont, ctx))
             goto err;           /* 2 */
         j = 1 << (window - 1);
         for (i = 1; i < j; i++) {
             if (((val[i] = BN_CTX_get(ctx)) == NULL) ||
-                !BN_mod_mul_montgomery(val[i], val[i - 1], d, mont, ctx))
+                !bn_mul_mont_fixed_top(val[i], val[i - 1], d, mont, ctx))
                 goto err;
         }
     }
@@ -4037,19 +4038,15 @@ int BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
         for (i = 1; i < j; i++)
             r->d[i] = (~m->d[i]) & BN_MASK2;
         r->top = j;
-        /*
-         * Upper words will be zero if the corresponding words of 'm' were
-         * 0xfff[...], so decrement r->top accordingly.
-         */
-        bn_correct_top(r);
+        r->flags |= BN_FLG_FIXED_TOP;
     } else
 #endif
-    if (!BN_to_montgomery(r, BN_value_one(), mont, ctx))
+    if (!bn_to_mont_fixed_top(r, BN_value_one(), mont, ctx))
         goto err;
     for (;;) {
         if (BN_is_bit_set(p, wstart) == 0) {
             if (!start) {
-                if (!BN_mod_mul_montgomery(r, r, r, mont, ctx))
+                if (!bn_mul_mont_fixed_top(r, r, r, mont, ctx))
                     goto err;
             }
             if (wstart == 0)
@@ -4080,12 +4077,12 @@ int BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
         /* add the 'bytes above' */
         if (!start)
             for (i = 0; i < j; i++) {
-                if (!BN_mod_mul_montgomery(r, r, r, mont, ctx))
+                if (!bn_mul_mont_fixed_top(r, r, r, mont, ctx))
                     goto err;
             }
 
         /* wvalue will be an odd number < 2^window */
-        if (!BN_mod_mul_montgomery(r, r, val[wvalue >> 1], mont, ctx))
+        if (!bn_mul_mont_fixed_top(r, r, val[wvalue >> 1], mont, ctx))
             goto err;
 
         /* move the 'window' down further */
@@ -4095,6 +4092,11 @@ int BN_mod_exp_mont(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
         if (wstart < 0)
             break;
     }
+    /*
+     * Done with zero-padded intermediate BIGNUMs. Final BN_from_montgomery
+     * removes padding [if any] and makes return value suitable for public
+     * API consumer.
+     */
 #if defined(SPARC_T4_MONT)
     if (OPENSSL_sparcv9cap_P[0] & (SPARCV9_VIS3 | SPARCV9_PREFER_FPU)) {
         j = mont->N.top;        /* borrow j */
@@ -4213,7 +4215,7 @@ static int MOD_EXP_CTIME_COPY_FROM_PREBUF(BIGNUM *b, int top,
     }
 
     b->top = top;
-    bn_correct_top(b);
+    b->flags |= BN_FLG_FIXED_TOP;
     return 1;
 }
 
@@ -4265,8 +4267,8 @@ int BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
      */
     bits = p->top * BN_BITS2;
     if (bits == 0) {
-        /* x**0 mod 1 is still zero. */
-        if (BN_is_one(m)) {
+        /* x**0 mod 1, or x**0 mod -1 is still zero. */
+        if (BN_abs_is_word(m, 1)) {
             ret = 1;
             BN_zero(rr);
         } else {
@@ -4384,16 +4386,16 @@ int BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
         tmp.top = top;
     } else
 #endif
-    if (!BN_to_montgomery(&tmp, BN_value_one(), mont, ctx))
+    if (!bn_to_mont_fixed_top(&tmp, BN_value_one(), mont, ctx))
         goto err;
 
     /* prepare a^1 in Montgomery domain */
     if (a->neg || BN_ucmp(a, m) >= 0) {
         if (!BN_mod(&am, a, m, ctx))
             goto err;
-        if (!BN_to_montgomery(&am, &am, mont, ctx))
+        if (!bn_to_mont_fixed_top(&am, &am, mont, ctx))
             goto err;
-    } else if (!BN_to_montgomery(&am, a, mont, ctx))
+    } else if (!bn_to_mont_fixed_top(&am, a, mont, ctx))
         goto err;
 
 #if defined(SPARC_T4_MONT)
@@ -4660,14 +4662,14 @@ int BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
          * performance advantage of sqr over mul).
          */
         if (window > 1) {
-            if (!BN_mod_mul_montgomery(&tmp, &am, &am, mont, ctx))
+            if (!bn_mul_mont_fixed_top(&tmp, &am, &am, mont, ctx))
                 goto err;
             if (!MOD_EXP_CTIME_COPY_TO_PREBUF(&tmp, top, powerbuf, 2,
                                               window))
                 goto err;
             for (i = 3; i < numPowers; i++) {
                 /* Calculate a^i = a^(i-1) * a */
-                if (!BN_mod_mul_montgomery(&tmp, &am, &tmp, mont, ctx))
+                if (!bn_mul_mont_fixed_top(&tmp, &am, &tmp, mont, ctx))
                     goto err;
                 if (!MOD_EXP_CTIME_COPY_TO_PREBUF(&tmp, top, powerbuf, i,
                                                   window))
@@ -4691,7 +4693,7 @@ int BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
 
             /* Scan the window, squaring the result as we go */
             for (i = 0; i < window; i++, bits--) {
-                if (!BN_mod_mul_montgomery(&tmp, &tmp, &tmp, mont, ctx))
+                if (!bn_mul_mont_fixed_top(&tmp, &tmp, &tmp, mont, ctx))
                     goto err;
                 wvalue = (wvalue << 1) + BN_is_bit_set(p, bits);
             }
@@ -4704,12 +4706,16 @@ int BN_mod_exp_mont_consttime(BIGNUM *rr, const BIGNUM *a, const BIGNUM *p,
                 goto err;
 
             /* Multiply the result into the intermediate result */
-            if (!BN_mod_mul_montgomery(&tmp, &tmp, &am, mont, ctx))
+            if (!bn_mul_mont_fixed_top(&tmp, &tmp, &am, mont, ctx))
                 goto err;
         }
     }
 
-    /* Convert the final result from montgomery to standard format */
+    /*
+     * Done with zero-padded intermediate BIGNUMs. Final BN_from_montgomery
+     * removes padding [if any] and makes return value suitable for public
+     * API consumer.
+     */
 #if defined(SPARC_T4_MONT)
     if (OPENSSL_sparcv9cap_P[0] & (SPARCV9_VIS3 | SPARCV9_PREFER_FPU)) {
         am.d[0] = 1;            /* borrow am */
@@ -4779,8 +4785,8 @@ int BN_mod_exp_mont_word(BIGNUM *rr, BN_ULONG a, const BIGNUM *p,
 
     bits = BN_num_bits(p);
     if (bits == 0) {
-        /* x**0 mod 1 is still zero. */
-        if (BN_is_one(m)) {
+        /* x**0 mod 1, or x**0 mod -1 is still zero. */
+        if (BN_abs_is_word(m, 1)) {
             ret = 1;
             BN_zero(rr);
         } else {
@@ -4901,9 +4907,9 @@ int BN_mod_exp_simple(BIGNUM *r, const BIGNUM *a, const BIGNUM *p,
     }
 
     bits = BN_num_bits(p);
-   if (bits == 0) {
-        /* x**0 mod 1 is still zero. */
-        if (BN_is_one(m)) {
+    if (bits == 0) {
+        /* x**0 mod 1, or x**0 mod -1 is still zero. */
+        if (BN_abs_is_word(m, 1)) {
             ret = 1;
             BN_zero(r);
         } else {
@@ -6045,7 +6051,7 @@ static BIGNUM *BN_mod_inverse_no_branch(BIGNUM *in,
  */
 
 /* ====================================================================
- * Copyright (c) 1998-2002 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1998-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -6112,30 +6118,32 @@ static BIGNUM *BN_mod_inverse_no_branch(BIGNUM *in,
  */
 # define MAX_ITERATIONS 50
 
-static const BN_ULONG SQR_tb[16] = { 0, 1, 4, 5, 16, 17, 20, 21,
-    64, 65, 68, 69, 80, 81, 84, 85
-};
+# define SQR_nibble(w)   ((((w) & 8) << 3) \
+                       |  (((w) & 4) << 2) \
+                       |  (((w) & 2) << 1) \
+                       |   ((w) & 1))
+
 
 /* Platform-specific macros to accelerate squaring. */
 # if defined(SIXTY_FOUR_BIT) || defined(SIXTY_FOUR_BIT_LONG)
 #  define SQR1(w) \
-    SQR_tb[(w) >> 60 & 0xF] << 56 | SQR_tb[(w) >> 56 & 0xF] << 48 | \
-    SQR_tb[(w) >> 52 & 0xF] << 40 | SQR_tb[(w) >> 48 & 0xF] << 32 | \
-    SQR_tb[(w) >> 44 & 0xF] << 24 | SQR_tb[(w) >> 40 & 0xF] << 16 | \
-    SQR_tb[(w) >> 36 & 0xF] <<  8 | SQR_tb[(w) >> 32 & 0xF]
+    SQR_nibble((w) >> 60) << 56 | SQR_nibble((w) >> 56) << 48 | \
+    SQR_nibble((w) >> 52) << 40 | SQR_nibble((w) >> 48) << 32 | \
+    SQR_nibble((w) >> 44) << 24 | SQR_nibble((w) >> 40) << 16 | \
+    SQR_nibble((w) >> 36) <<  8 | SQR_nibble((w) >> 32)
 #  define SQR0(w) \
-    SQR_tb[(w) >> 28 & 0xF] << 56 | SQR_tb[(w) >> 24 & 0xF] << 48 | \
-    SQR_tb[(w) >> 20 & 0xF] << 40 | SQR_tb[(w) >> 16 & 0xF] << 32 | \
-    SQR_tb[(w) >> 12 & 0xF] << 24 | SQR_tb[(w) >>  8 & 0xF] << 16 | \
-    SQR_tb[(w) >>  4 & 0xF] <<  8 | SQR_tb[(w)       & 0xF]
+    SQR_nibble((w) >> 28) << 56 | SQR_nibble((w) >> 24) << 48 | \
+    SQR_nibble((w) >> 20) << 40 | SQR_nibble((w) >> 16) << 32 | \
+    SQR_nibble((w) >> 12) << 24 | SQR_nibble((w) >>  8) << 16 | \
+    SQR_nibble((w) >>  4) <<  8 | SQR_nibble((w)      )
 # endif
 # ifdef THIRTY_TWO_BIT
 #  define SQR1(w) \
-    SQR_tb[(w) >> 28 & 0xF] << 24 | SQR_tb[(w) >> 24 & 0xF] << 16 | \
-    SQR_tb[(w) >> 20 & 0xF] <<  8 | SQR_tb[(w) >> 16 & 0xF]
+    SQR_nibble((w) >> 28) << 24 | SQR_nibble((w) >> 24) << 16 | \
+    SQR_nibble((w) >> 20) <<  8 | SQR_nibble((w) >> 16)
 #  define SQR0(w) \
-    SQR_tb[(w) >> 12 & 0xF] << 24 | SQR_tb[(w) >>  8 & 0xF] << 16 | \
-    SQR_tb[(w) >>  4 & 0xF] <<  8 | SQR_tb[(w)       & 0xF]
+    SQR_nibble((w) >> 12) << 24 | SQR_nibble((w) >>  8) << 16 | \
+    SQR_nibble((w) >>  4) <<  8 | SQR_nibble((w)      )
 # endif
 
 # if !defined(OPENSSL_BN_ASM_GF2m)
@@ -7758,8 +7766,6 @@ static BN_ULONG *bn_expand_internal(const BIGNUM *b, int words)
     const BN_ULONG *B;
     int i;
 
-    bn_check_top(b);
-
     if (words > (INT_MAX / (4 * BN_BITS2))) {
         BNerr(BN_F_BN_EXPAND_INTERNAL, BN_R_BIGNUM_TOO_LONG);
         return NULL;
@@ -7893,8 +7899,6 @@ BIGNUM *bn_dup_expand(const BIGNUM *b, int words)
 
 BIGNUM *bn_expand2(BIGNUM *b, int words)
 {
-    bn_check_top(b);
-
     if (words > b->dmax) {
         BN_ULONG *a = bn_expand_internal(b, words);
         if (!a)
@@ -7928,7 +7932,6 @@ BIGNUM *bn_expand2(BIGNUM *b, int words)
         assert(A == &(b->d[b->dmax]));
     }
 #endif
-    bn_check_top(b);
     return b;
 }
 
@@ -7992,11 +7995,17 @@ BIGNUM *BN_copy(BIGNUM *a, const BIGNUM *b)
     memcpy(a->d, b->d, sizeof(b->d[0]) * b->top);
 #endif
 
-    a->top = b->top;
     a->neg = b->neg;
+    a->top = b->top;
+    a->flags |= b->flags & BN_FLG_FIXED_TOP;
     bn_check_top(a);
     return (a);
 }
+
+#define FLAGS_DATA(flags) ((flags) & (BN_FLG_STATIC_DATA \
+                                    | BN_FLG_CONSTTIME   \
+                                    | BN_FLG_FIXED_TOP))
+#define FLAGS_STRUCT(flags) ((flags) & (BN_FLG_MALLOCED))
 
 void BN_swap(BIGNUM *a, BIGNUM *b)
 {
@@ -8025,10 +8034,8 @@ void BN_swap(BIGNUM *a, BIGNUM *b)
     b->dmax = tmp_dmax;
     b->neg = tmp_neg;
 
-    a->flags =
-        (flags_old_a & BN_FLG_MALLOCED) | (flags_old_b & BN_FLG_STATIC_DATA);
-    b->flags =
-        (flags_old_b & BN_FLG_MALLOCED) | (flags_old_a & BN_FLG_STATIC_DATA);
+    a->flags = FLAGS_STRUCT(flags_old_a) | FLAGS_DATA(flags_old_b);
+    b->flags = FLAGS_STRUCT(flags_old_b) | FLAGS_DATA(flags_old_a);
     bn_check_top(a);
     bn_check_top(b);
 }
@@ -8040,6 +8047,7 @@ void BN_clear(BIGNUM *a)
         OPENSSL_cleanse(a->d, a->dmax * sizeof(a->d[0]));
     a->top = 0;
     a->neg = 0;
+    a->flags &= ~BN_FLG_FIXED_TOP;
 }
 
 BN_ULONG BN_get_word(const BIGNUM *a)
@@ -8060,6 +8068,7 @@ int BN_set_word(BIGNUM *a, BN_ULONG w)
     a->neg = 0;
     a->d[0] = w;
     a->top = (w ? 1 : 0);
+    a->flags &= ~BN_FLG_FIXED_TOP;
     bn_check_top(a);
     return (1);
 }
@@ -8108,6 +8117,41 @@ BIGNUM *BN_bin2bn(const unsigned char *s, int len, BIGNUM *ret)
 }
 
 /* ignore negative */
+static int bn2binpad(const BIGNUM *a, unsigned char *to, int tolen)
+{
+    int n;
+    size_t i, inc, lasti, j;
+    BN_ULONG l;
+
+    n = BN_num_bytes(a);
+    if (tolen == -1)
+        tolen = n;
+    else if (tolen < n)
+        return -1;
+
+    if (n == 0) {
+        OPENSSL_cleanse(to, tolen);
+        return tolen;
+    }
+
+    lasti = n - 1;
+    for (i = 0, inc = 1, j = tolen; j > 0;) {
+        l = a->d[i / BN_BYTES];
+        to[--j] = (unsigned char)(l >> (8 * (i % BN_BYTES)) & (0 - inc));
+        inc = (i - lasti) >> (8 * sizeof(i) - 1);
+        i += inc; /* stay on top limb */
+    }
+
+    return tolen;
+}
+
+int bn_bn2binpad(const BIGNUM *a, unsigned char *to, int tolen)
+{
+    if (tolen < 0)
+        return -1;
+    return bn2binpad(a, to, tolen);
+}
+
 int BN_bn2bin(const BIGNUM *a, unsigned char *to)
 {
     int n, i;
@@ -8206,6 +8250,7 @@ int BN_set_bit(BIGNUM *a, int n)
         for (k = a->top; k < i + 1; k++)
             a->d[k] = 0;
         a->top = i + 1;
+        a->flags &= ~BN_FLG_FIXED_TOP;
     }
 
     a->d[i] |= (((BN_ULONG)1) << j);
@@ -8388,7 +8433,7 @@ void BN_consttime_swap(BN_ULONG condition, BIGNUM *a, BIGNUM *b, int nwords)
  * for the OpenSSL project.
  */
 /* ====================================================================
- * Copyright (c) 1998-2000 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1998-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -8533,16 +8578,71 @@ int BN_mod_add(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, const BIGNUM *m,
 
 /*
  * BN_mod_add variant that may be used if both a and b are non-negative and
- * less than m
+ * less than m. The original algorithm was
+ *
+ *    if (!BN_uadd(r, a, b))
+ *       return 0;
+ *    if (BN_ucmp(r, m) >= 0)
+ *       return BN_usub(r, r, m);
+ *
+ * which is replaced with addition, subtracting modulus, and conditional
+ * move depending on whether or not subtraction borrowed.
  */
+int bn_mod_add_fixed_top(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
+                         const BIGNUM *m)
+{
+    size_t i, ai, bi, mtop = m->top;
+    BN_ULONG storage[1024 / BN_BITS2];
+    BN_ULONG carry, temp, mask, *rp, *tp = storage;
+    const BN_ULONG *ap, *bp;
+
+    if (bn_wexpand(r, m->top) == NULL)
+        return 0;
+
+    if (mtop > sizeof(storage) / sizeof(storage[0])
+        && (tp = OPENSSL_malloc(mtop * sizeof(BN_ULONG))) == NULL)
+	return 0;
+
+    ap = a->d != NULL ? a->d : tp;
+    bp = b->d != NULL ? b->d : tp;
+
+    for (i = 0, ai = 0, bi = 0, carry = 0; i < mtop;) {
+        mask = (BN_ULONG)0 - ((i - a->top) >> (8 * sizeof(i) - 1));
+        temp = ((ap[ai] & mask) + carry) & BN_MASK2;
+        carry = (temp < carry);
+
+        mask = (BN_ULONG)0 - ((i - b->top) >> (8 * sizeof(i) - 1));
+        tp[i] = ((bp[bi] & mask) + temp) & BN_MASK2;
+        carry += (tp[i] < temp);
+
+        i++;
+        ai += (i - a->dmax) >> (8 * sizeof(i) - 1);
+        bi += (i - b->dmax) >> (8 * sizeof(i) - 1);
+    }
+    rp = r->d;
+    carry -= bn_sub_words(rp, tp, m->d, mtop);
+    for (i = 0; i < mtop; i++) {
+        rp[i] = (carry & tp[i]) | (~carry & rp[i]);
+        ((volatile BN_ULONG *)tp)[i] = 0;
+    }
+    r->top = mtop;
+    r->neg = 0;
+
+    if (tp != storage)
+        OPENSSL_free(tp);
+
+    return 1;
+}
+
 int BN_mod_add_quick(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
                      const BIGNUM *m)
 {
-    if (!BN_uadd(r, a, b))
-        return 0;
-    if (BN_ucmp(r, m) >= 0)
-        return BN_usub(r, r, m);
-    return 1;
+    int ret = bn_mod_add_fixed_top(r, a, b, m);
+
+    if (ret)
+        bn_correct_top(r);
+
+    return ret;
 }
 
 int BN_mod_sub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, const BIGNUM *m,
@@ -8823,10 +8923,21 @@ int BN_mod_lshift_quick(BIGNUM *r, const BIGNUM *a, int n, const BIGNUM *m)
 #define MONT_WORD               /* use the faster word-based algorithm */
 
 #ifdef MONT_WORD
-static int BN_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont);
+static int bn_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont);
 #endif
 
 int BN_mod_mul_montgomery(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
+                          BN_MONT_CTX *mont, BN_CTX *ctx)
+{
+    int ret = bn_mul_mont_fixed_top(r, a, b, mont, ctx);
+
+    bn_correct_top(r);
+    bn_check_top(r);
+
+    return ret;
+}
+
+int bn_mul_mont_fixed_top(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
                           BN_MONT_CTX *mont, BN_CTX *ctx)
 {
     BIGNUM *tmp;
@@ -8840,8 +8951,8 @@ int BN_mod_mul_montgomery(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
         if (bn_mul_mont(r->d, a->d, b->d, mont->N.d, mont->n0, num)) {
             r->neg = a->neg ^ b->neg;
             r->top = num;
-            bn_correct_top(r);
-            return (1);
+            r->flags |= BN_FLG_FIXED_TOP;
+            return 1;
         }
     }
 #endif
@@ -8861,13 +8972,12 @@ int BN_mod_mul_montgomery(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
     }
     /* reduce from aRR to aR */
 #ifdef MONT_WORD
-    if (!BN_from_montgomery_word(r, tmp, mont))
+    if (!bn_from_montgomery_word(r, tmp, mont))
         goto err;
 #else
     if (!BN_from_montgomery(r, tmp, mont, ctx))
         goto err;
 #endif
-    bn_check_top(r);
     ret = 1;
  err:
     BN_CTX_end(ctx);
@@ -8875,7 +8985,7 @@ int BN_mod_mul_montgomery(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
 }
 
 #ifdef MONT_WORD
-static int BN_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont)
+static int bn_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont)
 {
     BIGNUM *n;
     BN_ULONG *ap, *np, *rp, n0, v, carry;
@@ -8905,6 +9015,7 @@ static int BN_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont)
 # endif
 
     r->top = max;
+    r->flags |= BN_FLG_FIXED_TOP;
     n0 = mont->n0[0];
 
     /*
@@ -8923,6 +9034,7 @@ static int BN_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont)
     if (bn_wexpand(ret, nl) == NULL)
         return (0);
     ret->top = nl;
+    ret->flags |= BN_FLG_FIXED_TOP;
     ret->neg = r->neg;
 
     rp = ret->d;
@@ -8933,20 +9045,16 @@ static int BN_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont)
      */
     ap = &(r->d[nl]);
 
+    carry -= bn_sub_words(rp, ap, np, nl);
     /*
-     * |v| is one if |ap| - |np| underflowed or zero if it did not. Note |v|
-     * cannot be -1. That would imply the subtraction did not fit in |nl| words,
-     * and we know at most one subtraction is needed.
+     * |carry| is -1 if |ap| - |np| underflowed or zero if it did not. Note
+     * |carry| cannot be 1. That would imply the subtraction did not fit in
+     * |nl| words, and we know at most one subtraction is needed.
      */
-    v = bn_sub_words(rp, ap, np, nl) - carry;
-    v = 0 - v;
     for (i = 0; i < nl; i++) {
-        rp[i] = (v & ap[i]) | (~v & rp[i]);
+        rp[i] = (carry & ap[i]) | (~carry & rp[i]);
         ap[i] = 0;
     }
-    bn_correct_top(r);
-    bn_correct_top(ret);
-    bn_check_top(ret);
 
     return (1);
 }
@@ -8960,8 +9068,11 @@ int BN_from_montgomery(BIGNUM *ret, const BIGNUM *a, BN_MONT_CTX *mont,
     BIGNUM *t;
 
     BN_CTX_start(ctx);
-    if ((t = BN_CTX_get(ctx)) && BN_copy(t, a))
-        retn = BN_from_montgomery_word(ret, t, mont);
+    if ((t = BN_CTX_get(ctx)) && BN_copy(t, a)) {
+        retn = bn_from_montgomery_word(ret, t, mont);
+        bn_correct_top(ret);
+        bn_check_top(ret);
+    }
     BN_CTX_end(ctx);
 #else                           /* !MONT_WORD */
     BIGNUM *t1, *t2;
@@ -8997,6 +9108,12 @@ int BN_from_montgomery(BIGNUM *ret, const BIGNUM *a, BN_MONT_CTX *mont,
     BN_CTX_end(ctx);
 #endif                          /* MONT_WORD */
     return (retn);
+}
+
+int bn_to_mont_fixed_top(BIGNUM *r, const BIGNUM *a, BN_MONT_CTX *mont,
+                         BN_CTX *ctx)
+{
+    return bn_mul_mont_fixed_top(r, a, &(mont->RR), mont, ctx);
 }
 
 BN_MONT_CTX *BN_MONT_CTX_new(void)
@@ -9035,7 +9152,7 @@ void BN_MONT_CTX_free(BN_MONT_CTX *mont)
 
 int BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
 {
-    int ret = 0;
+    int i, ret = 0;
     BIGNUM *Ri, *R;
 
     if (BN_is_zero(mod))
@@ -9165,6 +9282,11 @@ int BN_MONT_CTX_set(BN_MONT_CTX *mont, const BIGNUM *mod, BN_CTX *ctx)
         goto err;
     if (!BN_mod(&(mont->RR), &(mont->RR), &(mont->N), ctx))
         goto err;
+
+    for (i = mont->RR.top, ret = mont->N.top; i < ret; i++)
+        mont->RR.d[i] = 0;
+    mont->RR.top = ret;
+    mont->RR.flags |= BN_FLG_FIXED_TOP;
 
     ret = 1;
  err:
@@ -13554,14 +13676,8 @@ int BN_sqr(BIGNUM *r, const BIGNUM *a, BN_CTX *ctx)
     }
 
     rr->neg = 0;
-    /*
-     * If the most-significant half of the top word of 'a' is zero, then the
-     * square of 'a' will max-1 words.
-     */
-    if (a->d[al - 1] == (a->d[al - 1] & BN_MASK2l))
-        rr->top = max - 1;
-    else
-        rr->top = max;
+    rr->top = max;
+    bn_correct_top(rr);
     if (r != rr && BN_copy(r, rr) == NULL)
         goto err;
 

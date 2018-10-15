@@ -4859,7 +4859,7 @@ static int MS_CALLBACK file_puts(BIO *bp, const char *str)
 #endif                          /* HEADER_BSS_FILE_C */
 /* crypto/bio/bss_log.c */
 /* ====================================================================
- * Copyright (c) 1999 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1999-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -5101,7 +5101,7 @@ static int MS_CALLBACK slg_write(BIO *b, const char *in, int inl)
     if ((buf = (char *)OPENSSL_malloc(inl + 1)) == NULL) {
         return (0);
     }
-    strncpy(buf, in, inl);
+    memcpy(buf, in, inl);
     buf[inl] = '\0';
 
     i = 0;
@@ -5500,6 +5500,8 @@ static int mem_write(BIO *b, const char *in, int inl)
     }
 
     BIO_clear_retry_flags(b);
+    if (inl == 0)
+        return 0;
     blen = bm->length;
     if (BUF_MEM_grow_clean(bm, blen + inl) != (blen + inl))
         goto end;

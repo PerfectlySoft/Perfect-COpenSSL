@@ -1699,7 +1699,7 @@ RSA *RSA_generate_key(int bits, unsigned long e_value,
  * [including the GNU Public Licence.]
  */
 /* ====================================================================
- * Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1998-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1757,6 +1757,7 @@ RSA *RSA_generate_key(int bits, unsigned long e_value,
 // #include "bn.h"
 // #include "rsa.h"
 // #include "rand.h"
+#include "bn_int.h"
 
 #ifndef RSA_NULL
 
@@ -1799,7 +1800,7 @@ static int RSA_eay_public_encrypt(int flen, const unsigned char *from,
                                   unsigned char *to, RSA *rsa, int padding)
 {
     BIGNUM *f, *ret;
-    int i, j, k, num = 0, r = -1;
+    int i, num = 0, r = -1;
     unsigned char *buf = NULL;
     BN_CTX *ctx = NULL;
 
@@ -1875,15 +1876,10 @@ static int RSA_eay_public_encrypt(int flen, const unsigned char *from,
         goto err;
 
     /*
-     * put in leading 0 bytes if the number is less than the length of the
-     * modulus
+     * BN_bn2binpad puts in leading 0 bytes if the number is less than
+     * the length of the modulus.
      */
-    j = BN_num_bytes(ret);
-    i = BN_bn2bin(ret, &(to[num - j]));
-    for (k = 0; k < (num - i); k++)
-        to[k] = 0;
-
-    r = num;
+    r = bn_bn2binpad(ret, to, num);
  err:
     if (ctx != NULL) {
         BN_CTX_end(ctx);
@@ -1992,7 +1988,7 @@ static int RSA_eay_private_encrypt(int flen, const unsigned char *from,
                                    unsigned char *to, RSA *rsa, int padding)
 {
     BIGNUM *f, *ret, *res;
-    int i, j, k, num = 0, r = -1;
+    int i, num = 0, r = -1;
     unsigned char *buf = NULL;
     BN_CTX *ctx = NULL;
     int local_blinding = 0;
@@ -2102,15 +2098,10 @@ static int RSA_eay_private_encrypt(int flen, const unsigned char *from,
         res = ret;
 
     /*
-     * put in leading 0 bytes if the number is less than the length of the
-     * modulus
+     * BN_bn2binpad puts in leading 0 bytes if the number is less than
+     * the length of the modulus.
      */
-    j = BN_num_bytes(res);
-    i = BN_bn2bin(res, &(to[num - j]));
-    for (k = 0; k < (num - i); k++)
-        to[k] = 0;
-
-    r = num;
+    r = bn_bn2binpad(res, to, num);
  err:
     if (ctx != NULL) {
         BN_CTX_end(ctx);
@@ -2128,7 +2119,6 @@ static int RSA_eay_private_decrypt(int flen, const unsigned char *from,
 {
     BIGNUM *f, *ret;
     int j, num = 0, r = -1;
-    unsigned char *p;
     unsigned char *buf = NULL;
     BN_CTX *ctx = NULL;
     int local_blinding = 0;
@@ -2219,8 +2209,7 @@ static int RSA_eay_private_decrypt(int flen, const unsigned char *from,
         if (!rsa_blinding_invert(blinding, ret, unblind, ctx))
             goto err;
 
-    p = buf;
-    j = BN_bn2bin(ret, p);      /* j is only used with no-padding mode */
+    j = bn_bn2binpad(ret, buf, num);
 
     switch (padding) {
     case RSA_PKCS1_PADDING:
@@ -2235,7 +2224,7 @@ static int RSA_eay_private_decrypt(int flen, const unsigned char *from,
         r = RSA_padding_check_SSLv23(to, num, buf, j, num);
         break;
     case RSA_NO_PADDING:
-        r = RSA_padding_check_none(to, num, buf, j, num);
+        memcpy(to, buf, (r = j));
         break;
     default:
         RSAerr(RSA_F_RSA_EAY_PRIVATE_DECRYPT, RSA_R_UNKNOWN_PADDING_TYPE);
@@ -2262,7 +2251,6 @@ static int RSA_eay_public_decrypt(int flen, const unsigned char *from,
 {
     BIGNUM *f, *ret;
     int i, num = 0, r = -1;
-    unsigned char *p;
     unsigned char *buf = NULL;
     BN_CTX *ctx = NULL;
 
@@ -2327,8 +2315,7 @@ static int RSA_eay_public_decrypt(int flen, const unsigned char *from,
         if (!BN_sub(ret, rsa->n, ret))
             goto err;
 
-    p = buf;
-    i = BN_bn2bin(ret, p);
+    i = bn_bn2binpad(ret, buf, num);
 
     switch (padding) {
     case RSA_PKCS1_PADDING:
@@ -2338,7 +2325,7 @@ static int RSA_eay_public_decrypt(int flen, const unsigned char *from,
         r = RSA_padding_check_X931(to, num, buf, i, num);
         break;
     case RSA_NO_PADDING:
-        r = RSA_padding_check_none(to, num, buf, i, num);
+        memcpy(to, buf, (r = i));
         break;
     default:
         RSAerr(RSA_F_RSA_EAY_PUBLIC_DECRYPT, RSA_R_UNKNOWN_PADDING_TYPE);
@@ -2950,6 +2937,8 @@ static int rsa_builtin_keygen(RSA *rsa, int bits, BIGNUM *e_value,
     if (BN_copy(rsa->e, e_value) == NULL)
         goto err;
 
+    BN_set_flags(rsa->p, BN_FLG_CONSTTIME);
+    BN_set_flags(rsa->q, BN_FLG_CONSTTIME);
     BN_set_flags(r2, BN_FLG_CONSTTIME);
     /* generate p and q */
     for (;;) {
@@ -3770,7 +3759,7 @@ int RSA_padding_check_PKCS1_OAEP_mgf1(unsigned char *to, int tlen,
                                       int plen, const EVP_MD *md,
                                       const EVP_MD *mgf1md)
 {
-    int i, dblen, mlen = -1, one_index = 0, msg_index;
+    int i, dblen = 0, mlen = -1, one_index = 0, msg_index;
     unsigned int good, found_one_byte;
     const unsigned char *maskedseed, *maskeddb;
     /*
@@ -3803,32 +3792,41 @@ int RSA_padding_check_PKCS1_OAEP_mgf1(unsigned char *to, int tlen,
 
     dblen = num - mdlen - 1;
     db = OPENSSL_malloc(dblen);
-    em = OPENSSL_malloc(num);
-    if (db == NULL || em == NULL) {
+    if (db == NULL) {
         RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_OAEP_MGF1, ERR_R_MALLOC_FAILURE);
         goto cleanup;
     }
 
-    /*
-     * Always do this zero-padding copy (even when num == flen) to avoid
-     * leaking that information. The copy still leaks some side-channel
-     * information, but it's impossible to have a fixed  memory access
-     * pattern since we can't read out of the bounds of |from|.
-     *
-     * TODO(emilia): Consider porting BN_bn2bin_padded from BoringSSL.
-     */
-    memset(em, 0, num);
-    memcpy(em + num - flen, from, flen);
+    if (flen != num) {
+        em = OPENSSL_malloc(num);
+        if (em == NULL) {
+            RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_OAEP_MGF1,
+                   ERR_R_MALLOC_FAILURE);
+            goto cleanup;
+        }
+
+        /*
+         * Caller is encouraged to pass zero-padded message created with
+         * BN_bn2binpad, but if it doesn't, we do this zero-padding copy
+         * to avoid leaking that information. The copy still leaks some
+         * side-channel information, but it's impossible to have a fixed
+         * memory access pattern since we can't read out of the bounds of
+         * |from|.
+         */
+        memset(em, 0, num);
+        memcpy(em + num - flen, from, flen);
+        from = em;
+    }
 
     /*
      * The first byte must be zero, however we must not leak if this is
      * true. See James H. Manger, "A Chosen Ciphertext  Attack on RSA
      * Optimal Asymmetric Encryption Padding (OAEP) [...]", CRYPTO 2001).
      */
-    good = constant_time_is_zero(em[0]);
+    good = constant_time_is_zero(from[0]);
 
-    maskedseed = em + 1;
-    maskeddb = em + 1 + mdlen;
+    maskedseed = from + 1;
+    maskeddb = from + 1 + mdlen;
 
     if (PKCS1_MGF1(seed, mdlen, maskeddb, dblen, mgf1md))
         goto cleanup;
@@ -4039,6 +4037,27 @@ int RSA_padding_check_PKCS1_type_1(unsigned char *to, int tlen,
     const unsigned char *p;
 
     p = from;
+
+    /*
+     * The format is
+     * 00 || 01 || PS || 00 || D
+     * PS - padding string, at least 8 bytes of FF
+     * D  - data.
+     */
+
+    if (num < 11)
+        return -1;
+
+    /* Accept inputs with and without the leading 0-byte. */
+    if (num == flen) {
+        if ((*p++) != 0x00) {
+            RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_1,
+                   RSA_R_INVALID_PADDING);
+            return -1;
+        }
+        flen--;
+    }
+
     if ((num != (flen + 1)) || (*(p++) != 01)) {
         RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_1,
                RSA_R_BLOCK_TYPE_IS_NOT_01);
@@ -4144,28 +4163,31 @@ int RSA_padding_check_PKCS1_type_2(unsigned char *to, int tlen,
     if (num < 11)
         goto err;
 
-    em = OPENSSL_malloc(num);
-    if (em == NULL) {
-        RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_2, ERR_R_MALLOC_FAILURE);
-        return -1;
+    if (flen != num) {
+        em = OPENSSL_malloc(num);
+        if (em == NULL) {
+            RSAerr(RSA_F_RSA_PADDING_CHECK_PKCS1_TYPE_2, ERR_R_MALLOC_FAILURE);
+            return -1;
+        }
+        /*
+         * Caller is encouraged to pass zero-padded message created with
+         * BN_bn2binpad, but if it doesn't, we do this zero-padding copy
+         * to avoid leaking that information. The copy still leaks some
+         * side-channel information, but it's impossible to have a fixed
+         * memory access pattern since we can't read out of the bounds of
+         * |from|.
+         */
+        memset(em, 0, num);
+        memcpy(em + num - flen, from, flen);
+        from = em;
     }
-    memset(em, 0, num);
-    /*
-     * Always do this zero-padding copy (even when num == flen) to avoid
-     * leaking that information. The copy still leaks some side-channel
-     * information, but it's impossible to have a fixed  memory access
-     * pattern since we can't read out of the bounds of |from|.
-     *
-     * TODO(emilia): Consider porting BN_bn2bin_padded from BoringSSL.
-     */
-    memcpy(em + num - flen, from, flen);
 
-    good = constant_time_is_zero(em[0]);
-    good &= constant_time_eq(em[1], 2);
+    good = constant_time_is_zero(from[0]);
+    good &= constant_time_eq(from[1], 2);
 
     found_zero_byte = 0;
     for (i = 2; i < num; i++) {
-        unsigned int equals0 = constant_time_is_zero(em[i]);
+        unsigned int equals0 = constant_time_is_zero(from[i]);
         zero_index =
             constant_time_select_int(~found_zero_byte & equals0, i,
                                      zero_index);
@@ -4173,7 +4195,7 @@ int RSA_padding_check_PKCS1_type_2(unsigned char *to, int tlen,
     }
 
     /*
-     * PS must be at least 8 bytes long, and it starts two bytes into |em|.
+     * PS must be at least 8 bytes long, and it starts two bytes into |from|.
      * If we never found a 0-byte, then |zero_index| is 0 and the check
      * also fails.
      */
@@ -4202,7 +4224,7 @@ int RSA_padding_check_PKCS1_type_2(unsigned char *to, int tlen,
         goto err;
     }
 
-    memcpy(to, em + msg_index, mlen);
+    memcpy(to, from + msg_index, mlen);
 
  err:
     if (em != NULL) {
@@ -5617,7 +5639,7 @@ int RSA_sign(int type, const unsigned char *m, unsigned int m_len,
         return 0;
     }
 #endif
-    if ((rsa->flags & RSA_FLAG_SIGN_VER) && rsa->meth->rsa_sign) {
+    if ((rsa->meth->flags & RSA_FLAG_SIGN_VER) && rsa->meth->rsa_sign) {
         return rsa->meth->rsa_sign(type, m, m_len, sigret, siglen, rsa);
     }
     /* Special case: SSL signature, just check the length */
@@ -5826,7 +5848,7 @@ int RSA_verify(int dtype, const unsigned char *m, unsigned int m_len,
                const unsigned char *sigbuf, unsigned int siglen, RSA *rsa)
 {
 
-    if ((rsa->flags & RSA_FLAG_SIGN_VER) && rsa->meth->rsa_verify) {
+    if ((rsa->meth->flags & RSA_FLAG_SIGN_VER) && rsa->meth->rsa_verify) {
         return rsa->meth->rsa_verify(dtype, m, m_len, sigbuf, siglen, rsa);
     }
 
@@ -5945,6 +5967,14 @@ int RSA_padding_check_SSLv23(unsigned char *to, int tlen,
     if (flen < 10) {
         RSAerr(RSA_F_RSA_PADDING_CHECK_SSLV23, RSA_R_DATA_TOO_SMALL);
         return (-1);
+    }
+    /* Accept even zero-padded input */
+    if (flen == num) {
+        if (*(p++) != 0) {
+            RSAerr(RSA_F_RSA_PADDING_CHECK_SSLV23, RSA_R_BLOCK_TYPE_IS_NOT_02);
+            return -1;
+        }
+        flen--;
     }
     if ((num != (flen + 1)) || (*(p++) != 02)) {
         RSAerr(RSA_F_RSA_PADDING_CHECK_SSLV23, RSA_R_BLOCK_TYPE_IS_NOT_02);

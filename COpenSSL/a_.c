@@ -332,17 +332,31 @@ int ASN1_BIT_STRING_check(ASN1_BIT_STRING *a,
 int i2d_ASN1_BOOLEAN(int a, unsigned char **pp)
 {
     int r;
-    unsigned char *p;
+    unsigned char *p, *allocated = NULL;
 
     r = ASN1_object_size(0, 1, V_ASN1_BOOLEAN);
     if (pp == NULL)
         return (r);
-    p = *pp;
+
+    if (*pp == NULL) {
+        if ((p = allocated = OPENSSL_malloc(r)) == NULL) {
+            ASN1err(ASN1_F_I2D_ASN1_BOOLEAN, ERR_R_MALLOC_FAILURE);
+            return 0;
+        }
+    } else {
+        p = *pp;
+    }
 
     ASN1_put_object(&p, 0, 1, V_ASN1_BOOLEAN, V_ASN1_UNIVERSAL);
-    *(p++) = (unsigned char)a;
-    *pp = p;
-    return (r);
+    *p = (unsigned char)a;
+
+
+    /*
+     * If a new buffer was allocated, just return it back.
+     * If not, return the incremented buffer pointer.
+     */
+    *pp = allocated != NULL ? allocated : p + 1;
+    return r;
 }
 
 int d2i_ASN1_BOOLEAN(int *a, const unsigned char **pp, long length)
@@ -2836,7 +2850,7 @@ static int is_printable(unsigned long value)
 
 int i2d_ASN1_OBJECT(ASN1_OBJECT *a, unsigned char **pp)
 {
-    unsigned char *p;
+    unsigned char *p, *allocated = NULL;
     int objsize;
 
     if ((a == NULL) || (a->data == NULL))
@@ -2846,13 +2860,24 @@ int i2d_ASN1_OBJECT(ASN1_OBJECT *a, unsigned char **pp)
     if (pp == NULL || objsize == -1)
         return objsize;
 
-    p = *pp;
+    if (*pp == NULL) {
+        if ((p = allocated = OPENSSL_malloc(objsize)) == NULL) {
+            ASN1err(ASN1_F_I2D_ASN1_OBJECT, ERR_R_MALLOC_FAILURE);
+            return 0;
+        }
+    } else {
+        p = *pp;
+    }
+
     ASN1_put_object(&p, 0, a->length, V_ASN1_OBJECT, V_ASN1_UNIVERSAL);
     memcpy(p, a->data, a->length);
-    p += a->length;
 
-    *pp = p;
-    return (objsize);
+    /*
+     * If a new buffer was allocated, just return it back.
+     * If not, return the incremented buffer pointer.
+     */
+    *pp = allocated != NULL ? allocated : p + a->length;
+    return objsize;
 }
 
 int a2d_ASN1_OBJECT(unsigned char *out, int olen, const char *buf, int num)
@@ -3961,7 +3986,7 @@ int ASN1_item_sign_ctx(const ASN1_ITEM *it,
  * 2000.
  */
 /* ====================================================================
- * Copyright (c) 2000 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 2000-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -4151,18 +4176,38 @@ static int do_buf(unsigned char *buf, int buflen,
                   int type, unsigned char flags, char *quotes, char_io *io_ch,
                   void *arg)
 {
-    int i, outlen, len;
+    int i, outlen, len, charwidth;
     unsigned char orflags, *p, *q;
     unsigned long c;
     p = buf;
     q = buf + buflen;
     outlen = 0;
+    charwidth = type & BUF_TYPE_WIDTH_MASK;
+
+    switch (charwidth) {
+    case 4:
+        if (buflen & 3) {
+            ASN1err(ASN1_F_DO_BUF, ASN1_R_INVALID_UNIVERSALSTRING_LENGTH);
+            return -1;
+        }
+        break;
+    case 2:
+        if (buflen & 1) {
+            ASN1err(ASN1_F_DO_BUF, ASN1_R_INVALID_BMPSTRING_LENGTH);
+            return -1;
+        }
+        break;
+    default:
+        break;
+    }
+
     while (p != q) {
         if (p == buf && flags & ASN1_STRFLGS_ESC_2253)
             orflags = CHARTYPE_FIRST_ESC_2253;
         else
             orflags = 0;
-        switch (type & BUF_TYPE_WIDTH_MASK) {
+
+        switch (charwidth) {
         case 4:
             c = ((unsigned long)*p++) << 24;
             c |= ((unsigned long)*p++) << 16;
@@ -4183,6 +4228,7 @@ static int do_buf(unsigned char *buf, int buflen,
             i = UTF8_getc(p, buflen, &c);
             if (i < 0)
                 return -1;      /* Invalid UTF8String */
+            buflen -= i;
             p += i;
             break;
         default:

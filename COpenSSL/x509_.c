@@ -609,7 +609,7 @@ int X509_NAME_cmp(const X509_NAME *a, const X509_NAME *b)
 
     ret = a->canon_enclen - b->canon_enclen;
 
-    if (ret)
+    if (ret != 0 || a->canon_enclen == 0)
         return ret;
 
     return memcmp(a->canon_enc, b->canon_enc, a->canon_enclen);
@@ -1799,7 +1799,11 @@ int X509_STORE_get_by_subject(X509_STORE_CTX *vs, int type, X509_NAME *name,
     X509_OBJECT stmp, *tmp;
     int i, j;
 
+    if (ctx == NULL)
+        return 0;
+
     CRYPTO_w_lock(CRYPTO_LOCK_X509_STORE);
+
     tmp = X509_OBJECT_retrieve_by_subject(ctx->objs, type, name);
     CRYPTO_w_unlock(CRYPTO_LOCK_X509_STORE);
 
@@ -1994,6 +1998,10 @@ STACK_OF(X509) *X509_STORE_get1_certs(X509_STORE_CTX *ctx, X509_NAME *nm)
     STACK_OF(X509) *sk;
     X509 *x;
     X509_OBJECT *obj;
+
+    if (ctx->ctx == NULL)
+        return NULL;
+
     sk = sk_X509_new_null();
     CRYPTO_w_lock(CRYPTO_LOCK_X509_STORE);
     idx = x509_object_idx_cnt(ctx->ctx->objs, X509_LU_X509, nm, &cnt);
@@ -2039,6 +2047,11 @@ STACK_OF(X509_CRL) *X509_STORE_get1_crls(X509_STORE_CTX *ctx, X509_NAME *nm)
     STACK_OF(X509_CRL) *sk;
     X509_CRL *x;
     X509_OBJECT *obj, xobj;
+
+
+    if (ctx->ctx == NULL)
+        return NULL;
+
     sk = sk_X509_CRL_new_null();
     CRYPTO_w_lock(CRYPTO_LOCK_X509_STORE);
 
@@ -2138,6 +2151,9 @@ int X509_STORE_CTX_get1_issuer(X509 **issuer, X509_STORE_CTX *ctx, X509 *x)
         return 1;
     }
     X509_OBJECT_free_contents(&obj);
+
+    if (ctx->ctx == NULL)
+        return 0;
 
     /* Else find index of first cert accepted by 'check_issued' */
     ret = 0;
@@ -3918,6 +3934,7 @@ int X509_EXTENSION_get_critical(X509_EXTENSION *ex)
  * [including the GNU Public Licence.]
  */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <time.h>
 #include <errno.h>
@@ -5799,119 +5816,67 @@ int X509_cmp_current_time(const ASN1_TIME *ctm)
 
 int X509_cmp_time(const ASN1_TIME *ctm, time_t *cmp_time)
 {
-    char *str;
-    ASN1_TIME atm;
-    long offset;
-    char buff1[24], buff2[24], *p;
-    int i, j, remaining;
+    static const size_t utctime_length = sizeof("YYMMDDHHMMSSZ") - 1;
+    static const size_t generalizedtime_length = sizeof("YYYYMMDDHHMMSSZ") - 1;
+    ASN1_TIME *asn1_cmp_time = NULL;
+    int i, day, sec, ret = 0;
 
-    p = buff1;
-    remaining = ctm->length;
-    str = (char *)ctm->data;
     /*
-     * Note that the following (historical) code allows much more slack in the
-     * time format than RFC5280. In RFC5280, the representation is fixed:
+     * Note that ASN.1 allows much more slack in the time format than RFC5280.
+     * In RFC5280, the representation is fixed:
      * UTCTime: YYMMDDHHMMSSZ
      * GeneralizedTime: YYYYMMDDHHMMSSZ
+     *
+     * We do NOT currently enforce the following RFC 5280 requirement:
+     * "CAs conforming to this profile MUST always encode certificate
+     *  validity dates through the year 2049 as UTCTime; certificate validity
+     *  dates in 2050 or later MUST be encoded as GeneralizedTime."
      */
-    if (ctm->type == V_ASN1_UTCTIME) {
-        /* YYMMDDHHMM[SS]Z or YYMMDDHHMM[SS](+-)hhmm */
-        int min_length = sizeof("YYMMDDHHMMZ") - 1;
-        int max_length = sizeof("YYMMDDHHMMSS+hhmm") - 1;
-        if (remaining < min_length || remaining > max_length)
+    switch (ctm->type) {
+    case V_ASN1_UTCTIME:
+        if (ctm->length != (int)(utctime_length))
             return 0;
-        memcpy(p, str, 10);
-        p += 10;
-        str += 10;
-        remaining -= 10;
-    } else {
-        /* YYYYMMDDHHMM[SS[.fff]]Z or YYYYMMDDHHMM[SS[.f[f[f]]]](+-)hhmm */
-        int min_length = sizeof("YYYYMMDDHHMMZ") - 1;
-        int max_length = sizeof("YYYYMMDDHHMMSS.fff+hhmm") - 1;
-        if (remaining < min_length || remaining > max_length)
+        break;
+    case V_ASN1_GENERALIZEDTIME:
+        if (ctm->length != (int)(generalizedtime_length))
             return 0;
-        memcpy(p, str, 12);
-        p += 12;
-        str += 12;
-        remaining -= 12;
-    }
-
-    if ((*str == 'Z') || (*str == '-') || (*str == '+')) {
-        *(p++) = '0';
-        *(p++) = '0';
-    } else {
-        /* SS (seconds) */
-        if (remaining < 2)
-            return 0;
-        *(p++) = *(str++);
-        *(p++) = *(str++);
-        remaining -= 2;
-        /*
-         * Skip any (up to three) fractional seconds...
-         * TODO(emilia): in RFC5280, fractional seconds are forbidden.
-         * Can we just kill them altogether?
-         */
-        if (remaining && *str == '.') {
-            str++;
-            remaining--;
-            for (i = 0; i < 3 && remaining; i++, str++, remaining--) {
-                if (*str < '0' || *str > '9')
-                    break;
-            }
-        }
-
-    }
-    *(p++) = 'Z';
-    *(p++) = '\0';
-
-    /* We now need either a terminating 'Z' or an offset. */
-    if (!remaining)
+        break;
+    default:
         return 0;
-    if (*str == 'Z') {
-        if (remaining != 1)
-            return 0;
-        offset = 0;
-    } else {
-        /* (+-)HHMM */
-        if ((*str != '+') && (*str != '-'))
-            return 0;
-        /* Historical behaviour: the (+-)hhmm offset is forbidden in RFC5280. */
-        if (remaining != 5)
-            return 0;
-        if (str[1] < '0' || str[1] > '9' || str[2] < '0' || str[2] > '9' ||
-            str[3] < '0' || str[3] > '9' || str[4] < '0' || str[4] > '9')
-            return 0;
-        offset = ((str[1] - '0') * 10 + (str[2] - '0')) * 60;
-        offset += (str[3] - '0') * 10 + (str[4] - '0');
-        if (*str == '-')
-            offset = -offset;
     }
-    atm.type = ctm->type;
-    atm.flags = 0;
-    atm.length = sizeof(buff2);
-    atm.data = (unsigned char *)buff2;
 
-    if (X509_time_adj(&atm, offset * 60, cmp_time) == NULL)
+    /**
+     * Verify the format: the ASN.1 functions we use below allow a more
+     * flexible format than what's mandated by RFC 5280.
+     * Digit and date ranges will be verified in the conversion methods.
+     */
+    for (i = 0; i < ctm->length - 1; i++) {
+        if (!isdigit(ctm->data[i]))
+            return 0;
+    }
+    if (ctm->data[ctm->length - 1] != 'Z')
         return 0;
 
-    if (ctm->type == V_ASN1_UTCTIME) {
-        i = (buff1[0] - '0') * 10 + (buff1[1] - '0');
-        if (i < 50)
-            i += 100;           /* cf. RFC 2459 */
-        j = (buff2[0] - '0') * 10 + (buff2[1] - '0');
-        if (j < 50)
-            j += 100;
+    /*
+     * There is ASN1_UTCTIME_cmp_time_t but no
+     * ASN1_GENERALIZEDTIME_cmp_time_t or ASN1_TIME_cmp_time_t,
+     * so we go through ASN.1
+     */
+    asn1_cmp_time = X509_time_adj(NULL, 0, cmp_time);
+    if (asn1_cmp_time == NULL)
+        goto err;
+    if (!ASN1_TIME_diff(&day, &sec, ctm, asn1_cmp_time))
+        goto err;
 
-        if (i < j)
-            return -1;
-        if (i > j)
-            return 1;
-    }
-    i = strcmp(buff1, buff2);
-    if (i == 0)                 /* wait a second then return younger :-) */
-        return -1;
-    else
-        return i;
+    /*
+     * X509_cmp_time comparison is <=.
+     * The return value 0 is reserved for errors.
+     */
+    ret = (day >= 0 && sec >= 0) ? -1 : 1;
+
+ err:
+    ASN1_TIME_free(asn1_cmp_time);
+    return ret;
 }
 
 ASN1_TIME *X509_gmtime_adj(ASN1_TIME *s, long adj)

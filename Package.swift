@@ -1,3 +1,6 @@
+// swift-tools-version:4.0
+// The swift-tools-version declares the minimum version of Swift required to build this package.
+
 //
 //  Package.swift
 //  COpenSSL
@@ -19,4 +22,12 @@
 
 import PackageDescription
 
-let package = Package(name: "COpenSSL", exclude: ["scripts"])
+let package = Package(
+    name: "COpenSSL",
+    products: [
+        .library(name: "COpenSSL", targets: ["COpenSSL"])
+    ],
+    targets: [
+        .target(name: "COpenSSL", path: "COpenSSL", exclude: ["scripts"])
+    ]
+)

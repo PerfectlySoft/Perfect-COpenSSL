@@ -4191,8 +4191,7 @@ static int ssl_scan_clienthello_tlsext(SSL *s, unsigned char **p,
                 goto err;
             if (!tls1_save_sigalgs(s, data, dsize))
                 goto err;
-        } else if (type == TLSEXT_TYPE_status_request) {
-
+        } else if (type == TLSEXT_TYPE_status_request && !s->hit) {
             if (size < 5)
                 goto err;
 
@@ -4949,7 +4948,7 @@ int tls1_set_server_sigalgs(SSL *s)
         if (!s->cert->shared_sigalgs) {
             SSLerr(SSL_F_TLS1_SET_SERVER_SIGALGS,
                    SSL_R_NO_SHARED_SIGATURE_ALGORITHMS);
-            al = SSL_AD_ILLEGAL_PARAMETER;
+            al = SSL_AD_HANDSHAKE_FAILURE;
             goto err;
         }
     } else
@@ -6831,7 +6830,7 @@ IMPLEMENT_tls_meth_func(TLS1_2_VERSION, TLSv1_2_server_method,
  * project.
  */
 /* ====================================================================
- * Copyright (c) 2012 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 2012-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -7472,6 +7471,8 @@ static int ssl_print_extensions(BIO *bio, int indent, int server,
         BIO_puts(bio, "No Extensions\n");
         return 1;
     }
+    if (msglen < 2)
+        return 0;
     extslen = (msg[0] << 8) | msg[1];
     if (extslen != msglen - 2)
         return 0;
@@ -7848,6 +7849,8 @@ static int ssl_print_cert_request(BIO *bio, int indent, SSL *s,
     msglen -= xlen + 2;
 
  skip_sig:
+    if (msglen < 2)
+        return 0;
     xlen = (msg[0] << 8) | msg[1];
     BIO_indent(bio, indent, 80);
     if (msglen < xlen + 2)
@@ -8036,7 +8039,15 @@ void SSL_trace(int write_p, int version, int content_type,
     switch (content_type) {
     case SSL3_RT_HEADER:
         {
-            int hvers = msg[1] << 8 | msg[2];
+            int hvers;
+
+            /* avoid overlapping with length at the end of buffer */
+            if (msglen < (SSL_IS_DTLS(ssl) ? 13 : 5)) {
+                        BIO_puts(bio, write_p ? "Sent" : "Received");
+                        ssl_print_hex(bio, 0, " too short message", msg, msglen);
+                        break;
+                    }
+            hvers = msg[1] << 8 | msg[2];
             BIO_puts(bio, write_p ? "Sent" : "Received");
             BIO_printf(bio, " Record\nHeader:\n  Version = %s (0x%x)\n",
                        ssl_trace_str(hvers, ssl_version_tbl), hvers);

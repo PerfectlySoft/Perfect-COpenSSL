@@ -2066,9 +2066,14 @@ static int generate_key(DH *dh)
     int ok = 0;
     int generate_new_key = 0;
     unsigned l;
-    BN_CTX *ctx;
+    BN_CTX *ctx = NULL;
     BN_MONT_CTX *mont = NULL;
     BIGNUM *pub_key = NULL, *priv_key = NULL;
+
+    if (BN_num_bits(dh->p) > OPENSSL_DH_MAX_MODULUS_BITS) {
+        DHerr(DH_F_GENERATE_KEY, DH_R_MODULUS_TOO_LARGE);
+        return 0;
+    }
 
     ctx = BN_CTX_new();
     if (ctx == NULL)
@@ -2493,7 +2498,7 @@ int DH_size(const DH *dh)
  * 2006.
  */
 /* ====================================================================
- * Copyright (c) 2006 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 2006-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -2976,7 +2981,7 @@ static int pkey_dh_derive(EVP_PKEY_CTX *ctx, unsigned char *key,
         return ret;
     }
 #endif
-    return 1;
+    return 0;
 }
 
 const EVP_PKEY_METHOD dh_pkey_meth = {

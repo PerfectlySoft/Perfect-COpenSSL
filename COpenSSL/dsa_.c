@@ -998,7 +998,7 @@ DSA *DSA_generate_parameters(int bits,
 #endif
 /* crypto/dsa/dsa_err.c */
 /* ====================================================================
- * Copyright (c) 1999-2013 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1999-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1093,6 +1093,7 @@ static ERR_STRING_DATA DSA_str_functs[] = {
     {ERR_FUNC(DSA_F_I2D_DSA_SIG), "i2d_DSA_SIG"},
     {ERR_FUNC(DSA_F_OLD_DSA_PRIV_DECODE), "OLD_DSA_PRIV_DECODE"},
     {ERR_FUNC(DSA_F_PKEY_DSA_CTRL), "PKEY_DSA_CTRL"},
+    {ERR_FUNC(DSA_F_PKEY_DSA_CTRL_STR), "PKEY_DSA_CTRL_STR"},
     {ERR_FUNC(DSA_F_PKEY_DSA_KEYGEN), "PKEY_DSA_KEYGEN"},
     {ERR_FUNC(DSA_F_SIG_CB), "SIG_CB"},
     {0, NULL}
@@ -1277,9 +1278,16 @@ int dsa_builtin_paramgen(DSA *ret, size_t bits, size_t qbits,
         /* invalid q size */
         return 0;
 
-    if (evpmd == NULL)
-        /* use SHA1 as default */
-        evpmd = EVP_sha1();
+    if (evpmd == NULL) {
+        if (qsize == SHA_DIGEST_LENGTH)
+            evpmd = EVP_sha1();
+        else if (qsize == SHA224_DIGEST_LENGTH)
+            evpmd = EVP_sha224();
+        else
+            evpmd = EVP_sha256();
+    } else {
+        qsize = EVP_MD_size(evpmd);
+    }
 
     if (bits < 512)
         bits = 512;
@@ -2491,17 +2499,13 @@ const DSA_METHOD *DSA_OpenSSL(void)
 static DSA_SIG *dsa_do_sign(const unsigned char *dgst, int dlen, DSA *dsa)
 {
     BIGNUM *kinv = NULL, *r = NULL, *s = NULL;
-    BIGNUM m;
-    BIGNUM xr;
+    BIGNUM *m, *blind, *blindm, *tmp;
     BN_CTX *ctx = NULL;
     int reason = ERR_R_BN_LIB;
     DSA_SIG *ret = NULL;
     int noredo = 0;
 
-    BN_init(&m);
-    BN_init(&xr);
-
-    if (!dsa->p || !dsa->q || !dsa->g) {
+    if (dsa->p == NULL || dsa->q == NULL || dsa->g == NULL) {
         reason = DSA_R_MISSING_PARAMETERS;
         goto err;
     }
@@ -2512,6 +2516,13 @@ static DSA_SIG *dsa_do_sign(const unsigned char *dgst, int dlen, DSA *dsa)
     ctx = BN_CTX_new();
     if (ctx == NULL)
         goto err;
+    m = BN_CTX_get(ctx);
+    blind = BN_CTX_get(ctx);
+    blindm = BN_CTX_get(ctx);
+    tmp = BN_CTX_get(ctx);
+    if (tmp == NULL)
+        goto err;
+
  redo:
     if ((dsa->kinv == NULL) || (dsa->r == NULL)) {
         if (!DSA_sign_setup(dsa, ctx, &kinv, &r))
@@ -2531,18 +2542,50 @@ static DSA_SIG *dsa_do_sign(const unsigned char *dgst, int dlen, DSA *dsa)
          * 4.2
          */
         dlen = BN_num_bytes(dsa->q);
-    if (BN_bin2bn(dgst, dlen, &m) == NULL)
+    if (BN_bin2bn(dgst, dlen, m) == NULL)
         goto err;
 
-    /* Compute  s = inv(k) (m + xr) mod q */
-    if (!BN_mod_mul(&xr, dsa->priv_key, r, dsa->q, ctx))
-        goto err;               /* s = xr */
-    if (!BN_add(s, &xr, &m))
-        goto err;               /* s = m + xr */
-    if (BN_cmp(s, dsa->q) > 0)
-        if (!BN_sub(s, s, dsa->q))
+    /*
+     * The normal signature calculation is:
+     *
+     *   s := k^-1 * (m + r * priv_key) mod q
+     *
+     * We will blind this to protect against side channel attacks
+     *
+     *   s := blind^-1 * k^-1 * (blind * m + blind * r * priv_key) mod q
+     */
+
+    /* Generate a blinding value */
+    do {
+        if (!BN_rand(blind, BN_num_bits(dsa->q) - 1, -1, 0))
             goto err;
+    } while (BN_is_zero(blind));
+    BN_set_flags(blind, BN_FLG_CONSTTIME);
+    BN_set_flags(blindm, BN_FLG_CONSTTIME);
+    BN_set_flags(tmp, BN_FLG_CONSTTIME);
+
+    /* tmp := blind * priv_key * r mod q */
+    if (!BN_mod_mul(tmp, blind, dsa->priv_key, dsa->q, ctx))
+        goto err;
+    if (!BN_mod_mul(tmp, tmp, r, dsa->q, ctx))
+        goto err;
+
+    /* blindm := blind * m mod q */
+    if (!BN_mod_mul(blindm, blind, m, dsa->q, ctx))
+        goto err;
+
+    /* s : = (blind * priv_key * r) + (blind * m) mod q */
+    if (!BN_mod_add_quick(s, tmp, blindm, dsa->q))
+        goto err;
+
+    /* s := s * k^-1 mod q */
     if (!BN_mod_mul(s, s, kinv, dsa->q, ctx))
+        goto err;
+
+    /* s:= s * blind^-1 mod q */
+    if (BN_mod_inverse(blind, blind, dsa->q, ctx) == NULL)
+        goto err;
+    if (!BN_mod_mul(s, s, blind, dsa->q, ctx))
         goto err;
 
     /*
@@ -2568,13 +2611,9 @@ static DSA_SIG *dsa_do_sign(const unsigned char *dgst, int dlen, DSA *dsa)
         BN_free(r);
         BN_free(s);
     }
-    if (ctx != NULL)
-        BN_CTX_free(ctx);
-    BN_clear_free(&m);
-    BN_clear_free(&xr);
-    if (kinv != NULL)           /* dsa->kinv is NULL now if we used it */
-        BN_clear_free(kinv);
-    return (ret);
+    BN_CTX_free(ctx);
+    BN_clear_free(kinv);
+    return ret;
 }
 
 static int dsa_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp,
@@ -2800,7 +2839,7 @@ static int dsa_finish(DSA *dsa)
  * 2006.
  */
 /* ====================================================================
- * Copyright (c) 2006 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 2006-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -3027,10 +3066,16 @@ static int pkey_dsa_ctrl_str(EVP_PKEY_CTX *ctx,
                                  EVP_PKEY_CTRL_DSA_PARAMGEN_Q_BITS, qbits,
                                  NULL);
     }
-    if (!strcmp(type, "dsa_paramgen_md")) {
+    if (strcmp(type, "dsa_paramgen_md") == 0) {
+        const EVP_MD *md = EVP_get_digestbyname(value);
+
+        if (md == NULL) {
+            DSAerr(DSA_F_PKEY_DSA_CTRL_STR, DSA_R_INVALID_DIGEST_TYPE);
+            return 0;
+        }
         return EVP_PKEY_CTX_ctrl(ctx, EVP_PKEY_DSA, EVP_PKEY_OP_PARAMGEN,
                                  EVP_PKEY_CTRL_DSA_PARAMGEN_MD, 0,
-                                 (void *)EVP_get_digestbyname(value));
+                                 (void *)md);
     }
     return -2;
 }

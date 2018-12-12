@@ -2283,7 +2283,11 @@ static int tls1_get_curvelist(SSL *s, int sess,
             } else
 # endif
             {
-                if (!s->server || s->cert->ecdh_tmp_auto) {
+                if (!s->server
+# ifndef OPENSSL_NO_ECDH
+                        || s->cert->ecdh_tmp_auto
+# endif
+                    ) {
                     *pcurves = eccurves_auto;
                     pcurveslen = sizeof(eccurves_auto);
                 } else {

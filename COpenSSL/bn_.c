@@ -1406,7 +1406,7 @@ int bn_mul_mont(BN_ULONG *rp, const BN_ULONG *ap, const BN_ULONG *bp,
 #endif                          /* !BN_MUL_COMBA */
 /* crypto/bn/bn_blind.c */
 /* ====================================================================
- * Copyright (c) 1998-2006 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1998-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -1612,10 +1612,15 @@ int BN_BLINDING_update(BN_BLINDING *b, BN_CTX *ctx)
         if (!BN_BLINDING_create_param(b, NULL, NULL, ctx, NULL, NULL))
             goto err;
     } else if (!(b->flags & BN_BLINDING_NO_UPDATE)) {
-        if (!BN_mod_mul(b->A, b->A, b->A, b->mod, ctx))
-            goto err;
-        if (!BN_mod_mul(b->Ai, b->Ai, b->Ai, b->mod, ctx))
-            goto err;
+        if (b->m_ctx != NULL) {
+            if (!bn_mul_mont_fixed_top(b->Ai, b->Ai, b->Ai, b->m_ctx, ctx)
+                || !bn_mul_mont_fixed_top(b->A, b->A, b->A, b->m_ctx, ctx))
+                goto err;
+        } else {
+            if (!BN_mod_mul(b->Ai, b->Ai, b->Ai, b->mod, ctx)
+                || !BN_mod_mul(b->A, b->A, b->A, b->mod, ctx))
+                goto err;
+        }
     }
 
     ret = 1;
@@ -1647,13 +1652,13 @@ int BN_BLINDING_convert_ex(BIGNUM *n, BIGNUM *r, BN_BLINDING *b, BN_CTX *ctx)
     else if (!BN_BLINDING_update(b, ctx))
         return (0);
 
-    if (r != NULL) {
-        if (!BN_copy(r, b->Ai))
-            ret = 0;
-    }
+    if (r != NULL && (BN_copy(r, b->Ai) == NULL))
+        return 0;
 
-    if (!BN_mod_mul(n, n, b->A, b->mod, ctx))
-        ret = 0;
+    if (b->m_ctx != NULL)
+        ret = BN_mod_mul_montgomery(n, n, b->A, b->m_ctx, ctx);
+    else
+        ret = BN_mod_mul(n, n, b->A, b->mod, ctx);
 
     return ret;
 }
@@ -1670,14 +1675,29 @@ int BN_BLINDING_invert_ex(BIGNUM *n, const BIGNUM *r, BN_BLINDING *b,
 
     bn_check_top(n);
 
-    if (r != NULL)
-        ret = BN_mod_mul(n, n, r, b->mod, ctx);
-    else {
-        if (b->Ai == NULL) {
-            BNerr(BN_F_BN_BLINDING_INVERT_EX, BN_R_NOT_INITIALIZED);
-            return (0);
+    if (r == NULL && (r = b->Ai) == NULL) {
+        BNerr(BN_F_BN_BLINDING_INVERT_EX, BN_R_NOT_INITIALIZED);
+        return 0;
+    }
+
+    if (b->m_ctx != NULL) {
+        /* ensure that BN_mod_mul_montgomery takes pre-defined path */
+        if (n->dmax >= r->top) {
+            size_t i, rtop = r->top, ntop = n->top;
+            BN_ULONG mask;
+
+            for (i = 0; i < rtop; i++) {
+                mask = (BN_ULONG)0 - ((i - ntop) >> (8 * sizeof(i) - 1));
+                n->d[i] &= mask;
+            }
+            mask = (BN_ULONG)0 - ((rtop - ntop) >> (8 * sizeof(ntop) - 1));
+            /* always true, if (rtop >= ntop) n->top = r->top; */
+            n->top = (int)(rtop & ~mask) | (ntop & mask);
+            n->flags |= (BN_FLG_FIXED_TOP & ~mask);
         }
-        ret = BN_mod_mul(n, n, b->Ai, b->mod, ctx);
+        ret = BN_mod_mul_montgomery(n, n, r, b->m_ctx, ctx);
+    } else {
+        ret = BN_mod_mul(n, n, r, b->mod, ctx);
     }
 
     bn_check_top(n);
@@ -1772,11 +1792,16 @@ BN_BLINDING *BN_BLINDING_create_param(BN_BLINDING *b,
     } while (1);
 
     if (ret->bn_mod_exp != NULL && ret->m_ctx != NULL) {
-        if (!ret->bn_mod_exp
-            (ret->A, ret->A, ret->e, ret->mod, ctx, ret->m_ctx))
+        if (!ret->bn_mod_exp(ret->A, ret->A, ret->e, ret->mod, ctx, ret->m_ctx))
             goto err;
     } else {
         if (!BN_mod_exp(ret->A, ret->A, ret->e, ret->mod, ctx))
+            goto err;
+    }
+
+    if (ret->m_ctx != NULL) {
+        if (!bn_to_mont_fixed_top(ret->Ai, ret->Ai, ret->m_ctx, ctx)
+            || !bn_to_mont_fixed_top(ret->A, ret->A, ret->m_ctx, ctx))
             goto err;
     }
 
@@ -8120,26 +8145,40 @@ BIGNUM *BN_bin2bn(const unsigned char *s, int len, BIGNUM *ret)
 static int bn2binpad(const BIGNUM *a, unsigned char *to, int tolen)
 {
     int n;
-    size_t i, inc, lasti, j;
+    size_t i, lasti, j, atop, mask;
     BN_ULONG l;
 
+    /*
+     * In case |a| is fixed-top, BN_num_bytes can return bogus length,
+     * but it's assumed that fixed-top inputs ought to be "nominated"
+     * even for padded output, so it works out...
+     */
     n = BN_num_bytes(a);
-    if (tolen == -1)
+    if (tolen == -1) {
         tolen = n;
-    else if (tolen < n)
-        return -1;
+    } else if (tolen < n) {     /* uncommon/unlike case */
+        BIGNUM temp = *a;
 
-    if (n == 0) {
+        bn_correct_top(&temp);
+        n = BN_num_bytes(&temp);
+        if (tolen < n)
+            return -1;
+    }
+
+    /* Swipe through whole available data and don't give away padded zero. */
+    atop = a->dmax * BN_BYTES;
+    if (atop == 0) {
         OPENSSL_cleanse(to, tolen);
         return tolen;
     }
 
-    lasti = n - 1;
-    for (i = 0, inc = 1, j = tolen; j > 0;) {
+    lasti = atop - 1;
+    atop = a->top * BN_BYTES;
+    for (i = 0, j = 0, to += tolen; j < (size_t)tolen; j++) {
         l = a->d[i / BN_BYTES];
-        to[--j] = (unsigned char)(l >> (8 * (i % BN_BYTES)) & (0 - inc));
-        inc = (i - lasti) >> (8 * sizeof(i) - 1);
-        i += inc; /* stay on top limb */
+        mask = 0 - ((j - atop) >> (8 * sizeof(i) - 1));
+        *--to = (unsigned char)(l >> (8 * (i % BN_BYTES)) & mask);
+        i += (i - lasti) >> (8 * sizeof(i) - 1); /* stay on last limb */
     }
 
     return tolen;
@@ -8392,6 +8431,38 @@ void BN_consttime_swap(BN_ULONG condition, BIGNUM *a, BIGNUM *b, int nwords)
     a->top ^= t;
     b->top ^= t;
 
+    t = (a->neg ^ b->neg) & condition;
+    a->neg ^= t;
+    b->neg ^= t;
+
+    /*-
+     * BN_FLG_STATIC_DATA: indicates that data may not be written to. Intention
+     * is actually to treat it as it's read-only data, and some (if not most)
+     * of it does reside in read-only segment. In other words observation of
+     * BN_FLG_STATIC_DATA in BN_consttime_swap should be treated as fatal
+     * condition. It would either cause SEGV or effectively cause data
+     * corruption.
+     *
+     * BN_FLG_MALLOCED: refers to BN structure itself, and hence must be
+     * preserved.
+     *
+     * BN_FLG_SECURE: must be preserved, because it determines how x->d was
+     * allocated and hence how to free it.
+     *
+     * BN_FLG_CONSTTIME: sufficient to mask and swap
+     *
+     * BN_FLG_FIXED_TOP: indicates that we haven't called bn_correct_top() on
+     * the data, so the d array may be padded with additional 0 values (i.e.
+     * top could be greater than the minimal value that it could be). We should
+     * be swapping it
+     */
+
+#define BN_CONSTTIME_SWAP_FLAGS (BN_FLG_CONSTTIME | BN_FLG_FIXED_TOP)
+
+    t = ((a->flags ^ b->flags) & BN_CONSTTIME_SWAP_FLAGS) & condition;
+    a->flags ^= t;
+    b->flags ^= t;
+
 #define BN_CONSTTIME_SWAP(ind) \
         do { \
                 t = (a->d[ind] ^ b->d[ind]) & condition; \
@@ -8601,7 +8672,7 @@ int bn_mod_add_fixed_top(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
 
     if (mtop > sizeof(storage) / sizeof(storage[0])
         && (tp = OPENSSL_malloc(mtop * sizeof(BN_ULONG))) == NULL)
-	return 0;
+        return 0;
 
     ap = a->d != NULL ? a->d : tp;
     bp = b->d != NULL ? b->d : tp;
@@ -8626,6 +8697,7 @@ int bn_mod_add_fixed_top(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
         ((volatile BN_ULONG *)tp)[i] = 0;
     }
     r->top = mtop;
+    r->flags |= BN_FLG_FIXED_TOP;
     r->neg = 0;
 
     if (tp != storage)
@@ -8651,6 +8723,70 @@ int BN_mod_sub(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, const BIGNUM *m,
     if (!BN_sub(r, a, b))
         return 0;
     return BN_nnmod(r, r, m, ctx);
+}
+
+/*
+ * BN_mod_sub variant that may be used if both a and b are non-negative,
+ * a is less than m, while b is of same bit width as m. It's implemented
+ * as subtraction followed by two conditional additions.
+ *
+ * 0 <= a < m
+ * 0 <= b < 2^w < 2*m
+ *
+ * after subtraction
+ *
+ * -2*m < r = a - b < m
+ *
+ * Thus it takes up to two conditional additions to make |r| positive.
+ */
+int bn_mod_sub_fixed_top(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
+                         const BIGNUM *m)
+{
+    size_t i, ai, bi, mtop = m->top;
+    BN_ULONG borrow, carry, ta, tb, mask, *rp;
+    const BN_ULONG *ap, *bp;
+
+    if (bn_wexpand(r, m->top) == NULL)
+        return 0;
+
+    rp = r->d;
+    ap = a->d != NULL ? a->d : rp;
+    bp = b->d != NULL ? b->d : rp;
+
+    for (i = 0, ai = 0, bi = 0, borrow = 0; i < mtop;) {
+        mask = (BN_ULONG)0 - ((i - a->top) >> (8 * sizeof(i) - 1));
+        ta = ap[ai] & mask;
+
+        mask = (BN_ULONG)0 - ((i - b->top) >> (8 * sizeof(i) - 1));
+        tb = bp[bi] & mask;
+        rp[i] = ta - tb - borrow;
+        if (ta != tb)
+            borrow = (ta < tb);
+
+        i++;
+        ai += (i - a->dmax) >> (8 * sizeof(i) - 1);
+        bi += (i - b->dmax) >> (8 * sizeof(i) - 1);
+    }
+    ap = m->d;
+    for (i = 0, mask = 0 - borrow, carry = 0; i < mtop; i++) {
+        ta = ((ap[i] & mask) + carry) & BN_MASK2;
+        carry = (ta < carry);
+        rp[i] = (rp[i] + ta) & BN_MASK2;
+        carry += (rp[i] < ta);
+    }
+    borrow -= carry;
+    for (i = 0, mask = 0 - borrow, carry = 0; i < mtop; i++) {
+        ta = ((ap[i] & mask) + carry) & BN_MASK2;
+        carry = (ta < carry);
+        rp[i] = (rp[i] + ta) & BN_MASK2;
+        carry += (rp[i] < ta);
+    }
+
+    r->top = mtop;
+    r->flags |= BN_FLG_FIXED_TOP;
+    r->neg = 0;
+
+    return 1;
 }
 
 /*
@@ -8964,10 +9100,10 @@ int bn_mul_mont_fixed_top(BIGNUM *r, const BIGNUM *a, const BIGNUM *b,
 
     bn_check_top(tmp);
     if (a == b) {
-        if (!BN_sqr(tmp, a, ctx))
+        if (!bn_sqr_fixed_top(tmp, a, ctx))
             goto err;
     } else {
-        if (!BN_mul(tmp, a, b, ctx))
+        if (!bn_mul_fixed_top(tmp, a, b, ctx))
             goto err;
     }
     /* reduce from aRR to aR */
@@ -8990,6 +9126,7 @@ static int bn_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont)
     BIGNUM *n;
     BN_ULONG *ap, *np, *rp, n0, v, carry;
     int nl, max, i;
+    unsigned int rtop;
 
     n = &(mont->N);
     nl = n->top;
@@ -9007,12 +9144,10 @@ static int bn_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont)
     rp = r->d;
 
     /* clear the top words of T */
-# if 1
-    for (i = r->top; i < max; i++) /* memset? XXX */
-        rp[i] = 0;
-# else
-    memset(&(rp[r->top]), 0, (max - r->top) * sizeof(BN_ULONG));
-# endif
+    for (rtop = r->top, i = 0; i < max; i++) {
+        v = (BN_ULONG)0 - ((i - rtop) >> (8 * sizeof(rtop) - 1));
+        rp[i] &= v;
+    }
 
     r->top = max;
     r->flags |= BN_FLG_FIXED_TOP;
@@ -9063,6 +9198,18 @@ static int bn_from_montgomery_word(BIGNUM *ret, BIGNUM *r, BN_MONT_CTX *mont)
 int BN_from_montgomery(BIGNUM *ret, const BIGNUM *a, BN_MONT_CTX *mont,
                        BN_CTX *ctx)
 {
+    int retn;
+
+    retn = bn_from_mont_fixed_top(ret, a, mont, ctx);
+    bn_correct_top(ret);
+    bn_check_top(ret);
+
+    return retn;
+}
+
+int bn_from_mont_fixed_top(BIGNUM *ret, const BIGNUM *a, BN_MONT_CTX *mont,
+                           BN_CTX *ctx)
+{
     int retn = 0;
 #ifdef MONT_WORD
     BIGNUM *t;
@@ -9070,8 +9217,6 @@ int BN_from_montgomery(BIGNUM *ret, const BIGNUM *a, BN_MONT_CTX *mont,
     BN_CTX_start(ctx);
     if ((t = BN_CTX_get(ctx)) && BN_copy(t, a)) {
         retn = bn_from_montgomery_word(ret, t, mont);
-        bn_correct_top(ret);
-        bn_check_top(ret);
     }
     BN_CTX_end(ctx);
 #else                           /* !MONT_WORD */
@@ -10414,6 +10559,16 @@ void bn_mul_high(BN_ULONG *r, BN_ULONG *a, BN_ULONG *b, BN_ULONG *l, int n2,
 
 int BN_mul(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx)
 {
+    int ret = bn_mul_fixed_top(r, a, b, ctx);
+
+    bn_correct_top(r);
+    bn_check_top(r);
+
+    return ret;
+}
+
+int bn_mul_fixed_top(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx)
+{
     int ret = 0;
     int top, al, bl;
     BIGNUM *rr;
@@ -10520,7 +10675,7 @@ int BN_mul(BIGNUM *r, const BIGNUM *a, const BIGNUM *b, BN_CTX *ctx)
 #if defined(BN_MUL_COMBA) || defined(BN_RECURSION)
  end:
 #endif
-    bn_correct_top(rr);
+    rr->flags |= BN_FLG_FIXED_TOP;
     if (r != rr && BN_copy(r, rr) == NULL)
         goto err;
 
@@ -13607,6 +13762,16 @@ int BN_rshift(BIGNUM *r, const BIGNUM *a, int n)
  */
 int BN_sqr(BIGNUM *r, const BIGNUM *a, BN_CTX *ctx)
 {
+    int ret = bn_sqr_fixed_top(r, a, ctx);
+
+    bn_correct_top(r);
+    bn_check_top(r);
+
+    return ret;
+}
+
+int bn_sqr_fixed_top(BIGNUM *r, const BIGNUM *a, BN_CTX *ctx)
+{
     int max, al;
     int ret = 0;
     BIGNUM *tmp, *rr;
@@ -13677,7 +13842,7 @@ int BN_sqr(BIGNUM *r, const BIGNUM *a, BN_CTX *ctx)
 
     rr->neg = 0;
     rr->top = max;
-    bn_correct_top(rr);
+    rr->flags |= BN_FLG_FIXED_TOP;
     if (r != rr && BN_copy(r, rr) == NULL)
         goto err;
 
@@ -14488,7 +14653,7 @@ int BN_mul_word(BIGNUM *a, BN_ULONG w)
  * 2005.
  */
 /* ====================================================================
- * Copyright (c) 2005 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 2005-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -14707,8 +14872,10 @@ int BN_X931_generate_Xpq(BIGNUM *Xp, BIGNUM *Xq, int nbits, BN_CTX *ctx)
     for (i = 0; i < 1000; i++) {
         if (!BN_rand(Xq, nbits, 1, 0))
             goto err;
+
         /* Check that |Xp - Xq| > 2^(nbits - 100) */
-        BN_sub(t, Xp, Xq);
+        if (!BN_sub(t, Xp, Xq))
+            goto err;
         if (BN_num_bits(t) > (nbits - 100))
             break;
     }

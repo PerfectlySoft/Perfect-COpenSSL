@@ -128,7 +128,7 @@ static int dir_ctrl(X509_LOOKUP *ctx, int cmd, const char *argp, long argl,
     switch (cmd) {
     case X509_L_ADD_DIR:
         if (argl == X509_FILETYPE_DEFAULT) {
-            dir = (char *)getenv(X509_get_default_cert_dir_env());
+            dir = (char *)ossl_safe_getenv(X509_get_default_cert_dir_env());
             if (dir)
                 ret = add_cert_dir(ld, dir, X509_FILETYPE_PEM);
             else
@@ -538,7 +538,8 @@ static int by_file_ctrl(X509_LOOKUP *ctx, int cmd, const char *argp,
     switch (cmd) {
     case X509_L_FILE_LOAD:
         if (argl == X509_FILETYPE_DEFAULT) {
-            file = getenv(X509_get_default_cert_file_env());
+            file = ossl_safe_getenv(X509_get_default_cert_file_env());
+
             if (file)
                 ok = (X509_load_cert_crl_file(ctx, file,
                                               X509_FILETYPE_PEM) != 0);

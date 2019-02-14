@@ -66,6 +66,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include "cryptlib.h"
 #include "conf.h"
 #include "conf_api.h"
 #include "e_os.h"
@@ -141,7 +142,7 @@ char *_CONF_get_string(const CONF *conf, const char *section,
             if (v != NULL)
                 return (v->value);
             if (strcmp(section, "ENV") == 0) {
-                p = getenv(name);
+                p = ossl_safe_getenv(name);
                 if (p != NULL)
                     return (p);
             }
@@ -154,7 +155,7 @@ char *_CONF_get_string(const CONF *conf, const char *section,
         else
             return (NULL);
     } else
-        return (getenv(name));
+        return (ossl_safe_getenv(name));
 }
 
 #if 0                           /* There's no way to provide error checking
@@ -367,7 +368,7 @@ IMPLEMENT_STACK_OF(CONF_VALUE)
 
 #include <stdio.h>
 #include <string.h>
-#include "cryptlib.h"
+// #include "cryptlib.h"
 #include "stack.h"
 #include "lhash.h"
 // #include "conf.h"
@@ -1636,7 +1637,7 @@ void OPENSSL_load_builtin_modules(void)
  * 2001.
  */
 /* ====================================================================
- * Copyright (c) 2001 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 2001-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -2162,7 +2163,7 @@ char *CONF_get1_default_config_file(void)
     char *file;
     int len;
 
-    file = getenv("OPENSSL_CONF");
+    file = ossl_safe_getenv("OPENSSL_CONF");
     if (file)
         return BUF_strdup(file);
 

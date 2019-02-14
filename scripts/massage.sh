@@ -3,7 +3,7 @@
 # Fetches the version of OpenSSL specified in $SSL_VERS and reconfigures the
 # sources for use in a Swift module.
 
-SSL_VERS=1.0.2p
+SSL_VERS=1.0.2q
 
 # cd to this script's directory (cannot have spaces in path)
 cd $(dirname $(cd "${BASH_SOURCE[0]%/*}" && echo "$PWD/${0##*/}"))

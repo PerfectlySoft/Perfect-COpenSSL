@@ -3755,7 +3755,7 @@ void *ENGINE_get_static_state(void)
  * 2000.
  */
 /* ====================================================================
- * Copyright (c) 1999-2001 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1999-2018 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -3813,6 +3813,7 @@ void *ENGINE_get_static_state(void)
  * SUN MICROSYSTEMS, INC., and contributed to the OpenSSL project.
  */
 
+// #include "cryptlib.h"
 // #include "eng_int.h"
 
 /*
@@ -4120,10 +4121,10 @@ ENGINE *ENGINE_by_id(const char *id)
      */
     if (strcmp(id, "dynamic")) {
 # ifdef OPENSSL_SYS_VMS
-        if ((load_dir = getenv("OPENSSL_ENGINES")) == 0)
+        if ((load_dir = ossl_safe_getenv("OPENSSL_ENGINES")) == 0)
             load_dir = "SSLROOT:[ENGINES]";
 # else
-        if ((load_dir = getenv("OPENSSL_ENGINES")) == 0)
+        if ((load_dir = ossl_safe_getenv("OPENSSL_ENGINES")) == 0)
             load_dir = ENGINESDIR;
 # endif
         iterator = ENGINE_by_id("dynamic");

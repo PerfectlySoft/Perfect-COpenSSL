@@ -1567,6 +1567,12 @@ int dsa_builtin_paramgen2(DSA *ret, size_t L, size_t N,
 
     EVP_MD_CTX_init(&mctx);
 
+    /* make sure L > N, otherwise we'll get trapped in an infinite loop */
+    if (L <= N) {
+        DSAerr(DSA_F_DSA_BUILTIN_PARAMGEN2, DSA_R_INVALID_PARAMETERS);
+        goto err;
+    }
+
     if (evpmd == NULL) {
         if (N == 160)
             evpmd = EVP_sha1();
@@ -2439,6 +2445,8 @@ static int dsa_do_verify(const unsigned char *dgst, int dgst_len,
                          DSA_SIG *sig, DSA *dsa);
 static int dsa_init(DSA *dsa);
 static int dsa_finish(DSA *dsa);
+static BIGNUM *dsa_mod_inverse_fermat(const BIGNUM *k, const BIGNUM *q,
+                                      BN_CTX *ctx);
 
 static DSA_METHOD openssl_dsa_meth = {
     "OpenSSL DSA method",
@@ -2645,7 +2653,7 @@ static int dsa_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp,
         goto err;
 
     /* Preallocate space */
-    q_bits = BN_num_bits(dsa->q);
+    q_bits = BN_num_bits(dsa->q) + sizeof(dsa->q->d[0]) * 16;
     if (!BN_set_bit(&k, q_bits)
         || !BN_set_bit(&l, q_bits)
         || !BN_set_bit(&m, q_bits))
@@ -2659,8 +2667,8 @@ static int dsa_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp,
 
     if ((dsa->flags & DSA_FLAG_NO_EXP_CONSTTIME) == 0) {
         BN_set_flags(&k, BN_FLG_CONSTTIME);
+        BN_set_flags(&l, BN_FLG_CONSTTIME);
     }
-
 
     if (dsa->flags & DSA_FLAG_CACHE_MONT_P) {
         if (!BN_MONT_CTX_set_locked(&dsa->method_mont_p,
@@ -2699,8 +2707,8 @@ static int dsa_sign_setup(DSA *dsa, BN_CTX *ctx_in, BIGNUM **kinvp,
     if (!BN_mod(r, r, dsa->q, ctx))
         goto err;
 
-    /* Compute  part of 's = inv(k) (m + xr) mod q' */
-    if ((kinv = BN_mod_inverse(NULL, &k, dsa->q, ctx)) == NULL)
+    /* Compute part of 's = inv(k) (m + xr) mod q' */
+    if ((kinv = dsa_mod_inverse_fermat(&k, dsa->q, ctx)) == NULL)
         goto err;
 
     if (*kinvp != NULL)
@@ -2833,6 +2841,34 @@ static int dsa_finish(DSA *dsa)
     if (dsa->method_mont_p)
         BN_MONT_CTX_free(dsa->method_mont_p);
     return (1);
+}
+
+/*
+ * Compute the inverse of k modulo q.
+ * Since q is prime, Fermat's Little Theorem applies, which reduces this to
+ * mod-exp operation.  Both the exponent and modulus are public information
+ * so a mod-exp that doesn't leak the base is sufficient.  A newly allocated
+ * BIGNUM is returned which the caller must free.
+ */
+static BIGNUM *dsa_mod_inverse_fermat(const BIGNUM *k, const BIGNUM *q,
+                                      BN_CTX *ctx)
+{
+    BIGNUM *res = NULL;
+    BIGNUM *r, e;
+
+    if ((r = BN_new()) == NULL)
+        return NULL;
+
+    BN_init(&e);
+
+    if (BN_set_word(r, 2)
+            && BN_sub(&e, q, r)
+            && BN_mod_exp_mont(r, k, &e, q, ctx, NULL))
+        res = r;
+    else
+        BN_free(r);
+    BN_free(&e);
+    return res;
 }
 /*
  * Written by Dr Stephen N Henson (steve@openssl.org) for the OpenSSL project

@@ -9844,6 +9844,7 @@ int SSL_CTX_use_certificate_file(SSL_CTX *ctx, const char *file, int type)
         BIO_free(in);
     return (ret);
 }
+
 #endif
 
 int SSL_CTX_use_certificate_ASN1(SSL_CTX *ctx, int len,
@@ -10106,6 +10107,29 @@ int SSL_CTX_use_certificate_chain_file(SSL_CTX *ctx, const char *file)
         X509_free(x);
     if (in != NULL)
         BIO_free(in);
+    return (ret);
+}
+
+int SSL_CTX_use_certificate_add_chain(SSL_CTX *ctx, X509 *ca, int idx)
+{
+    ERR_clear_error();
+    int ret = 1;
+    if (idx == 1) {
+        SSL_CTX_clear_chain_certs(ctx);
+    }
+
+    long r;
+    unsigned long err;
+
+    r = SSL_CTX_add0_chain_cert(ctx, ca);
+
+    err = ERR_peek_last_error();
+    if (ERR_GET_LIB(err) == ERR_LIB_PEM
+        && ERR_GET_REASON(err) == PEM_R_NO_START_LINE)
+        ERR_clear_error();
+    else
+        ret = 0;            /* some real error */
+
     return (ret);
 }
 #endif

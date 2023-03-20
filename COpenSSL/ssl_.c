@@ -10117,16 +10117,12 @@ int SSL_CTX_use_certificate_add_chain(SSL_CTX *ctx, X509 *ca, int idx)
     if (idx == 1) {
         SSL_CTX_clear_chain_certs(ctx);
     }
-    /*
-     * If we could set up our certificate, now proceed to the CA
-     * certificates.
-     */
+
     long r;
     unsigned long err;
 
     r = SSL_CTX_add0_chain_cert(ctx, ca);
 
-    /* When the while loop ends, it's usually just EOF. */
     err = ERR_peek_last_error();
     if (ERR_GET_LIB(err) == ERR_LIB_PEM
         && ERR_GET_REASON(err) == PEM_R_NO_START_LINE)
@@ -10134,7 +10130,6 @@ int SSL_CTX_use_certificate_add_chain(SSL_CTX *ctx, X509 *ca, int idx)
     else
         ret = 0;            /* some real error */
 
- end:
     return (ret);
 }
 #endif
